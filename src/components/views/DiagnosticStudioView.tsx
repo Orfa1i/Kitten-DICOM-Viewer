@@ -27,17 +27,19 @@ export const DiagnosticStudioView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex gap-6 w-full max-w-[1240px] mx-auto py-6 px-4 items-stretch select-none">
+    <div className="flex-1 flex gap-6 w-full max-w-[1360px] mx-auto h-full items-stretch select-none overflow-hidden">
       {/* Column 1: Left Annotated DICOM Viewport */}
-      <DicomViewport />
+      <div className="h-full flex flex-col flex-1 max-w-[390px]">
+        <DicomViewport />
+      </div>
 
       {/* Column 2: Center Structured Detection Report */}
-      <div className="flex-1 flex flex-col justify-between max-w-[430px]">
+      <div className="flex-1 flex flex-col justify-between max-w-[460px] h-full">
         {/* Detection Report Card */}
-        <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-5 shadow-sm flex flex-col justify-between flex-1">
-          <div>
+        <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-5 shadow-sm flex flex-col justify-between h-full overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header: Detection Report : + Sparkles + Download */}
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-3 px-1">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-3 px-1 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <h3 className="text-[19px] font-display font-semibold text-[#1F1F1F] tracking-tight">
                   Detection Report :
@@ -59,7 +61,7 @@ export const DiagnosticStudioView: React.FC = () => {
             </div>
 
             {/* Inner Report Container */}
-            <div className="bg-[#EBE7E6] rounded-[22px] p-4 text-[13px] text-zinc-800 space-y-3 min-h-[340px] max-h-[360px] overflow-y-auto custom-scrollbar border border-zinc-300/60 leading-relaxed font-sans">
+            <div className="bg-[#EBE7E6] rounded-[22px] p-4 text-[13px] text-zinc-800 space-y-3 flex-1 overflow-y-auto custom-scrollbar border border-zinc-300/60 leading-relaxed font-sans">
               <div className="space-y-1">
                 <span className="font-bold text-[#8D321F] block uppercase tracking-wide text-[11px]">
                   Clinical Diagnosis
@@ -102,7 +104,7 @@ export const DiagnosticStudioView: React.FC = () => {
           </div>
 
           {/* Bottom Save Action Button */}
-          <div className="pt-4 flex justify-center">
+          <div className="pt-4 flex justify-center flex-shrink-0">
             <button
               onClick={handleSave}
               className="w-full max-w-[240px] bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3 px-8 rounded-full flex items-center justify-center gap-3 transition-all duration-200 active:scale-98 shadow-md hover:shadow-lg group"
@@ -119,9 +121,9 @@ export const DiagnosticStudioView: React.FC = () => {
       </div>
 
       {/* Column 3: Right Side (Accuracy Gauge + Patient Information) */}
-      <div className="w-[300px] flex-shrink-0 flex flex-col justify-between gap-5">
+      <div className="w-[310px] flex-shrink-0 flex flex-col justify-between gap-4 h-full">
         {/* Top: Detection Accuracy Card */}
-        <div className="bg-[#8D321F] rounded-[32px] p-4 shadow-md flex flex-col">
+        <div className="bg-[#8D321F] rounded-[32px] p-4 shadow-md flex flex-col flex-shrink-0">
           <div className="bg-white rounded-[24px] p-4 flex flex-col items-center shadow-inner">
             <h4 className="w-full text-left font-semibold text-[15px] text-zinc-900 mb-2">
               Detection Accuracy:
@@ -133,11 +135,11 @@ export const DiagnosticStudioView: React.FC = () => {
         </div>
 
         {/* Bottom: Patient Information Card */}
-        <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 shadow-sm flex flex-col flex-1">
-          <h4 className="font-semibold text-[15px] text-zinc-900 mb-2.5 px-1">
+        <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 shadow-sm flex flex-col flex-1 overflow-hidden">
+          <h4 className="font-semibold text-[15px] text-zinc-900 mb-2 px-1 flex-shrink-0">
             Patient information :
           </h4>
-          <div className="bg-[#EBE7E6] rounded-[22px] p-4 flex-1 flex flex-col justify-between border border-zinc-300/60 text-xs">
+          <div className="bg-[#EBE7E6] rounded-[22px] p-4 flex-1 flex flex-col justify-between border border-zinc-300/60 text-xs overflow-y-auto custom-scrollbar">
             <div className="space-y-2 text-zinc-700">
               <div className="flex justify-between border-b border-zinc-300 pb-1">
                 <span className="text-zinc-500 font-medium">Patient ID:</span>
@@ -161,7 +163,7 @@ export const DiagnosticStudioView: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2 text-[11px] text-zinc-500 font-mono text-center">
+            <div className="pt-2 text-[11px] text-zinc-500 font-mono text-center flex-shrink-0">
               Verified by Dr. Hassan (PACS #8821)
             </div>
           </div>

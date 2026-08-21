@@ -36,12 +36,12 @@ export const AiAssistantDrawer: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex gap-8 w-full max-w-[1240px] mx-auto py-6 px-4 items-stretch select-none">
+    <div className="flex-1 flex gap-8 w-full max-w-[1360px] mx-auto h-full items-stretch select-none overflow-hidden">
       {/* Left: Ai Assitant Card */}
-      <aside className="w-[340px] flex-shrink-0 flex flex-col">
-        <div className="bg-white rounded-[32px] border-[3.5px] border-[#8D321F] p-4 shadow-sm h-full flex flex-col justify-between">
+      <aside className="w-[350px] flex-shrink-0 flex flex-col h-full">
+        <div className="bg-white rounded-[32px] border-[3.5px] border-[#8D321F] p-4 shadow-sm h-full flex flex-col justify-between overflow-hidden">
           {/* Header */}
-          <div className="flex items-center gap-2 px-2 pt-1 pb-3">
+          <div className="flex items-center gap-2 px-2 pt-1 pb-3 flex-shrink-0">
             <div className="text-[#8D321F]">
               <SparkleIcon className="w-5 h-5 text-[#8D321F]" />
             </div>
@@ -78,7 +78,7 @@ export const AiAssistantDrawer: React.FC = () => {
             </div>
 
             {/* Bottom Prompt Bar Capsule */}
-            <div className="pt-3 flex items-center gap-2">
+            <div className="pt-3 flex items-center gap-2 flex-shrink-0">
               {/* Upload Trigger */}
               <label className="cursor-pointer p-1.5 rounded-full hover:bg-zinc-200/70 transition text-[#8D321F]">
                 <input
@@ -120,9 +120,9 @@ export const AiAssistantDrawer: React.FC = () => {
       </aside>
 
       {/* Right: Workspace Backdrop */}
-      <div className="flex-1 bg-[#FAF6F6] rounded-[32px] border border-zinc-200/70 p-6 flex items-center justify-center text-zinc-400 shadow-inner">
+      <div className="flex-1 bg-[#FAF6F6] rounded-[32px] border border-zinc-200/70 p-6 flex items-center justify-center text-zinc-400 shadow-inner h-full">
         <div className="text-center space-y-2">
-          <p className="text-[15px] font-medium text-zinc-400">
+          <p className="text-[16px] font-medium text-zinc-400">
             Select a case from the dashboard or launch a new diagnostic scan.
           </p>
         </div>

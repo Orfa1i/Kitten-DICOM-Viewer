@@ -1,24 +1,9 @@
 import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
-import { ScreenState } from '../../types';
 import { LottieIcon } from '../ui/LottieIcon';
-import { Laptop, Monitor } from 'lucide-react';
 
 export const ScreenStateNavigator: React.FC = () => {
-  const { 
-    currentScreen, 
-    setCurrentScreen, 
-    presentationMode, 
-    setPresentationMode 
-  } = useMedicalApp();
-
-  const screens: { id: ScreenState; label: string; number: number }[] = [
-    { id: 'dashboard', label: '1. Dashboard / Cases', number: 1 },
-    { id: 'ai-assistant', label: '2. AI Copilot Drawer', number: 2 },
-    { id: 'model-select', label: '3. Model Selection', number: 3 },
-    { id: 'intake-upload', label: '4. Intake & Upload', number: 4 },
-    { id: 'diagnostic-studio', label: '5. Diagnostic Studio', number: 5 },
-  ];
+  const { currentScreen, setCurrentScreen } = useMedicalApp();
 
   const toggleDrawer = () => {
     if (currentScreen === 'ai-assistant') {
@@ -51,47 +36,6 @@ export const ScreenStateNavigator: React.FC = () => {
           <LottieIcon name="setting" size={22} />
         </div>
       </button>
-
-      {/* Bottom Center Floating Auditor Control Bar */}
-      <nav
-        aria-label="Screen navigator"
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[#1B1B1E]/90 backdrop-blur-md text-white rounded-full px-4 py-2 flex items-center gap-2 shadow-2xl z-50 border border-white/15 text-xs select-none"
-      >
-        <span className="text-zinc-400 font-mono text-[11px] px-1 hidden sm:inline">
-          AUDIT VIEWS:
-        </span>
-
-        {screens.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => setCurrentScreen(s.id)}
-            className={`px-3 py-1.5 rounded-full font-medium transition-all duration-150 flex items-center gap-1.5 ${
-              currentScreen === s.id
-                ? 'bg-[#8D321F] text-white shadow-md font-semibold ring-1 ring-white/30 scale-105'
-                : 'text-zinc-300 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <span className="font-mono text-[11px] opacity-75">{s.number}</span>
-            <span className="hidden md:inline">{s.label.split('. ')[1]}</span>
-          </button>
-        ))}
-
-        <div className="w-px h-4 bg-zinc-600 mx-1"></div>
-
-        {/* Presentation Mockup Toggle */}
-        <button
-          onClick={() => setPresentationMode(!presentationMode)}
-          className={`px-2.5 py-1.5 rounded-full flex items-center gap-1.5 transition ${
-            presentationMode
-              ? 'bg-amber-600/90 text-white font-medium ring-1 ring-white/30'
-              : 'text-zinc-300 hover:text-white hover:bg-white/10'
-          }`}
-          title="Toggle Laptop Presentation Mockup Frame"
-        >
-          {presentationMode ? <Laptop className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}
-          <span className="hidden lg:inline">{presentationMode ? 'Laptop Frame' : 'Fullscreen'}</span>
-        </button>
-      </nav>
     </>
   );
 };
