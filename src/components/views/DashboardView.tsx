@@ -20,20 +20,20 @@ export const DashboardView: React.FC = () => {
       {/* Right: Cases Card */}
       <div className="flex-1 bg-[#8D321F] rounded-[32px] p-6 shadow-md flex flex-col justify-between h-full overflow-hidden">
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Card Header: Cases + File Icon */}
-          <div className="flex items-center gap-2.5 mb-4 px-2 flex-shrink-0">
-            <h2 className="text-[26px] font-display font-semibold text-white tracking-tight">
+          {/* Card Header: Cases + File Icon Scaled Up */}
+          <div className="flex items-center gap-3 mb-4 px-2 flex-shrink-0">
+            <h2 className="text-[28px] font-display font-semibold text-white tracking-tight">
               Cases
             </h2>
-            <div className="w-6 h-6 filter brightness-0 invert flex items-center justify-center">
-              <LottieIcon name="file" size={24} />
+            <div className="w-8 h-8 filter brightness-0 invert flex items-center justify-center">
+              <LottieIcon name="file" size={32} />
             </div>
           </div>
 
           {/* Inner Table Card */}
           <div className="bg-white rounded-[24px] p-5 shadow-sm border border-dashed border-[#B8B5B5]/80 flex-1 flex flex-col overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-12 text-[14px] font-semibold text-zinc-800 pb-3 border-b border-dashed border-[#B8B5B5] px-4 flex-shrink-0">
+            <div className="grid grid-cols-12 text-[14.5px] font-semibold text-zinc-800 pb-3 border-b border-dashed border-[#B8B5B5] px-4 flex-shrink-0">
               <div className="col-span-3 text-left">Case ID</div>
               <div className="col-span-3 text-center">Patient</div>
               <div className="col-span-2 text-center">Age</div>
@@ -47,7 +47,7 @@ export const DashboardView: React.FC = () => {
                 <div
                   key={caseItem.id}
                   onClick={() => loadCase(caseItem.id)}
-                  className="grid grid-cols-12 items-center text-[14px] text-zinc-700 py-4 px-3 hover:bg-[#8D321F]/5 rounded-xl cursor-pointer transition-all duration-150 group border border-transparent hover:border-[#8D321F]/20 relative"
+                  className="grid grid-cols-12 items-center text-[14.5px] text-zinc-700 py-4 px-3 hover:bg-[#8D321F]/5 rounded-xl cursor-pointer transition-all duration-150 group border border-transparent hover:border-[#8D321F]/20 relative"
                 >
                   {/* Left Active Indicator Bar */}
                   <div className="col-span-3 flex items-center gap-2.5 font-medium text-zinc-900">

@@ -14,8 +14,8 @@ export const DiagnosticStudioView: React.FC = () => {
 
   const handleSave = () => {
     confetti({
-      particleCount: 50,
-      spread: 60,
+      particleCount: 60,
+      spread: 70,
       origin: { y: 0.8 },
       colors: ['#8D321F', '#00BF63', '#FFFFFF']
     });
@@ -38,30 +38,30 @@ export const DiagnosticStudioView: React.FC = () => {
         {/* Detection Report Card */}
         <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-5 shadow-sm flex flex-col justify-between h-full overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Header: Detection Report : + Sparkles + Download */}
+            {/* Header: Detection Report : + Scaled Sparkles + Download */}
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-3 px-1 flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-[19px] font-display font-semibold text-[#1F1F1F] tracking-tight">
+              <div className="flex items-center gap-2.5">
+                <h3 className="text-[20px] font-display font-semibold text-[#1F1F1F] tracking-tight">
                   Detection Report :
                 </h3>
                 <div className="text-[#8D321F]">
-                  <SparkleIcon className="w-5 h-5 text-[#8D321F]" />
+                  <SparkleIcon className="w-6 h-6 text-[#8D321F]" />
                 </div>
               </div>
 
               <button
                 onClick={handleExportPDF}
-                className="w-7 h-7 rounded-lg border border-zinc-300 hover:border-[#8D321F] hover:bg-[#8D321F]/5 flex items-center justify-center text-zinc-700 transition"
+                className="w-8 h-8 rounded-lg border border-zinc-300 hover:border-[#8D321F] hover:bg-[#8D321F]/5 flex items-center justify-center text-zinc-700 transition group"
                 title="Download Diagnostic Report"
               >
-                <div className="w-4 h-4 flex items-center justify-center">
-                  <LottieIcon name="file-download" size={16} />
+                <div className="w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <LottieIcon name="file-download" size={22} />
                 </div>
               </button>
             </div>
 
             {/* Inner Report Container */}
-            <div className="bg-[#EBE7E6] rounded-[22px] p-4 text-[13px] text-zinc-800 space-y-3 flex-1 overflow-y-auto custom-scrollbar border border-zinc-300/60 leading-relaxed font-sans">
+            <div className="bg-[#EBE7E6] rounded-[22px] p-4 text-[13.5px] text-zinc-800 space-y-3 flex-1 overflow-y-auto custom-scrollbar border border-zinc-300/60 leading-relaxed font-sans">
               <div className="space-y-1">
                 <span className="font-bold text-[#8D321F] block uppercase tracking-wide text-[11px]">
                   Clinical Diagnosis
@@ -75,7 +75,7 @@ export const DiagnosticStudioView: React.FC = () => {
                 <span className="font-bold text-zinc-600 block uppercase tracking-wide text-[11px]">
                   Lesion Coordinates & Metrics
                 </span>
-                <ul className="list-disc list-inside text-zinc-700 space-y-1 text-[12.5px]">
+                <ul className="list-disc list-inside text-zinc-700 space-y-1 text-[13px]">
                   <li>Displacement: <strong>2.4 mm dorsal cortical shift</strong></li>
                   <li>Angulation: <strong>11.8° radial tilt</strong></li>
                   <li>Articular Extension: <strong>None detected</strong></li>
@@ -87,7 +87,7 @@ export const DiagnosticStudioView: React.FC = () => {
                 <span className="font-bold text-zinc-600 block uppercase tracking-wide text-[11px]">
                   Impression & Staging
                 </span>
-                <p className="text-zinc-700 text-[12px]">
+                <p className="text-zinc-700 text-[12.5px]">
                   Isolated complete radial fracture without ulna plastic deformation (Galeazzi equivalent rule-out recommended with orthogonal wrist view).
                 </p>
               </div>
@@ -96,24 +96,24 @@ export const DiagnosticStudioView: React.FC = () => {
                 <span className="font-bold text-zinc-700 block text-[11px] uppercase">
                   Confidence Grade:
                 </span>
-                <span className="text-[12px] text-[#00BF63] font-semibold">
+                <span className="text-[12.5px] text-[#00BF63] font-semibold">
                   Grade A1 AI-Verified (98.6% IoU Match)
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Bottom Save Action Button */}
+          {/* Bottom Save Action Button with Scaled Icon */}
           <div className="pt-4 flex justify-center flex-shrink-0">
             <button
               onClick={handleSave}
-              className="w-full max-w-[240px] bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3 px-8 rounded-full flex items-center justify-center gap-3 transition-all duration-200 active:scale-98 shadow-md hover:shadow-lg group"
+              className="w-full max-w-[260px] bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3.5 px-8 rounded-full flex items-center justify-center gap-3.5 transition-all duration-200 active:scale-98 shadow-md hover:shadow-xl group"
             >
-              <span className="font-display font-semibold text-[22px] tracking-wide">
+              <span className="font-display font-semibold text-[24px] tracking-wide">
                 Save
               </span>
-              <div className="w-6 h-6 flex items-center justify-center filter brightness-0 invert group-hover:scale-110 transition-transform">
-                <LottieIcon name="save" size={22} />
+              <div className="w-7 h-7 flex items-center justify-center filter brightness-0 invert group-hover:scale-120 transition-transform">
+                <LottieIcon name="save" size={30} />
               </div>
             </button>
           </div>
@@ -125,45 +125,45 @@ export const DiagnosticStudioView: React.FC = () => {
         {/* Top: Detection Accuracy Card */}
         <div className="bg-[#8D321F] rounded-[32px] p-4 shadow-md flex flex-col flex-shrink-0">
           <div className="bg-white rounded-[24px] p-4 flex flex-col items-center shadow-inner">
-            <h4 className="w-full text-left font-semibold text-[15px] text-zinc-900 mb-2">
+            <h4 className="w-full text-left font-semibold text-[15.5px] text-zinc-900 mb-2">
               Detection Accuracy:
             </h4>
             <div className="py-2 flex items-center justify-center">
-              <AccuracyGauge score={accuracyScore} size={150} />
+              <AccuracyGauge score={accuracyScore} size={154} />
             </div>
           </div>
         </div>
 
         {/* Bottom: Patient Information Card */}
         <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 shadow-sm flex flex-col flex-1 overflow-hidden">
-          <h4 className="font-semibold text-[15px] text-zinc-900 mb-2 px-1 flex-shrink-0">
+          <h4 className="font-semibold text-[15.5px] text-zinc-900 mb-2 px-1 flex-shrink-0">
             Patient information :
           </h4>
           <div className="bg-[#EBE7E6] rounded-[22px] p-4 flex-1 flex flex-col justify-between border border-zinc-300/60 text-xs overflow-y-auto custom-scrollbar">
-            <div className="space-y-2 text-zinc-700">
+            <div className="space-y-2.5 text-zinc-700">
               <div className="flex justify-between border-b border-zinc-300 pb-1">
-                <span className="text-zinc-500 font-medium">Patient ID:</span>
-                <span className="font-mono font-bold text-zinc-900">{patientForm.id}</span>
+                <span className="text-zinc-500 font-medium text-[12.5px]">Patient ID:</span>
+                <span className="font-mono font-bold text-zinc-900 text-[13px]">{patientForm.id}</span>
               </div>
               <div className="flex justify-between border-b border-zinc-300 pb-1">
-                <span className="text-zinc-500 font-medium">Name:</span>
-                <span className="font-semibold text-zinc-900">{patientForm.name}</span>
+                <span className="text-zinc-500 font-medium text-[12.5px]">Name:</span>
+                <span className="font-semibold text-zinc-900 text-[13px]">{patientForm.name}</span>
               </div>
               <div className="flex justify-between border-b border-zinc-300 pb-1">
-                <span className="text-zinc-500 font-medium">Age / Sex:</span>
-                <span className="font-semibold text-zinc-900">{patientForm.age} y/o ({patientForm.sex})</span>
+                <span className="text-zinc-500 font-medium text-[12.5px]">Age / Sex:</span>
+                <span className="font-semibold text-zinc-900 text-[13px]">{patientForm.age} y/o ({patientForm.sex})</span>
               </div>
               <div className="flex justify-between border-b border-zinc-300 pb-1">
-                <span className="text-zinc-500 font-medium">Study Date:</span>
-                <span className="font-mono text-zinc-800">{patientForm.studyDate || '2026-08-21'}</span>
+                <span className="text-zinc-500 font-medium text-[12.5px]">Study Date:</span>
+                <span className="font-mono text-zinc-800 text-[12.5px]">{patientForm.studyDate || '2026-08-21'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-zinc-500 font-medium">Region:</span>
-                <span className="font-semibold text-zinc-800">{patientForm.bodyPart || 'Forearm AP'}</span>
+                <span className="text-zinc-500 font-medium text-[12.5px]">Region:</span>
+                <span className="font-semibold text-zinc-800 text-[12.5px]">{patientForm.bodyPart || 'Forearm AP'}</span>
               </div>
             </div>
 
-            <div className="pt-2 text-[11px] text-zinc-500 font-mono text-center flex-shrink-0">
+            <div className="pt-2 text-[11.5px] text-zinc-500 font-mono text-center flex-shrink-0">
               Verified by Dr. Hassan (PACS #8821)
             </div>
           </div>
