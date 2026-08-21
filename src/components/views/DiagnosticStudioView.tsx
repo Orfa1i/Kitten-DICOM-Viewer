@@ -9,7 +9,9 @@ export const DiagnosticStudioView: React.FC = () => {
   const { 
     patientForm, 
     saveCurrentCase, 
-    accuracyScore 
+    accuracyScore,
+    diagnosticReport,
+    selectedModel
   } = useMedicalApp();
 
   const handleSave = () => {
@@ -23,7 +25,7 @@ export const DiagnosticStudioView: React.FC = () => {
   };
 
   const handleExportPDF = () => {
-    alert("Clinical Report exported to PDF and synchronized with Hospital PACS/RIS.");
+    alert("Clinical Diagnostic Report exported to PDF and synchronized with PACS/RIS.");
   };
 
   return (
@@ -61,49 +63,54 @@ export const DiagnosticStudioView: React.FC = () => {
             </div>
 
             {/* Inner Report Container */}
-            <div className="bg-[#EBE7E6] rounded-[22px] p-4 text-[13.5px] text-zinc-800 space-y-3 flex-1 overflow-y-auto custom-scrollbar border border-zinc-300/60 leading-relaxed font-sans">
+            <div className="bg-[#EBE7E6] rounded-[22px] p-4 text-[13.5px] text-zinc-800 space-y-3.5 flex-1 overflow-y-auto custom-scrollbar border border-zinc-300/60 leading-relaxed font-sans">
+              {/* Diagnosis Title */}
               <div className="space-y-1">
                 <span className="font-bold text-[#8D321F] block uppercase tracking-wide text-[11px]">
                   Clinical Diagnosis
                 </span>
-                <p className="font-semibold text-zinc-900">
-                  Mid-shaft Radial Diaphyseal Fracture (Complete)
+                <p className="font-semibold text-zinc-900 text-[14.5px]">
+                  {diagnosticReport.diagnosis}
                 </p>
               </div>
 
+              {/* Model Findings List */}
               <div className="space-y-1">
                 <span className="font-bold text-zinc-600 block uppercase tracking-wide text-[11px]">
-                  Lesion Coordinates & Metrics
+                  {selectedModel === 'knee-osteoarthritis' ? 'Radiographic OA Findings' : 'Lesion Coordinates & Metrics'}
                 </span>
                 <ul className="list-disc list-inside text-zinc-700 space-y-1 text-[13px]">
-                  <li>Displacement: <strong>2.4 mm dorsal cortical shift</strong></li>
-                  <li>Angulation: <strong>11.8° radial tilt</strong></li>
-                  <li>Articular Extension: <strong>None detected</strong></li>
-                  <li>Proximal/Distal Radioulnar Joints: <strong>Preserved</strong></li>
+                  {diagnosticReport.findings.map((item, idx) => (
+                    <li key={idx}>
+                      <span className="font-medium">{item}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
+              {/* Staging / Recommendation */}
               <div className="space-y-1">
                 <span className="font-bold text-zinc-600 block uppercase tracking-wide text-[11px]">
-                  Impression & Staging
+                  Impression & Clinical Recommendation
                 </span>
                 <p className="text-zinc-700 text-[12.5px]">
-                  Isolated complete radial fracture without ulna plastic deformation (Galeazzi equivalent rule-out recommended with orthogonal wrist view).
+                  {diagnosticReport.recommendation || 'Routine follow-up recommended with symptom correlation.'}
                 </p>
               </div>
 
+              {/* Confidence Grade */}
               <div className="pt-2 border-t border-zinc-300/80">
                 <span className="font-bold text-zinc-700 block text-[11px] uppercase">
                   Confidence Grade:
                 </span>
                 <span className="text-[12.5px] text-[#00BF63] font-semibold">
-                  Grade A1 AI-Verified (98.6% IoU Match)
+                  {diagnosticReport.confidenceGrade || `Grade A1 AI-Verified (${accuracyScore}% Confidence)`}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Bottom Save Action Button with Scaled Icon to 38px */}
+          {/* Bottom Save Action Button */}
           <div className="pt-4 flex justify-center flex-shrink-0">
             <button
               onClick={handleSave}
@@ -159,7 +166,7 @@ export const DiagnosticStudioView: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500 font-medium text-[12.5px]">Region:</span>
-                <span className="font-semibold text-zinc-800 text-[12.5px]">{patientForm.bodyPart || 'Forearm AP'}</span>
+                <span className="font-semibold text-zinc-800 text-[12.5px]">{patientForm.bodyPart || 'Knee Bilateral AP'}</span>
               </div>
             </div>
 

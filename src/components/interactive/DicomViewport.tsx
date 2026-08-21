@@ -12,7 +12,9 @@ export const DicomViewport: React.FC = () => {
     setContrast, 
     zoomLevel, 
     setZoomLevel,
-    uploadedFile
+    uploadedFile,
+    annotatedImageUrl,
+    selectedModel
   } = useMedicalApp();
 
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
@@ -45,14 +47,16 @@ export const DicomViewport: React.FC = () => {
     setPanPosition({ x: 0, y: 0 });
   };
 
-  const imageSrc = uploadedFile || '/assets/images/xray_fracture.png';
+  const imageSrc = annotatedImageUrl || uploadedFile || (selectedModel === 'knee-osteoarthritis' ? '/assets/images/model_knee_osteoarthritis.png' : '/assets/images/xray_fracture.png');
 
   return (
     <div className="flex-1 max-w-[390px] bg-[#141517] rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 flex flex-col justify-between relative shadow-md overflow-hidden select-none h-full">
       {/* Top DICOM Overlay HUD */}
       <div className="absolute top-5 left-5 right-5 flex items-center justify-between text-zinc-400 text-[11px] font-mono pointer-events-none z-20">
         <div>
-          <span className="text-zinc-200 font-bold block text-[12px]">DX FOREARM AP</span>
+          <span className="text-zinc-200 font-bold block text-[12px]">
+            {selectedModel === 'knee-osteoarthritis' ? 'DX KNEE AP BILATERAL' : selectedModel === 'knee-abnormality' ? 'DX KNEE LATERAL' : 'DX FOREARM AP'}
+          </span>
           <span>kVp: 62 | mAs: 4.5</span>
         </div>
         <div className="text-right">
@@ -83,8 +87,8 @@ export const DicomViewport: React.FC = () => {
             className="w-full max-h-[480px] object-contain select-none pointer-events-none"
           />
 
-          {/* Optional Pulse Glow Highlighter */}
-          {showBoundingBoxes && (
+          {/* Optional Pulse Glow Highlighter when not already annotated */}
+          {showBoundingBoxes && !annotatedImageUrl && (
             <div
               className="absolute border border-[#00E676]/40 rounded-xs pointer-events-none animate-pulse"
               style={{

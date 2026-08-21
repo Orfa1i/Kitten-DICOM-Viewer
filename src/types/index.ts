@@ -42,6 +42,8 @@ export interface CaseRecord {
   confidence: number;
   image?: string;
   findings?: string[];
+  diagnosisTitle?: string;
+  recommendation?: string;
 }
 
 export interface AiChatMessage {
