@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary-rust: #8D321F;
+    --primary-rust-dark: #742515;
+    --canvas-bg: #FDF9F9;
+    --accent-green: #00BF63;
+  }
+
+  body {
+    background-color: #ECE7E6;
+    color: #1A1A1A;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Custom dashed border styling to match Kitten UI exactly */
+.border-dashed-medical {
+  border-style: dashed;
+  border-width: 1.5px;
+  border-color: #BDB5B5;
+}
+
+.border-dashed-active {
+  border-style: dashed;
+  border-width: 1.5px;
+  border-color: #8D321F;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C4B9B8;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8D321F;
+}
+
+/* Laptop mockup frame styling */
+.laptop-chassis {
+  background: linear-gradient(180deg, #373A40 0%, #222429 100%);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.screen-bezel {
+  background: #18191B;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+/* Pulse glow animations */
+@keyframes green-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 191, 99, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 191, 99, 0.9);
+  }
+}
+
+.animate-glow-box {
+  animation: green-pulse 2s infinite ease-in-out;
+}
