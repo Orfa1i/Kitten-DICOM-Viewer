@@ -40,12 +40,12 @@ export const AiAssistantDrawer: React.FC = () => {
       {/* Left: Ai Assitant Card */}
       <aside className="w-[360px] flex-shrink-0 flex flex-col h-full">
         <div className="bg-white rounded-[32px] border-[3.5px] border-[#8D321F] p-4 shadow-sm h-full flex flex-col justify-between overflow-hidden">
-          {/* Header with scaled sparkle icon */}
-          <div className="flex items-center gap-2.5 px-2 pt-1 pb-3 flex-shrink-0">
+          {/* Header with scaled sparkle icon to 30px */}
+          <div className="flex items-center gap-3 px-2 pt-1 pb-3 flex-shrink-0">
             <div className="text-[#8D321F]">
-              <SparkleIcon className="w-6 h-6 text-[#8D321F]" />
+              <SparkleIcon className="w-7 h-7 text-[#8D321F]" />
             </div>
-            <h2 className="text-[23px] font-display font-semibold text-[#1F1F1F] tracking-tight">
+            <h2 className="text-[24px] font-display font-semibold text-[#1F1F1F] tracking-tight">
               Ai Assitant
             </h2>
           </div>
@@ -79,7 +79,7 @@ export const AiAssistantDrawer: React.FC = () => {
 
             {/* Bottom Prompt Bar Capsule */}
             <div className="pt-3 flex items-center gap-2.5 flex-shrink-0">
-              {/* Upload Trigger Scaled Up */}
+              {/* Upload Trigger Scaled Up to 34px */}
               <label className="cursor-pointer p-2 rounded-full hover:bg-zinc-200/70 transition text-[#8D321F] group">
                 <input
                   type="file"
@@ -87,31 +87,31 @@ export const AiAssistantDrawer: React.FC = () => {
                   className="hidden"
                   onChange={handleFileUpload}
                 />
-                <div className="w-6 h-6 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <LottieIcon name="file-upload" size={26} />
+                <div className="w-8 h-8 flex items-center justify-center group-hover:scale-115 transition-transform">
+                  <LottieIcon name="file-upload" size={34} />
                 </div>
               </label>
 
               {/* Search / Text Input Capsule */}
               <div className="flex-1 bg-white border border-[#8D321F]/40 rounded-full px-3.5 py-2 flex items-center shadow-2xs focus-within:ring-1 focus-within:ring-[#8D321F]">
-                <Search className="w-4 h-4 text-zinc-400 mr-2 flex-shrink-0" />
+                <Search className="w-4.5 h-4.5 text-zinc-400 mr-2 flex-shrink-0" />
                 <input
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask assistant..."
-                  className="w-full bg-transparent text-[13.5px] text-zinc-800 placeholder-zinc-400 focus:outline-none"
+                  className="w-full bg-transparent text-[14px] text-zinc-800 placeholder-zinc-400 focus:outline-none"
                 />
               </div>
 
-              {/* Send Button Scaled Up */}
+              {/* Send Button Scaled Up to 36px */}
               <button
                 onClick={handleSend}
                 className="p-2 rounded-full text-[#8D321F] hover:bg-[#8D321F]/10 active:scale-95 transition group"
               >
-                <div className="w-7 h-7 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <LottieIcon name="send" size={28} />
+                <div className="w-9 h-9 flex items-center justify-center group-hover:scale-115 transition-transform">
+                  <LottieIcon name="send" size={36} />
                 </div>
               </button>
             </div>

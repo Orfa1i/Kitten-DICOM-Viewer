@@ -20,13 +20,13 @@ export const DashboardView: React.FC = () => {
       {/* Right: Cases Card */}
       <div className="flex-1 bg-[#8D321F] rounded-[32px] p-6 shadow-md flex flex-col justify-between h-full overflow-hidden">
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Card Header: Cases + File Icon Scaled Up */}
-          <div className="flex items-center gap-3 mb-4 px-2 flex-shrink-0">
+          {/* Card Header: Cases + File Icon Scaled Up to 40px */}
+          <div className="flex items-center gap-3.5 mb-4 px-2 flex-shrink-0">
             <h2 className="text-[28px] font-display font-semibold text-white tracking-tight">
               Cases
             </h2>
-            <div className="w-8 h-8 filter brightness-0 invert flex items-center justify-center">
-              <LottieIcon name="file" size={32} />
+            <div className="w-10 h-10 filter brightness-0 invert flex items-center justify-center">
+              <LottieIcon name="file" size={40} />
             </div>
           </div>
 

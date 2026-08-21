@@ -40,22 +40,22 @@ export const DiagnosticStudioView: React.FC = () => {
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header: Detection Report : + Scaled Sparkles + Download */}
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-3 px-1 flex-shrink-0">
-              <div className="flex items-center gap-2.5">
-                <h3 className="text-[20px] font-display font-semibold text-[#1F1F1F] tracking-tight">
+              <div className="flex items-center gap-3">
+                <h3 className="text-[21px] font-display font-semibold text-[#1F1F1F] tracking-tight">
                   Detection Report :
                 </h3>
                 <div className="text-[#8D321F]">
-                  <SparkleIcon className="w-6 h-6 text-[#8D321F]" />
+                  <SparkleIcon className="w-7 h-7 text-[#8D321F]" />
                 </div>
               </div>
 
               <button
                 onClick={handleExportPDF}
-                className="w-8 h-8 rounded-lg border border-zinc-300 hover:border-[#8D321F] hover:bg-[#8D321F]/5 flex items-center justify-center text-zinc-700 transition group"
+                className="w-9 h-9 rounded-lg border border-zinc-300 hover:border-[#8D321F] hover:bg-[#8D321F]/5 flex items-center justify-center text-zinc-700 transition group"
                 title="Download Diagnostic Report"
               >
-                <div className="w-5 h-5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <LottieIcon name="file-download" size={22} />
+                <div className="w-7 h-7 flex items-center justify-center group-hover:scale-115 transition-transform">
+                  <LottieIcon name="file-download" size={30} />
                 </div>
               </button>
             </div>
@@ -103,17 +103,17 @@ export const DiagnosticStudioView: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom Save Action Button with Scaled Icon */}
+          {/* Bottom Save Action Button with Scaled Icon to 38px */}
           <div className="pt-4 flex justify-center flex-shrink-0">
             <button
               onClick={handleSave}
-              className="w-full max-w-[260px] bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3.5 px-8 rounded-full flex items-center justify-center gap-3.5 transition-all duration-200 active:scale-98 shadow-md hover:shadow-xl group"
+              className="w-full max-w-[270px] bg-[#8D321F] hover:bg-[#7D2A18] text-white py-4 px-8 rounded-full flex items-center justify-center gap-4 transition-all duration-200 active:scale-98 shadow-md hover:shadow-xl group"
             >
-              <span className="font-display font-semibold text-[24px] tracking-wide">
+              <span className="font-display font-semibold text-[25px] tracking-wide">
                 Save
               </span>
-              <div className="w-7 h-7 flex items-center justify-center filter brightness-0 invert group-hover:scale-120 transition-transform">
-                <LottieIcon name="save" size={30} />
+              <div className="w-9 h-9 flex items-center justify-center filter brightness-0 invert group-hover:scale-125 transition-transform">
+                <LottieIcon name="save" size={38} />
               </div>
             </button>
           </div>
@@ -129,7 +129,7 @@ export const DiagnosticStudioView: React.FC = () => {
               Detection Accuracy:
             </h4>
             <div className="py-2 flex items-center justify-center">
-              <AccuracyGauge score={accuracyScore} size={154} />
+              <AccuracyGauge score={accuracyScore} size={156} />
             </div>
           </div>
         </div>

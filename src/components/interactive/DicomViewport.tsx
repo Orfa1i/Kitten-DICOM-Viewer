@@ -52,11 +52,11 @@ export const DicomViewport: React.FC = () => {
       {/* Top DICOM Overlay HUD */}
       <div className="absolute top-5 left-5 right-5 flex items-center justify-between text-zinc-400 text-[11px] font-mono pointer-events-none z-20">
         <div>
-          <span className="text-zinc-200 font-bold block text-[11.5px]">DX FOREARM AP</span>
+          <span className="text-zinc-200 font-bold block text-[12px]">DX FOREARM AP</span>
           <span>kVp: 62 | mAs: 4.5</span>
         </div>
         <div className="text-right">
-          <span className="text-[#00BF63] font-bold block text-[11.5px]">AI INFERENCE ACTIVE</span>
+          <span className="text-[#00BF63] font-bold block text-[12px]">AI INFERENCE ACTIVE</span>
           <span>ZOOM: {(zoomLevel * 100).toFixed(0)}%</span>
         </div>
       </div>
@@ -99,49 +99,49 @@ export const DicomViewport: React.FC = () => {
       </div>
 
       {/* Bottom Floating PACS Tools Pill Scaled */}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-[#232529]/95 backdrop-blur-md border border-white/15 rounded-full px-3.5 py-2 flex items-center gap-2.5 z-20 shadow-xl text-white">
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-[#232529]/95 backdrop-blur-md border border-white/15 rounded-full px-4 py-2 flex items-center gap-3 z-20 shadow-xl text-white">
         <button
           onClick={() => setZoomLevel(Math.min(zoomLevel + 0.2, 2.5))}
-          className="p-1.5 rounded-full hover:bg-white/20 active:scale-95 transition"
+          className="p-2 rounded-full hover:bg-white/20 active:scale-95 transition"
           title="Zoom In"
         >
-          <ZoomIn className="w-4 h-4" />
+          <ZoomIn className="w-5 h-5" />
         </button>
         <button
           onClick={() => setZoomLevel(Math.max(zoomLevel - 0.2, 0.6))}
-          className="p-1.5 rounded-full hover:bg-white/20 active:scale-95 transition"
+          className="p-2 rounded-full hover:bg-white/20 active:scale-95 transition"
           title="Zoom Out"
         >
-          <ZoomOut className="w-4 h-4" />
+          <ZoomOut className="w-5 h-5" />
         </button>
         <button
           onClick={() => setShowBoundingBoxes(!showBoundingBoxes)}
-          className={`p-1.5 rounded-full transition ${showBoundingBoxes ? 'text-[#00E676] bg-[#00E676]/20' : 'hover:bg-white/20'}`}
+          className={`p-2 rounded-full transition ${showBoundingBoxes ? 'text-[#00E676] bg-[#00E676]/20' : 'hover:bg-white/20'}`}
           title="Toggle Bounding Box Highlighting"
         >
-          {showBoundingBoxes ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          {showBoundingBoxes ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
         </button>
         <button
           onClick={() => setShowTools(!showTools)}
-          className={`p-1.5 rounded-full transition ${showTools ? 'text-[#8D321F] bg-white' : 'hover:bg-white/20'}`}
+          className={`p-2 rounded-full transition ${showTools ? 'text-[#8D321F] bg-white' : 'hover:bg-white/20'}`}
           title="Windowing Controls"
         >
-          <Sun className="w-4 h-4" />
+          <Sun className="w-5 h-5" />
         </button>
         <button
           onClick={handleReset}
-          className="p-1.5 rounded-full hover:bg-white/20 active:scale-95 transition text-zinc-300"
+          className="p-2 rounded-full hover:bg-white/20 active:scale-95 transition text-zinc-300"
           title="Reset View"
         >
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-5 h-5" />
         </button>
       </div>
 
       {/* Expandable Windowing Controls Popup */}
       {showTools && (
-        <div className="absolute bottom-18 left-1/2 -translate-x-1/2 bg-[#25272B] border border-white/15 rounded-2xl p-3.5 z-30 shadow-2xl w-64 space-y-2.5 text-white text-xs">
+        <div className="absolute bottom-18 left-1/2 -translate-x-1/2 bg-[#25272B] border border-white/15 rounded-2xl p-4 z-30 shadow-2xl w-68 space-y-3 text-white text-xs">
           <div>
-            <div className="flex justify-between mb-1 text-[11.5px]">
+            <div className="flex justify-between mb-1.5 text-[12px]">
               <span>Brightness</span>
               <span>{brightness}%</span>
             </div>
@@ -155,7 +155,7 @@ export const DicomViewport: React.FC = () => {
             />
           </div>
           <div>
-            <div className="flex justify-between mb-1 text-[11.5px]">
+            <div className="flex justify-between mb-1.5 text-[12px]">
               <span>Contrast</span>
               <span>{contrast}%</span>
             </div>

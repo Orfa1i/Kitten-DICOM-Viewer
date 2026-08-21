@@ -6,37 +6,37 @@ export const SettingPanel: React.FC = () => {
   const { openNewCaseModal } = useMedicalApp();
 
   return (
-    <aside className="w-[310px] flex-shrink-0 relative flex flex-col select-none h-full">
+    <aside className="w-[315px] flex-shrink-0 relative flex flex-col select-none h-full">
       {/* Outer Card Container */}
       <div className="bg-white rounded-[32px] border-[3px] border-[#8D321F] p-3.5 shadow-sm h-full flex flex-col justify-between relative overflow-hidden">
         {/* Inner Dashed Border Guide */}
         <div className="border border-dashed border-[#B8B5B5] rounded-[24px] p-4 flex flex-col justify-between h-full bg-white">
           {/* Top Section */}
           <div className="space-y-3.5">
-            {/* Header: Setting + Gear Scaled Up */}
-            <div className="flex items-center gap-2.5 px-1">
-              <h2 className="text-[24px] font-display font-semibold text-[#1F1F1F] tracking-tight">
+            {/* Header: Setting + Gear Scaled Up to 36px */}
+            <div className="flex items-center gap-3 px-1">
+              <h2 className="text-[25px] font-display font-semibold text-[#1F1F1F] tracking-tight">
                 Setting
               </h2>
-              <div className="w-7 h-7 text-[#1F1F1F] flex items-center justify-center">
-                <LottieIcon name="setting" size={28} />
+              <div className="w-9 h-9 text-[#1F1F1F] flex items-center justify-center">
+                <LottieIcon name="setting" size={36} />
               </div>
             </div>
 
             {/* Profile Capsule */}
-            <div className="border border-dashed border-[#8E8280] rounded-full px-3 py-1.5 flex items-center justify-between bg-white hover:bg-zinc-50 transition-colors group cursor-pointer">
-              <div className="flex items-center gap-2.5">
+            <div className="border border-dashed border-[#8E8280] rounded-full px-3 py-2 flex items-center justify-between bg-white hover:bg-zinc-50 transition-colors group cursor-pointer">
+              <div className="flex items-center gap-3">
                 <img
                   src="/assets/images/avatar_hassan.png"
                   alt="Dr. Hassan"
                   className="w-10 h-10 rounded-full object-cover border border-[#8D321F]/30"
                 />
-                <span className="font-semibold text-[17.5px] text-[#1F1F1F] tracking-tight">
+                <span className="font-semibold text-[18px] text-[#1F1F1F] tracking-tight">
                   Hassan
                 </span>
               </div>
-              <div className="w-6 h-6 text-zinc-700 pr-1 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <LottieIcon name="brush" size={24} />
+              <div className="w-8 h-8 text-zinc-700 pr-1 flex items-center justify-center group-hover:scale-115 transition-transform">
+                <LottieIcon name="brush" size={30} />
               </div>
             </div>
 
@@ -83,7 +83,7 @@ export const SettingPanel: React.FC = () => {
 
       {/* Floating Pointer Arrow from Gear to Card */}
       <div className="absolute -bottom-6 -left-7 pointer-events-none hidden md:block">
-        <svg width="42" height="42" viewBox="0 0 50 50" fill="none" className="text-[#1F1F1F]">
+        <svg width="44" height="44" viewBox="0 0 50 50" fill="none" className="text-[#1F1F1F]">
           <path
             d="M10 40 Q 25 35 35 15"
             stroke="currentColor"

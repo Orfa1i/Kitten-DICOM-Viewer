@@ -19,23 +19,23 @@ export const ModelSelectionModal: React.FC = () => {
   return (
     <div className="flex-1 flex items-center justify-center w-full max-w-[1240px] mx-auto py-8 px-4 select-none">
       {/* Centered Modal Card Container */}
-      <div className="w-full max-w-[860px] bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] shadow-modal overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="w-full max-w-[880px] bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] shadow-modal overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header Bar */}
         <div className="bg-[#8D321F] px-8 py-4 flex items-center justify-between text-white">
-          <h2 className="text-[25px] font-display font-semibold tracking-tight">
+          <h2 className="text-[26px] font-display font-semibold tracking-tight">
             New case
           </h2>
           <button
             onClick={handleClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition"
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition"
           >
-            <div className="w-6 h-6 border-2 border-white rounded-full flex items-center justify-center p-0.5">
-              <X className="w-4 h-4 text-white stroke-[2.5]" />
+            <div className="w-7 h-7 border-2 border-white rounded-full flex items-center justify-center p-0.5">
+              <X className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
           </button>
         </div>
 
-        {/* Modal Body: 3 Model Cards */}
+        {/* Modal Body: 3 Model Cards with Large Sparkle Icons */}
         <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6 bg-white">
           {/* Card 1: Knee Osteoarthritis Detection */}
           <div
@@ -49,11 +49,11 @@ export const ModelSelectionModal: React.FC = () => {
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="bg-[#8D321F] text-white p-3.5 flex items-center justify-between min-h-[68px]">
-              <span className="font-semibold text-[14.5px] leading-tight pr-2">
+            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[72px]">
+              <span className="font-semibold text-[15px] leading-tight pr-2">
                 Knee Osteoarthritis<br />Detection
               </span>
-              <SparkleIcon className="w-6 h-6 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
+              <SparkleIcon className="w-8 h-8 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
             </div>
           </div>
 
@@ -69,11 +69,11 @@ export const ModelSelectionModal: React.FC = () => {
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="bg-[#8D321F] text-white p-3.5 flex items-center justify-between min-h-[68px]">
-              <span className="font-semibold text-[14.5px] leading-tight pr-2">
+            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[72px]">
+              <span className="font-semibold text-[15px] leading-tight pr-2">
                 Knee Abnormality
               </span>
-              <SparkleIcon className="w-6 h-6 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
+              <SparkleIcon className="w-8 h-8 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
             </div>
           </div>
 
@@ -89,11 +89,11 @@ export const ModelSelectionModal: React.FC = () => {
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="bg-[#8D321F] text-white p-3.5 flex items-center justify-between min-h-[68px]">
-              <span className="font-semibold text-[14.5px] leading-tight pr-2">
+            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[72px]">
+              <span className="font-semibold text-[15px] leading-tight pr-2">
                 Fracture Detection
               </span>
-              <SparkleIcon className="w-6 h-6 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
+              <SparkleIcon className="w-8 h-8 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
             </div>
           </div>
         </div>
