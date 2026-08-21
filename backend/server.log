@@ -1,1 +1,11 @@
 2026-08-21 20:30:50,062 [INFO] [d5400806] Processed Knee OA: Grade 0 (64.3%)
+2026-08-21 20:37:07,717 [INFO] [b06d83a7] Processed Knee OA: Grade 0 (64.3%)
+2026-08-21 20:37:40,725 [INFO] [ce633c6e] Processed Knee OA: Grade 2 (53.0%)
+2026-08-21 20:38:42,177 [INFO] [6fe2c1c4] Processed Knee OA: Grade 0 (64.3%)
+2026-08-21 20:38:53,449 [INFO] [a472413f] Processed Knee OA: Grade 3 (54.2%)
+2026-08-21 20:39:34,160 [INFO] [938a031d] Processed Knee OA: Grade 2 (47.1%)
+2026-08-21 20:43:10,713 [INFO] [3fa88e11] Processed Knee OA: Grade 2 (37.4%)
+2026-08-21 20:44:41,900 [INFO] [ca44d541] Processed Knee OA: Grade 4 (63.3%)
+2026-08-21 21:13:10,487 [INFO] Testing LLM connection for provider: gemini, model: gemini-2.5-flash
+2026-08-21 21:13:13,100 [INFO] AFC is enabled with max remote calls: 10.
+2026-08-21 21:13:13,488 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 400 Bad Request"

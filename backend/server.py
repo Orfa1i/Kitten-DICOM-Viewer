@@ -3,15 +3,16 @@ import uuid
 import shutil
 import logging
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from pipeline import KneeOABackendPipeline
-from schemas import ChatRequest, ChatResponse
+from llm_service import LlmService
 
 # Setup Directories & Logging
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,8 +29,8 @@ logger = logging.getLogger("kitten_backend")
 # Initialize FastAPI App
 app = FastAPI(
     title="Kitten Medical Imaging AI Server",
-    description="Backend API for Clinical Radiograph Analysis, DICOM Processing, and Knee OA Model Inference",
-    version="2.0.0"
+    description="Backend API for Clinical Radiograph Analysis, DICOM Processing, and Multi-Provider LLM Integration",
+    version="2.1.0"
 )
 
 # Enable CORS for React Frontend
@@ -48,6 +49,18 @@ app.mount("/static/uploads", StaticFiles(directory=TEMP_UPLOAD_DIR), name="uploa
 print("[Server] Loading AI Models and Pipeline...")
 pipeline = KneeOABackendPipeline()
 print("[Server] AI Pipeline Ready.")
+
+# Pydantic Request Models
+class LlmTestRequest(BaseModel):
+    provider: str
+    model_version: str
+    api_key: str
+    base_url: Optional[str] = None
+
+class DynamicChatRequest(BaseModel):
+    message: str
+    config: Optional[Dict[str, Any]] = None
+    context: Optional[Dict[str, Any]] = None
 
 # In-Memory PACS Cases Database
 cases_db = [
@@ -149,6 +162,39 @@ def list_clinical_models():
         }
     ]
 
+@app.post("/api/settings/llm/test")
+def test_llm_connection(req: LlmTestRequest):
+    """Verifies API Key and connectivity for user-selected LLM model"""
+    logger.info(f"Testing LLM connection for provider: {req.provider}, model: {req.model_version}")
+    result = LlmService.test_connection(
+        provider=req.provider,
+        model_version=req.model_version,
+        api_key=req.api_key,
+        base_url=req.base_url
+    )
+    return result
+
+@app.post("/api/ai/chat")
+def ai_assistant_chat(req: DynamicChatRequest):
+    """AI Assistant copilot providing diagnostic assistance using configured LLM"""
+    config = req.config or {
+        "provider": "gemini",
+        "modelVersion": "gemini-2.5-flash",
+        "temperature": 0.3
+    }
+    
+    result = LlmService.chat_completion(
+        message=req.message,
+        config=config,
+        context=req.context
+    )
+
+    return {
+        "reply": result["reply"],
+        "modelUsed": result.get("model_used", "Kitten Copilot"),
+        "timestamp": datetime.now().strftime("%H:%M")
+    }
+
 @app.get("/api/cases")
 def get_all_cases():
     """Retrieve all diagnostic cases log"""
@@ -181,14 +227,10 @@ async def detect_knee_oa(
     temp_input_path = os.path.join(TEMP_UPLOAD_DIR, f"input_{request_id}{ext}")
 
     try:
-        # Save incoming image
         with open(temp_input_path, "wb") as f:
             shutil.copyfileobj(file.file, f)
 
-        # Run Deep Learning Pipeline
         analysis_result = pipeline.analyze(temp_input_path, output_dir=TEMP_UPLOAD_DIR)
-        
-        # Build URLs and response
         annotated_filename = analysis_result.get("annotated_image_filename")
         image_url = f"http://localhost:8000/static/uploads/{annotated_filename}" if annotated_filename else None
 
@@ -219,25 +261,6 @@ async def detect_knee_oa(
                 os.remove(temp_input_path)
             except:
                 pass
-
-@app.post("/api/ai/chat", response_model=ChatResponse)
-def ai_assistant_chat(req: ChatRequest):
-    """AI Assistant copilot providing diagnostic assistance"""
-    msg = req.message.lower()
-    
-    if "kl" in msg or "osteoarthritis" in msg or "grade" in msg:
-        reply = "Kellgren-Lawrence (KL) grading system ranges from KL-0 (Normal) to KL-4 (Severe). Our ensemble classifier assesses joint space narrowing, subchondral sclerosis, and osteophyte formation with 97.8% verified accuracy."
-    elif "treatment" in msg or "recommend" in msg:
-        reply = "For KL Grade 2-3, clinical guidelines recommend structured physical therapy, weight reduction, quadriceps strengthening, and viscosupplementation or corticosteroid injections when conservative therapy is refractory."
-    elif "accuracy" in msg or "confidence" in msg:
-        reply = "The Knee OA detection pipeline leverages an ensemble of ResNet34, ResNet101, and DenseNet201 trained on multi-center radiograph cohorts with < 0.3% false positive rate."
-    else:
-        reply = f"I've noted your clinical query regarding '{req.message}'. You can upload DICOM scans for automated Kellgren-Lawrence staging or ask for differential radiograph analysis."
-
-    return ChatResponse(
-        reply=reply,
-        timestamp=datetime.now().strftime("%H:%M")
-    )
 
 if __name__ == "__main__":
     import uvicorn

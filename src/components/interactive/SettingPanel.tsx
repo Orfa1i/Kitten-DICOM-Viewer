@@ -3,7 +3,7 @@ import { useMedicalApp } from '../../context/MedicalAppContext';
 import { LottieIcon } from '../ui/LottieIcon';
 
 export const SettingPanel: React.FC = () => {
-  const { openNewCaseModal } = useMedicalApp();
+  const { setIsLlmSettingsOpen, llmConfig } = useMedicalApp();
 
   return (
     <aside className="w-[315px] flex-shrink-0 relative flex flex-col select-none h-full">
@@ -48,18 +48,24 @@ export const SettingPanel: React.FC = () => {
               >
                 Security
               </button>
+
+              {/* Models Pill -> Opens LLM Settings Modal */}
               <button
-                onClick={openNewCaseModal}
-                className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-medium text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow"
+                onClick={() => setIsLlmSettingsOpen(true)}
+                className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-semibold text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow flex items-center justify-center gap-2 group"
+                title="Configure LLM Model Name, API Key, and Model Version"
               >
-                Models
+                <span>Models</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 group-hover:scale-125 transition-transform" />
               </button>
+
               <button
                 onClick={() => alert("Appearance Settings: System calibrated for high-contrast radiology monitors.")}
                 className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-medium text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow"
               >
                 Apperance
               </button>
+
               <button
                 onClick={() => alert("Kitten Medical Diagnostics: Lead Radiologist Profile - Dr. Hassan")}
                 className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-medium text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow"

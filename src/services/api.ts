@@ -1,3 +1,5 @@
+import { LlmConfig } from '../types';
+
 const API_BASE_URL = 'http://localhost:8000';
 
 export interface KneeOAApiResponse {
@@ -45,6 +47,15 @@ export interface KneeOAApiResponse {
   };
 }
 
+export interface LlmTestResult {
+  success: boolean;
+  provider: string;
+  model: string;
+  latency_ms?: number;
+  sample_reply?: string;
+  error?: string;
+}
+
 export const apiService = {
   async checkHealth(): Promise<boolean> {
     try {
@@ -65,6 +76,37 @@ export const apiService = {
     return null;
   },
 
+  async testLlmConnection(config: {
+    provider: string;
+    model_version: string;
+    api_key: string;
+    base_url?: string;
+  }): Promise<LlmTestResult> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/settings/llm/test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      return {
+        success: false,
+        provider: config.provider,
+        model: config.model_version,
+        error: `Server responded with HTTP ${res.status}`,
+      };
+    } catch (e) {
+      return {
+        success: false,
+        provider: config.provider,
+        model: config.model_version,
+        error: e instanceof Error ? e.message : 'Network error connecting to backend',
+      };
+    }
+  },
+
   async runKneeOADetection(
     fileBlobOrUrl: Blob | string,
     patient: { id: string; name: string; age: number | string; sex: string }
@@ -73,7 +115,6 @@ export const apiService = {
       const formData = new FormData();
       
       if (typeof fileBlobOrUrl === 'string') {
-        // Fetch image as blob if it is a local URL
         const imageRes = await fetch(fileBlobOrUrl);
         const blob = await imageRes.blob();
         formData.append('file', blob, 'study_scan.png');
@@ -100,16 +141,23 @@ export const apiService = {
     return null;
   },
 
-  async sendChatMessage(message: string): Promise<string | null> {
+  async sendChatMessage(
+    message: string,
+    config?: LlmConfig,
+    context?: Record<string, any>
+  ): Promise<{ reply: string; modelUsed?: string } | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/api/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, config, context }),
       });
       if (res.ok) {
         const data = await res.json();
-        return data.reply;
+        return {
+          reply: data.reply,
+          modelUsed: data.modelUsed,
+        };
       }
     } catch (e) {
       console.warn('API sendChatMessage fallback', e);

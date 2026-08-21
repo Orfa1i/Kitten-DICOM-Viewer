@@ -10,6 +10,18 @@ export type ModelType =
   | 'knee-abnormality'
   | 'fracture-detection';
 
+export type LlmProvider = 'gemini' | 'anthropic' | 'openai' | 'ollama' | 'custom';
+
+export interface LlmConfig {
+  provider: LlmProvider;
+  modelName: string;
+  modelVersion: string;
+  apiKey: string;
+  baseUrl?: string;
+  temperature: number;
+  systemPrompt: string;
+}
+
 export interface ModelCardData {
   id: ModelType;
   title: string;
@@ -52,4 +64,5 @@ export interface AiChatMessage {
   text: string;
   timestamp: string;
   attachment?: string;
+  modelUsed?: string;
 }

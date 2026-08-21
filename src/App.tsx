@@ -8,6 +8,7 @@ import { IntakeUploadModal } from './components/views/IntakeUploadModal';
 import { DiagnosticStudioView } from './components/views/DiagnosticStudioView';
 import { ScreenStateNavigator } from './components/interactive/ScreenStateNavigator';
 import { LaptopMockupFrame } from './components/layout/LaptopMockupFrame';
+import { LlmSettingsModal } from './components/modals/LlmSettingsModal';
 
 const MainContent: React.FC = () => {
   const { currentScreen, presentationMode } = useMedicalApp();
@@ -41,6 +42,9 @@ const MainContent: React.FC = () => {
 
       {/* Floating State Navigator (Left Drawer Chevron & Settings Gear) */}
       <ScreenStateNavigator />
+
+      {/* LLM Model & API Key Settings Modal */}
+      <LlmSettingsModal />
     </div>
   );
 
