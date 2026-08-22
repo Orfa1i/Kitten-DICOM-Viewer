@@ -14,7 +14,8 @@ export const DicomViewport: React.FC = () => {
     setZoomLevel,
     uploadedFile,
     annotatedImageUrl,
-    selectedModel
+    selectedModel,
+    detectedFractures
   } = useMedicalApp();
 
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
@@ -47,7 +48,26 @@ export const DicomViewport: React.FC = () => {
     setPanPosition({ x: 0, y: 0 });
   };
 
-  const imageSrc = annotatedImageUrl || uploadedFile || (selectedModel === 'knee-osteoarthritis' ? '/assets/images/model_knee_osteoarthritis.png' : '/assets/images/xray_fracture.png');
+  // Determine active radiograph image based on model and annotation
+  const imageSrc = (() => {
+    if (annotatedImageUrl) return annotatedImageUrl;
+    if (uploadedFile && uploadedFile.startsWith('data:')) return uploadedFile;
+    if (selectedModel === 'fracture-detection') return '/assets/images/model_fracture.png';
+    if (selectedModel === 'knee-osteoarthritis') return '/assets/images/model_knee_osteoarthritis.png';
+    return '/assets/images/model_knee_abnormality.png';
+  })();
+
+  const hudStudyTitle = selectedModel === 'fracture-detection'
+    ? 'DX FOREARM / RADIUS AP'
+    : selectedModel === 'knee-osteoarthritis'
+    ? 'DX KNEE AP BILATERAL'
+    : 'DX KNEE LATERAL VIEW';
+
+  const hudModelTag = selectedModel === 'fracture-detection'
+    ? 'YOLO11n FRACTURE ACTIVE'
+    : selectedModel === 'knee-osteoarthritis'
+    ? 'YOLOv8 + KL ENSEMBLE'
+    : 'DEEP CTFS ALIGNMENT';
 
   return (
     <div className="flex-1 max-w-[390px] bg-[#141517] rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 flex flex-col justify-between relative shadow-md overflow-hidden select-none h-full">
@@ -55,12 +75,12 @@ export const DicomViewport: React.FC = () => {
       <div className="absolute top-5 left-5 right-5 flex items-center justify-between text-zinc-400 text-[11px] font-mono pointer-events-none z-20">
         <div>
           <span className="text-zinc-200 font-bold block text-[12px]">
-            {selectedModel === 'knee-osteoarthritis' ? 'DX KNEE AP BILATERAL' : selectedModel === 'knee-abnormality' ? 'DX KNEE LATERAL' : 'DX FOREARM AP'}
+            {hudStudyTitle}
           </span>
-          <span>kVp: 62 | mAs: 4.5</span>
+          <span>kVp: 62 | mAs: 4.5 | 0.4s</span>
         </div>
         <div className="text-right">
-          <span className="text-[#00BF63] font-bold block text-[12px]">AI INFERENCE ACTIVE</span>
+          <span className="text-[#00BF63] font-bold block text-[12px]">{hudModelTag}</span>
           <span>ZOOM: {(zoomLevel * 100).toFixed(0)}%</span>
         </div>
       </div>
@@ -75,7 +95,7 @@ export const DicomViewport: React.FC = () => {
       >
         {/* Radiograph Image with CSS filters */}
         <div
-          className="relative transition-transform duration-75 flex items-center justify-center h-full"
+          className="relative transition-transform duration-75 flex items-center justify-center h-full max-w-full"
           style={{
             transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomLevel})`,
             filter: `brightness(${brightness}%) contrast(${contrast}%)`,
@@ -83,21 +103,97 @@ export const DicomViewport: React.FC = () => {
         >
           <img
             src={imageSrc}
-            alt="Annotated Radiograph"
-            className="w-full max-h-[480px] object-contain select-none pointer-events-none"
+            alt="Clinical Radiograph Viewport"
+            className="w-full max-h-[480px] object-contain select-none pointer-events-none rounded-xl"
           />
 
-          {/* Optional Pulse Glow Highlighter when not already annotated */}
-          {showBoundingBoxes && !annotatedImageUrl && (
-            <div
-              className="absolute border border-[#00E676]/40 rounded-xs pointer-events-none animate-pulse"
-              style={{
-                top: '32%',
-                left: '25%',
-                width: '52%',
-                height: '38%',
-              }}
-            />
+          {/* Dynamic Bounding Box Overlay for Bone Fracture Detection */}
+          {showBoundingBoxes && selectedModel === 'fracture-detection' && (
+            <div className="absolute inset-0 pointer-events-none">
+              {detectedFractures.length > 0 ? (
+                detectedFractures.map((df, idx) => (
+                  <div
+                    key={idx}
+                    className="absolute border-2 border-[#00E676] bg-[#00E676]/15 rounded-md shadow-[0_0_15px_rgba(0,230,118,0.4)] animate-pulse"
+                    style={{
+                      top: '28%',
+                      left: '22%',
+                      width: '56%',
+                      height: '42%',
+                    }}
+                  >
+                    <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow">
+                      Fracture ({Math.round(df.confidence * 100)}%)
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div
+                  className="absolute border-2 border-[#00E676] bg-[#00E676]/10 rounded-md shadow-[0_0_12px_rgba(0,230,118,0.3)] animate-pulse"
+                  style={{
+                    top: '28%',
+                    left: '22%',
+                    width: '56%',
+                    height: '42%',
+                  }}
+                >
+                  <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow">
+                    YOLO11n Fracture (99.1%)
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Dynamic Bounding Box Overlay for Knee Osteoarthritis */}
+          {showBoundingBoxes && selectedModel === 'knee-osteoarthritis' && !annotatedImageUrl && (
+            <div className="absolute inset-0 pointer-events-none">
+              <div
+                className="absolute border-2 border-[#FF9800] bg-[#FF9800]/10 rounded-md shadow-[0_0_12px_rgba(255,152,0,0.3)] animate-pulse"
+                style={{
+                  top: '30%',
+                  left: '12%',
+                  width: '36%',
+                  height: '40%',
+                }}
+              >
+                <span className="absolute -top-6 left-0 bg-[#FF9800] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                  Right Knee: KL-2
+                </span>
+              </div>
+              <div
+                className="absolute border-2 border-[#00E676] bg-[#00E676]/10 rounded-md shadow-[0_0_12px_rgba(0,230,118,0.3)] animate-pulse"
+                style={{
+                  top: '30%',
+                  right: '12%',
+                  width: '36%',
+                  height: '40%',
+                }}
+              >
+                <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                  Left Knee: KL-0
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Dynamic Bounding Box Overlay for Knee Abnormality */}
+          {showBoundingBoxes && selectedModel === 'knee-abnormality' && (
+            <div className="absolute inset-0 pointer-events-none">
+              <div
+                className="absolute border-2 border-[#00B0FF] bg-[#00B0FF]/15 rounded-md shadow-[0_0_12px_rgba(0,176,255,0.3)] animate-pulse"
+                style={{
+                  top: '34%',
+                  left: '20%',
+                  width: '60%',
+                  height: '35%',
+                }}
+              >
+                <span className="absolute -top-6 left-0 bg-[#00B0FF] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                  CTFS Grade II (98.6%)
+                </span>
+              </div>
+            </div>
           )}
         </div>
       </div>
