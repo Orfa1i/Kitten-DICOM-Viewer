@@ -321,15 +321,6 @@ def list_clinical_models():
             "status": "active"
         },
         {
-            "id": "knee-abnormality",
-            "title": "Knee Abnormality",
-            "subtitle": "CTFS Alignment & Ligamentous Pathology",
-            "architecture": "Deep ResNet-FPN Landmark Detection",
-            "accuracy": "98.6%",
-            "modality": "Digital Radiography (DX)",
-            "status": "active"
-        },
-        {
             "id": "fracture-detection",
             "title": "Bone Fracture Detection",
             "subtitle": "Diaphyseal & Articular Cortical Break Analysis",

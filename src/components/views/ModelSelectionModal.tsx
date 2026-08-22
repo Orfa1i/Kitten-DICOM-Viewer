@@ -19,7 +19,7 @@ export const ModelSelectionModal: React.FC = () => {
   return (
     <div className="flex-1 flex items-center justify-center w-full max-w-[1240px] mx-auto py-8 px-4 select-none">
       {/* Centered Modal Card Container */}
-      <div className="w-full max-w-[880px] bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] shadow-modal overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="w-full max-w-[760px] bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] shadow-modal overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header Bar */}
         <div className="bg-[#8D321F] px-8 py-4 flex items-center justify-between text-white">
           <h2 className="text-[26px] font-display font-semibold tracking-tight">
@@ -35,63 +35,43 @@ export const ModelSelectionModal: React.FC = () => {
           </button>
         </div>
 
-        {/* Modal Body: 3 Model Cards with Large Sparkle Icons */}
-        <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-6 bg-white">
+        {/* Modal Body: 2 Clinical Model Cards */}
+        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white">
           {/* Card 1: Knee Osteoarthritis Detection */}
           <div
             onClick={() => handleSelectModel('knee-osteoarthritis')}
             className="group cursor-pointer rounded-2xl overflow-hidden border-[2.5px] border-[#8D321F] bg-black shadow-sm hover:shadow-glow-rust transition-all duration-200 transform hover:-translate-y-1.5"
           >
-            <div className="h-44 bg-black flex items-center justify-center overflow-hidden">
+            <div className="h-52 bg-black flex items-center justify-center overflow-hidden">
               <img
                 src="/assets/images/model_knee_osteoarthritis.png"
                 alt="Knee Osteoarthritis Detection"
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[72px]">
-              <span className="font-semibold text-[15px] leading-tight pr-2">
+            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[76px]">
+              <span className="font-semibold text-[16px] leading-tight pr-2">
                 Knee Osteoarthritis<br />Detection
               </span>
               <SparkleIcon className="w-8 h-8 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
             </div>
           </div>
 
-          {/* Card 2: Knee Abnormality */}
-          <div
-            onClick={() => handleSelectModel('knee-abnormality')}
-            className="group cursor-pointer rounded-2xl overflow-hidden border-[2.5px] border-[#8D321F] bg-black shadow-sm hover:shadow-glow-rust transition-all duration-200 transform hover:-translate-y-1.5"
-          >
-            <div className="h-44 bg-black flex items-center justify-center overflow-hidden">
-              <img
-                src="/assets/images/model_knee_abnormality.png"
-                alt="Knee Abnormality"
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[72px]">
-              <span className="font-semibold text-[15px] leading-tight pr-2">
-                Knee Abnormality
-              </span>
-              <SparkleIcon className="w-8 h-8 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
-            </div>
-          </div>
-
-          {/* Card 3: Fracture Detection */}
+          {/* Card 2: Bone Fracture Detection */}
           <div
             onClick={() => handleSelectModel('fracture-detection')}
             className="group cursor-pointer rounded-2xl overflow-hidden border-[2.5px] border-[#8D321F] bg-black shadow-sm hover:shadow-glow-rust transition-all duration-200 transform hover:-translate-y-1.5"
           >
-            <div className="h-44 bg-black flex items-center justify-center overflow-hidden">
+            <div className="h-52 bg-black flex items-center justify-center overflow-hidden">
               <img
                 src="/assets/images/model_fracture.png"
                 alt="Fracture Detection"
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[72px]">
-              <span className="font-semibold text-[15px] leading-tight pr-2">
-                Fracture Detection
+            <div className="bg-[#8D321F] text-white p-4 flex items-center justify-between min-h-[76px]">
+              <span className="font-semibold text-[16px] leading-tight pr-2">
+                Bone Fracture<br />Detection
               </span>
               <SparkleIcon className="w-8 h-8 text-white flex-shrink-0 group-hover:scale-125 transition-transform" />
             </div>

@@ -65,21 +65,16 @@ export const DicomViewport: React.FC = () => {
     if (uploadedFile) return uploadedFile;
     if (annotatedImageUrl) return annotatedImageUrl;
     if (selectedModel === 'fracture-detection') return '/assets/images/model_fracture.png';
-    if (selectedModel === 'knee-osteoarthritis') return '/assets/images/model_knee_osteoarthritis.png';
-    return '/assets/images/model_knee_abnormality.png';
+    return '/assets/images/model_knee_osteoarthritis.png';
   })();
 
   const hudStudyTitle = selectedModel === 'fracture-detection'
     ? 'DX FOREARM / RADIUS AP'
-    : selectedModel === 'knee-osteoarthritis'
-    ? 'DX KNEE AP BILATERAL'
-    : 'DX KNEE LATERAL VIEW';
+    : 'DX KNEE AP BILATERAL';
 
   const hudModelTag = selectedModel === 'fracture-detection'
     ? 'YOLO11n FRACTURE ACTIVE'
-    : selectedModel === 'knee-osteoarthritis'
-    ? 'YOLOv8 + KL ENSEMBLE'
-    : 'DEEP CTFS ALIGNMENT';
+    : 'YOLOv8 + KL ENSEMBLE';
 
   return (
     <div className="flex-1 max-w-[390px] bg-[#141517] rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 flex flex-col justify-between relative shadow-md overflow-hidden select-none h-full">
@@ -246,25 +241,6 @@ export const DicomViewport: React.FC = () => {
               >
                 <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
                   Left Knee: KL-0
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Knee Abnormality Bounding Box Overlay */}
-          {showBoundingBoxes && selectedModel === 'knee-abnormality' && (
-            <div className="absolute inset-0 pointer-events-none">
-              <div
-                className="absolute border-2 border-[#00B0FF] bg-[#00B0FF]/15 rounded-md shadow-[0_0_12px_rgba(0,176,255,0.3)] animate-pulse"
-                style={{
-                  top: '34%',
-                  left: '20%',
-                  width: '60%',
-                  height: '35%',
-                }}
-              >
-                <span className="absolute -top-6 left-0 bg-[#00B0FF] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
-                  CTFS Grade II (98.6%)
                 </span>
               </div>
             </div>

@@ -8,7 +8,6 @@ export type ScreenState =
 
 export type ModelType = 
   | 'knee-osteoarthritis'
-  | 'knee-abnormality'
   | 'fracture-detection';
 
 export type LlmProvider = 'gemini' | 'anthropic' | 'openai' | 'ollama' | 'custom';

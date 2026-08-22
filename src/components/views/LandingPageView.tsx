@@ -198,8 +198,8 @@ export const LandingPageView: React.FC = () => {
           </p>
         </div>
 
-        {/* 3 Model Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* 2 Model Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[1040px] mx-auto">
           {/* Card 1: Knee Osteoarthritis */}
           <div className="bg-white rounded-[32px] border-[2.5px] border-[#8D321F] p-6 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
             <div className="space-y-4">
@@ -248,55 +248,7 @@ export const LandingPageView: React.FC = () => {
             </button>
           </div>
 
-          {/* Card 2: Knee Abnormality */}
-          <div className="bg-white rounded-[32px] border-[2.5px] border-zinc-300 hover:border-[#8D321F] p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
-            <div className="space-y-4">
-              <div className="h-52 bg-black rounded-2xl overflow-hidden flex items-center justify-center relative">
-                <img
-                  src="/assets/images/model_knee_abnormality.png"
-                  alt="Knee Abnormality"
-                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-3 left-3 bg-zinc-800 text-white text-[11.5px] font-bold px-3 py-1 rounded-full font-spartan">
-                  CTFS Alignment
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight">
-                  Knee Abnormality
-                </h3>
-                <p className="text-[14px] text-zinc-500 font-mono mt-0.5">
-                  Deep ResNet-FPN Landmark Detection
-                </p>
-              </div>
-
-              <p className="text-[14px] text-zinc-600 leading-relaxed">
-                Evaluates femorotibial joint alignment, soft-tissue effusion markers, and proximal fibular joint morphology.
-              </p>
-
-              <div className="space-y-2 pt-2 border-t border-zinc-100 text-[13px]">
-                <div className="flex justify-between text-zinc-600">
-                  <span>Accuracy Benchmark:</span>
-                  <strong className="text-[#00BF63] font-bold font-spartan">98.6% verified</strong>
-                </div>
-                <div className="flex justify-between text-zinc-600">
-                  <span>Modality:</span>
-                  <span className="font-mono text-zinc-800">DX Lateral / AP</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => handleLaunchModel('knee-abnormality')}
-              className="mt-6 w-full bg-zinc-900 hover:bg-[#8D321F] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
-            >
-              <span>Run Diagnostic Scan</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Card 3: Fracture Detection */}
+          {/* Card 2: Fracture Detection */}
           <div className="bg-white rounded-[32px] border-[2.5px] border-zinc-300 hover:border-[#8D321F] p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
             <div className="space-y-4">
               <div className="h-52 bg-black rounded-2xl overflow-hidden flex items-center justify-center relative">
@@ -312,15 +264,15 @@ export const LandingPageView: React.FC = () => {
 
               <div>
                 <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight">
-                  Fracture Detection
+                  Bone Fracture Detection
                 </h3>
                 <p className="text-[14px] text-zinc-500 font-mono mt-0.5">
-                  YOLO-PACS Cortical Break Engine
+                  Ultralytics YOLO11n Engine
                 </p>
               </div>
 
               <p className="text-[14px] text-zinc-600 leading-relaxed">
-                Locates complete and incomplete diaphyseal fractures, computes dorsal displacement metrics, and grades angulation.
+                Locates complete and incomplete cortical fractures, computes displacement metrics, and renders activation heatmaps.
               </p>
 
               <div className="space-y-2 pt-2 border-t border-zinc-100 text-[13px]">
@@ -330,14 +282,14 @@ export const LandingPageView: React.FC = () => {
                 </div>
                 <div className="flex justify-between text-zinc-600">
                   <span>Modality:</span>
-                  <span className="font-mono text-zinc-800">DX Orthogonal</span>
+                  <span className="font-mono text-zinc-800">Digital Radiography (DX)</span>
                 </div>
               </div>
             </div>
 
             <button
               onClick={() => handleLaunchModel('fracture-detection')}
-              className="mt-6 w-full bg-zinc-900 hover:bg-[#8D321F] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
+              className="mt-6 w-full bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
             >
               <span>Run Diagnostic Scan</span>
               <ChevronRight className="w-4 h-4" />

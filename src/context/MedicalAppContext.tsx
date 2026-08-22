@@ -165,7 +165,7 @@ const getInitialModel = (): ModelType => {
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
     const m = params.get('model');
-    if (m === 'fracture-detection' || m === 'knee-osteoarthritis' || m === 'knee-abnormality') {
+    if (m === 'fracture-detection' || m === 'knee-osteoarthritis') {
       return m;
     }
   }
@@ -460,8 +460,8 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       patientName: patientForm.name || 'Anonymous',
       age: patientForm.age || '30',
       sex: patientForm.sex,
-      type: selectedModel === 'fracture-detection' ? 'Fracture Detection' : selectedModel === 'knee-osteoarthritis' ? 'Knee Osteoarthritis' : 'Knee Abnormality',
-      typeSub: selectedModel === 'knee-osteoarthritis' ? 'Bilateral Weight-Bearing AP' : 'Orthogonal View',
+      type: selectedModel === 'fracture-detection' ? 'Fracture Detection' : 'Knee Osteoarthritis',
+      typeSub: selectedModel === 'knee-osteoarthritis' ? 'Bilateral Weight-Bearing AP' : 'Orthogonal Radiograph',
       date: new Date().toISOString().split('T')[0],
       status: 'Completed',
       confidence: accuracyScore,
@@ -499,13 +499,11 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setAccuracyScore(c.confidence);
       if (c.type === 'Fracture Detection') {
         setSelectedModel('fracture-detection');
-      } else if (c.type === 'Knee Osteoarthritis') {
-        setSelectedModel('knee-osteoarthritis');
       } else {
-        setSelectedModel('knee-abnormality');
+        setSelectedModel('knee-osteoarthritis');
       }
       setDiagnosticReport({
-        diagnosis: c.diagnosisTitle || (c.type === 'Knee Osteoarthritis' ? 'KL Grade 3: Moderate Knee Osteoarthritis' : c.type === 'Knee Abnormality' ? 'Lateral Tibial Plateau Alignment Disruption' : 'Mid-shaft Radial Diaphyseal Fracture (Complete)'),
+        diagnosis: c.diagnosisTitle || (c.type === 'Knee Osteoarthritis' ? 'KL Grade 3: Moderate Knee Osteoarthritis' : 'Acute Cortical Bone Fracture Detected'),
         findings: c.findings || defaultDiagnosticReport.findings,
         recommendation: c.recommendation || defaultDiagnosticReport.recommendation,
         confidenceGrade: `Grade A1 AI-Verified (${c.confidence}% Confidence)`
