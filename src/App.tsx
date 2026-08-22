@@ -10,6 +10,7 @@ import { LandingPageView } from './components/views/LandingPageView';
 import { ScreenStateNavigator } from './components/interactive/ScreenStateNavigator';
 import { LaptopMockupFrame } from './components/layout/LaptopMockupFrame';
 import { LlmSettingsModal } from './components/modals/LlmSettingsModal';
+import MagicCursor from './components/originkit/ui/spin-cursor-cusor-me';
 
 const MainContent: React.FC = () => {
   const { currentScreen, presentationMode } = useMedicalApp();
@@ -79,6 +80,10 @@ export function App() {
   return (
     <MedicalAppProvider>
       <MainContent />
+      {/* Global Interactive Spin & Glow Magic Cursor across the Platform */}
+      <div className="fixed inset-0 pointer-events-none z-[999999] overflow-hidden">
+        <MagicCursor />
+      </div>
     </MedicalAppProvider>
   );
 }
