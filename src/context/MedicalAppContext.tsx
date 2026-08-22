@@ -175,7 +175,7 @@ const getInitialScreen = (): ScreenState => {
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
     const v = params.get('view');
-    if (v === 'ai-assistant' || v === 'model-select' || v === 'intake-upload' || v === 'diagnostic-studio') {
+    if (v === 'landing' || v === 'ai-assistant' || v === 'model-select' || v === 'intake-upload' || v === 'diagnostic-studio') {
       return v as ScreenState;
     }
   }

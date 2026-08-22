@@ -4,3 +4,4 @@ dist-ssr
 *.local
 .vscode
 .DS_Store
+.originkit/

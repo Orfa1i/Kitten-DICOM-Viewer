@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { LottieIcon } from '../ui/LottieIcon';
-import { Search } from 'lucide-react';
+import { Search, Globe } from 'lucide-react';
 
 export const TopNavbar: React.FC = () => {
   const { 
@@ -15,14 +15,25 @@ export const TopNavbar: React.FC = () => {
   return (
     <header className="w-full bg-[#8D321F] text-white px-8 py-3.5 flex items-center justify-between shadow-md select-none relative z-30 flex-shrink-0">
       {/* Left Brand & Workflow Pill */}
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-6 md:gap-8">
         <button
-          onClick={() => setCurrentScreen('dashboard')}
+          onClick={() => setCurrentScreen('landing')}
           className="flex items-center gap-2 group focus:outline-none"
+          title="Return to Kitten Landing Page"
         >
           <span className="font-['Fredoka'] font-semibold text-[34px] tracking-normal text-white hover:opacity-95 transition-opacity">
             Kitten
           </span>
+        </button>
+
+        {/* Landing Page Link */}
+        <button
+          onClick={() => setCurrentScreen('landing')}
+          className="flex items-center gap-2 text-white/80 hover:text-white px-3.5 py-2 rounded-full hover:bg-white/10 text-[14px] font-medium transition"
+          title="View Landing Page"
+        >
+          <Globe className="w-4 h-4 text-white/90" />
+          <span className="hidden lg:inline">Landing</span>
         </button>
 
         {/* Workflow Pill Button with Larger Icon */}

@@ -1,4 +1,5 @@
 export type ScreenState = 
+  | 'landing'           // Screen 0: Next-Gen Landing Page with PixelReveal Background
   | 'dashboard'         // Screen 1: Workspace with Setting + Cases Log
   | 'ai-assistant'      // Screen 2: Workspace with AI Assistant Drawer open
   | 'model-select'      // Screen 3: New Case Model Selection Modal

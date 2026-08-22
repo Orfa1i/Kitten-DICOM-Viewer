@@ -6,12 +6,22 @@ import { AiAssistantDrawer } from './components/views/AiAssistantDrawer';
 import { ModelSelectionModal } from './components/views/ModelSelectionModal';
 import { IntakeUploadModal } from './components/views/IntakeUploadModal';
 import { DiagnosticStudioView } from './components/views/DiagnosticStudioView';
+import { LandingPageView } from './components/views/LandingPageView';
 import { ScreenStateNavigator } from './components/interactive/ScreenStateNavigator';
 import { LaptopMockupFrame } from './components/layout/LaptopMockupFrame';
 import { LlmSettingsModal } from './components/modals/LlmSettingsModal';
 
 const MainContent: React.FC = () => {
   const { currentScreen, presentationMode } = useMedicalApp();
+
+  if (currentScreen === 'landing') {
+    return (
+      <>
+        <LandingPageView />
+        <LlmSettingsModal />
+      </>
+    );
+  }
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
