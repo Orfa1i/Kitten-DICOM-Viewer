@@ -49,6 +49,7 @@ class BoneFractureResponse(BaseModel):
     status: str = "success"
     fractures_found: int
     data: List[FractureDetectionItem]
+    heatmap_image_base64: Optional[str] = None
 
 class ChatRequest(BaseModel):
     message: str

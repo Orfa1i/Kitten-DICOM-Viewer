@@ -59,6 +59,10 @@ interface MedicalAppContextType {
   runInference: () => Promise<void>;
   showBoundingBoxes: boolean;
   setShowBoundingBoxes: (val: boolean) => void;
+  visualizationMode: 'bbox' | 'heatmap';
+  setVisualizationMode: (mode: 'bbox' | 'heatmap') => void;
+  heatmapImage: string | null;
+  setHeatmapImage: (img: string | null) => void;
   brightness: number;
   setBrightness: (val: number) => void;
   contrast: number;
@@ -223,6 +227,8 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectionProgress, setDetectionProgress] = useState(0);
   const [showBoundingBoxes, setShowBoundingBoxes] = useState(true);
+  const [visualizationMode, setVisualizationMode] = useState<'bbox' | 'heatmap'>('bbox');
+  const [heatmapImage, setHeatmapImage] = useState<string | null>(null);
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -325,6 +331,10 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           // Set real detections from the YOLO11n model
           const detections = apiResult.data || [];
           setDetectedFractures(detections);
+
+          if (apiResult.heatmap_image_base64) {
+            setHeatmapImage(apiResult.heatmap_image_base64);
+          }
 
           if (detections.length > 0) {
             const highestConf = Math.round(Math.max(...detections.map(d => d.confidence)) * 1000) / 10;
@@ -541,6 +551,10 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         runInference,
         showBoundingBoxes,
         setShowBoundingBoxes,
+        visualizationMode,
+        setVisualizationMode,
+        heatmapImage,
+        setHeatmapImage,
         brightness,
         setBrightness,
         contrast,

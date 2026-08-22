@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
-import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Sun } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Sun, Box, Flame } from 'lucide-react';
 
 export const DicomViewport: React.FC = () => {
   const { 
     showBoundingBoxes, 
     setShowBoundingBoxes, 
+    visualizationMode,
+    setVisualizationMode,
+    heatmapImage,
     brightness, 
     setBrightness, 
     contrast, 
@@ -94,6 +97,37 @@ export const DicomViewport: React.FC = () => {
         </div>
       </div>
 
+      {/* Visualization Mode Toggle: Bounding Box / Heatmap */}
+      <div className="absolute top-14 left-5 right-5 flex items-center justify-center z-20 pointer-events-auto">
+        <div className="bg-[#202226]/90 backdrop-blur-md border border-white/15 rounded-full p-1 flex items-center gap-1 shadow-lg">
+          <button
+            type="button"
+            onClick={() => setVisualizationMode('bbox')}
+            className={`px-3 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
+              visualizationMode === 'bbox'
+                ? 'bg-[#00E676] text-black shadow-xs font-bold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Box className="w-3.5 h-3.5" />
+            <span>Bounding Box</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setVisualizationMode('heatmap')}
+            className={`px-3 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
+              visualizationMode === 'heatmap'
+                ? 'bg-[#FF9100] text-black shadow-xs font-bold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Flame className="w-3.5 h-3.5" />
+            <span>Heatmap</span>
+          </button>
+        </div>
+      </div>
+
       {/* Main Viewport Container */}
       <div 
         className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-[24px] cursor-grab active:cursor-grabbing flex-1"
@@ -117,8 +151,8 @@ export const DicomViewport: React.FC = () => {
             className="w-full max-h-[480px] object-contain select-none pointer-events-none rounded-xl"
           />
 
-          {/* Real Dynamic Bounding Box Overlay for Bone Fracture Detection from Server YOLO11n */}
-          {showBoundingBoxes && selectedModel === 'fracture-detection' && detectedFractures.length > 0 && (
+          {/* Mode 1: Bounding Box Overlay for Bone Fracture Detection */}
+          {visualizationMode === 'bbox' && showBoundingBoxes && selectedModel === 'fracture-detection' && detectedFractures.length > 0 && (
             <div className="absolute inset-0 pointer-events-none">
               {detectedFractures.map((df, idx) => {
                 const left = (df.bounding_box.x1 / imageDimensions.width) * 100;
@@ -146,7 +180,46 @@ export const DicomViewport: React.FC = () => {
             </div>
           )}
 
-          {/* Dynamic Bounding Box Overlay for Knee Osteoarthritis */}
+          {/* Mode 2: Heatmap Overlay for Bone Fracture Detection */}
+          {visualizationMode === 'heatmap' && (
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              {heatmapImage ? (
+                <img
+                  src={heatmapImage}
+                  alt="AI Heatmap Overlay"
+                  className="w-full max-h-[480px] object-contain rounded-xl transition-opacity duration-300"
+                  style={{ opacity: 0.55, mixBlendMode: 'screen' }}
+                />
+              ) : detectedFractures.length > 0 ? (
+                // Procedural SVG Heatmap fallback if backend base64 not yet cached
+                <div className="absolute inset-0 pointer-events-none">
+                  {detectedFractures.map((df, idx) => {
+                    const cx = ((df.bounding_box.x1 + df.bounding_box.x2) / 2 / imageDimensions.width) * 100;
+                    const cy = ((df.bounding_box.y1 + df.bounding_box.y2) / 2 / imageDimensions.height) * 100;
+                    const r = (Math.max(df.bounding_box.x2 - df.bounding_box.x1, df.bounding_box.y2 - df.bounding_box.y1) / imageDimensions.width) * 100;
+
+                    return (
+                      <div
+                        key={idx}
+                        className="absolute rounded-full blur-xl animate-pulse"
+                        style={{
+                          left: `${cx - r / 2}%`,
+                          top: `${cy - r / 2}%`,
+                          width: `${r * 1.5}%`,
+                          height: `${r * 1.5}%`,
+                          background: 'radial-gradient(circle, rgba(255,0,0,0.85) 0%, rgba(255,165,0,0.65) 45%, rgba(0,230,118,0.4) 75%, transparent 100%)',
+                          opacity: 0.7,
+                          mixBlendMode: 'screen',
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          )}
+
+          {/* Knee Osteoarthritis Bounding Box Overlay */}
           {showBoundingBoxes && selectedModel === 'knee-osteoarthritis' && !annotatedImageUrl && (
             <div className="absolute inset-0 pointer-events-none">
               <div
@@ -178,7 +251,7 @@ export const DicomViewport: React.FC = () => {
             </div>
           )}
 
-          {/* Dynamic Bounding Box Overlay for Knee Abnormality */}
+          {/* Knee Abnormality Bounding Box Overlay */}
           {showBoundingBoxes && selectedModel === 'knee-abnormality' && (
             <div className="absolute inset-0 pointer-events-none">
               <div
@@ -218,7 +291,7 @@ export const DicomViewport: React.FC = () => {
         <button
           onClick={() => setShowBoundingBoxes(!showBoundingBoxes)}
           className={`p-2 rounded-full transition ${showBoundingBoxes ? 'text-[#00E676] bg-[#00E676]/20' : 'hover:bg-white/20'}`}
-          title="Toggle Bounding Box Highlighting"
+          title="Toggle Highlighting"
         >
           {showBoundingBoxes ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
         </button>

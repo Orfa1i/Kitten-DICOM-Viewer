@@ -3,6 +3,7 @@ import uuid
 import shutil
 import logging
 import cv2
+import base64
 import numpy as np
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
@@ -135,10 +136,41 @@ async def detect_bone_fracture(file: UploadFile = File(..., description="Radiogr
                         "confidence": conf
                     })
 
+        # Generate Gaussian Probability Activation Heatmap from YOLO detections
+        h, w = image.shape[:2]
+        heatmap_mask = np.zeros((h, w), dtype=np.float32)
+
+        if detections:
+            x_coords = np.arange(0, w, 1, dtype=np.float32)
+            y_coords = np.arange(0, h, 1, dtype=np.float32)
+            xx, yy = np.meshgrid(x_coords, y_coords)
+
+            for det in detections:
+                box = det["bounding_box"]
+                cx = (box["x1"] + box["x2"]) / 2.0
+                cy = (box["y1"] + box["y2"]) / 2.0
+                sx = max((box["x2"] - box["x1"]) / 2.2, 12.0)
+                sy = max((box["y2"] - box["y1"]) / 2.2, 12.0)
+
+                g = np.exp(-(((xx - cx) ** 2) / (2.0 * sx ** 2) + ((yy - cy) ** 2) / (2.0 * sy ** 2))) * float(det["confidence"])
+                heatmap_mask = np.maximum(heatmap_mask, g)
+
+        heatmap_mask = cv2.GaussianBlur(heatmap_mask, (15, 15), 0)
+        max_val = np.max(heatmap_mask)
+        if max_val > 0:
+            heatmap_mask = heatmap_mask / max_val
+        heatmap_uint8 = np.uint8(255 * np.clip(heatmap_mask, 0, 1))
+
+        colored_heatmap = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
+        _, buffer = cv2.imencode('.png', colored_heatmap)
+        heatmap_b64_str = base64.b64encode(buffer).decode('utf-8')
+        heatmap_image_base64 = f"data:image/png;base64,{heatmap_b64_str}"
+
         return {
             "status": "success",
             "fractures_found": len(detections),
-            "data": detections
+            "data": detections,
+            "heatmap_image_base64": heatmap_image_base64
         }
 
     except HTTPException:

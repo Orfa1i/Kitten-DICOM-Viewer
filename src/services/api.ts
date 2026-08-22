@@ -61,6 +61,7 @@ export interface BoneFractureApiResponse {
   status: string;
   fractures_found: number;
   data: BoneFractureItem[];
+  heatmap_image_base64?: string;
 }
 
 export interface LlmTestResult {
