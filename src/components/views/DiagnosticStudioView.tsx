@@ -261,24 +261,26 @@ export const DiagnosticStudioView: React.FC = () => {
               <div className="space-y-2.5 text-zinc-700">
                 <div className="flex justify-between border-b border-zinc-300 pb-1">
                   <span className="text-zinc-500 font-medium text-[12.5px]">Patient ID:</span>
-                  <span className="font-mono font-bold text-zinc-900 text-[13px]">{patientForm.id}</span>
+                  <span className="font-mono font-bold text-zinc-900 text-[13px]">{patientForm.id || 'Pending ID'}</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-300 pb-1">
                   <span className="text-zinc-500 font-medium text-[12.5px]">Name:</span>
-                  <span className="font-semibold text-zinc-900 text-[13px]">{patientForm.name}</span>
+                  <span className="font-semibold text-zinc-900 text-[13px]">{patientForm.name || 'Unassigned Patient'}</span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-300 pb-1">
                   <span className="text-zinc-500 font-medium text-[12.5px]">Age / Sex:</span>
-                  <span className="font-semibold text-zinc-900 text-[13px]">{patientForm.age} y/o ({patientForm.sex})</span>
+                  <span className="font-semibold text-zinc-900 text-[13px]">
+                    {patientForm.age ? `${patientForm.age} y/o (${patientForm.sex || 'unspecified'})` : '—'}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b border-zinc-300 pb-1">
                   <span className="text-zinc-500 font-medium text-[12.5px]">Study Date:</span>
-                  <span className="font-mono text-zinc-800 text-[12.5px]">{patientForm.studyDate || '2026-08-21'}</span>
+                  <span className="font-mono text-zinc-800 text-[12.5px]">{patientForm.studyDate || 'Today'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500 font-medium text-[12.5px]">Region:</span>
                   <span className="font-semibold text-zinc-800 text-[12.5px]">
-                    {selectedModel === 'fracture-detection' ? 'Forearm / Radius-Ulna AP' : selectedModel === 'knee-osteoarthritis' ? 'Knee Bilateral AP' : 'Knee Lateral View'}
+                    {patientForm.bodyPart || (selectedModel === 'fracture-detection' ? 'Forearm / Radius-Ulna AP' : selectedModel === 'knee-osteoarthritis' ? 'Knee Bilateral AP' : 'Knee Lateral View')}
                   </span>
                 </div>
               </div>

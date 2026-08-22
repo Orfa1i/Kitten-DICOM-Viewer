@@ -2,9 +2,10 @@ import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { SettingPanel } from '../interactive/SettingPanel';
 import { LottieIcon } from '../ui/LottieIcon';
+import { Plus, FolderSearch } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
-  const { cases, searchQuery, loadCase } = useMedicalApp();
+  const { cases, searchQuery, loadCase, openNewCaseModal } = useMedicalApp();
 
   const filteredCases = cases.filter(c => 
     c.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -21,13 +22,23 @@ export const DashboardView: React.FC = () => {
       <div className="flex-1 bg-[#8D321F] rounded-[32px] p-6 shadow-md flex flex-col justify-between h-full overflow-hidden">
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Card Header: Cases + File Icon Scaled Up to 40px */}
-          <div className="flex items-center gap-3.5 mb-4 px-2 flex-shrink-0">
-            <h2 className="text-[28px] font-display font-semibold text-white tracking-tight">
-              Cases
-            </h2>
-            <div className="w-10 h-10 filter brightness-0 invert flex items-center justify-center">
-              <LottieIcon name="file" size={40} />
+          <div className="flex items-center justify-between mb-4 px-2 flex-shrink-0">
+            <div className="flex items-center gap-3.5">
+              <h2 className="text-[28px] font-display font-semibold text-white tracking-tight">
+                Cases
+              </h2>
+              <div className="w-10 h-10 filter brightness-0 invert flex items-center justify-center">
+                <LottieIcon name="file" size={40} />
+              </div>
             </div>
+
+            <button
+              onClick={openNewCaseModal}
+              className="bg-white/15 hover:bg-white/25 text-white border border-white/20 px-4 py-2 rounded-full flex items-center gap-2 text-xs font-semibold transition active:scale-95 shadow-xs"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Case</span>
+            </button>
           </div>
 
           {/* Inner Table Card */}
@@ -57,17 +68,17 @@ export const DashboardView: React.FC = () => {
 
                   {/* Patient Name */}
                   <div className="col-span-3 text-center font-medium text-zinc-800">
-                    {caseItem.patientName}
+                    {caseItem.patientName || 'Anonymous'}
                   </div>
 
                   {/* Age */}
                   <div className="col-span-2 text-center font-medium text-zinc-600">
-                    {caseItem.age}
+                    {caseItem.age || '—'}
                   </div>
 
                   {/* Sex */}
                   <div className="col-span-2 text-center font-medium capitalize text-zinc-600">
-                    {caseItem.sex}
+                    {caseItem.sex || '—'}
                   </div>
 
                   {/* Type Pill */}
@@ -83,9 +94,31 @@ export const DashboardView: React.FC = () => {
                 </div>
               ))}
 
+              {/* Clean Empty State when zero cases */}
               {filteredCases.length === 0 && (
-                <div className="py-16 text-center text-zinc-400 font-medium">
-                  No cases found matching "{searchQuery}"
+                <div className="py-20 flex flex-col items-center justify-center text-center space-y-4 text-zinc-500">
+                  <div className="w-16 h-16 rounded-full bg-[#8D321F]/10 border border-[#8D321F]/20 flex items-center justify-center text-[#8D321F]">
+                    <FolderSearch className="w-8 h-8 stroke-[1.5]" />
+                  </div>
+                  <div className="space-y-1 max-w-sm">
+                    <h3 className="text-base font-semibold text-zinc-800">
+                      {searchQuery ? `No cases matching "${searchQuery}"` : 'No Diagnostic Cases Recorded'}
+                    </h3>
+                    <p className="text-xs text-zinc-500">
+                      {searchQuery 
+                        ? 'Try searching with a different patient name or case ID.'
+                        : 'Start a new clinical radiograph evaluation using the button below.'}
+                    </p>
+                  </div>
+                  {!searchQuery && (
+                    <button
+                      onClick={openNewCaseModal}
+                      className="bg-[#8D321F] hover:bg-[#7D2A18] text-white px-5 py-2.5 rounded-full text-xs font-semibold flex items-center gap-2 transition active:scale-95 shadow-sm hover:shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Create First Case</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>

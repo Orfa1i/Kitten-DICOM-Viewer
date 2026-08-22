@@ -2,12 +2,12 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 class PatientMetadata(BaseModel):
-    id: str = "kt-523476"
-    name: str = "Mohamad"
-    age: int = 33
-    sex: str = "male"
+    id: Optional[str] = None
+    name: Optional[str] = None
+    age: Optional[int] = None
+    sex: Optional[str] = "male"
     study_date: Optional[str] = None
-    body_part: Optional[str] = "Knee Bilateral AP"
+    body_part: Optional[str] = None
 
 class JointClassification(BaseModel):
     kl_grade: int

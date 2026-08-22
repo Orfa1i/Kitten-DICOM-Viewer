@@ -86,69 +86,14 @@ interface MedicalAppContextType {
   loadCase: (caseId: string) => void;
 }
 
-const defaultCases: CaseRecord[] = [
-  {
-    id: 'kt-523476',
-    patientName: 'Mohamad',
-    age: 33,
-    sex: 'male',
-    type: 'Knee Abnormality',
-    typeSub: 'CTFS Lateral View',
-    date: '2026-08-21',
-    status: 'Completed',
-    confidence: 98.6,
-    diagnosisTitle: 'Lateral Tibial Plateau Cortical Micro-Break',
-    findings: [
-      'Lateral tibial plateau cortical discontinuity',
-      'Soft tissue swelling anterior to proximal fibula',
-      'CTFS measurement indicates grade II displacement'
-    ],
-    recommendation: 'Weight-bearing CT scan and orthopedic sports medicine evaluation.'
-  },
-  {
-    id: 'kt-523477',
-    patientName: 'Sarah Jenkins',
-    age: 45,
-    sex: 'female',
-    type: 'Knee Osteoarthritis',
-    typeSub: 'Bilateral Weight-Bearing AP',
-    date: '2026-08-20',
-    status: 'Completed',
-    confidence: 97.4,
-    diagnosisTitle: 'KL Grade 3: Moderate Knee Osteoarthritis',
-    findings: [
-      'Medial joint space narrowing (Kellgren-Lawrence Grade 3)',
-      'Subchondral sclerosis of medial tibial plateau',
-      'Marginal osteophyte formation along distal femur'
-    ],
-    recommendation: 'Viscosupplementation, unloader bracing, and structured quadriceps rehabilitation.'
-  },
-  {
-    id: 'kt-523478',
-    patientName: 'Marcus Vance',
-    age: 28,
-    sex: 'male',
-    type: 'Fracture Detection',
-    typeSub: 'Forearm / Radius AP-Lat',
-    date: '2026-08-19',
-    status: 'Completed',
-    confidence: 99.1,
-    diagnosisTitle: 'Mid-shaft Radial Diaphyseal Fracture (Complete)',
-    findings: [
-      'Complete transverse mid-shaft radial fracture',
-      '2.4mm dorsal cortical displacement',
-      'Radiocapitellar and distal radioulnar joints intact'
-    ],
-    recommendation: 'Closed reduction, sugar-tong splint immobilization, and orthopedic follow-up in 7 days.'
-  }
-];
+const defaultCases: CaseRecord[] = [];
 
 const initialAiMessages: AiChatMessage[] = [
   {
     id: '1',
     sender: 'assistant',
-    text: 'Hello Dr. Hassan! Kitten Clinical Copilot is active. You can ask for DICOM measurements, differential diagnoses, or model confidence breakdown.',
-    timestamp: '17:20'
+    text: 'Kitten Clinical Copilot is online. Upload a radiograph or select a case to begin diagnostic assistance.',
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 ];
 
@@ -162,21 +107,13 @@ const defaultLlmConfig: LlmConfig = {
 };
 
 const defaultDiagnosticReport: DiagnosticReportData = {
-  diagnosis: 'Mid-shaft Radial Diaphyseal Fracture (Complete)',
+  diagnosis: 'Awaiting Diagnostic Scan',
   findings: [
-    'Displacement: 2.4 mm dorsal cortical shift',
-    'Angulation: 11.8° radial tilt',
-    'Articular Extension: None detected',
-    'Proximal/Distal Radioulnar Joints: Preserved'
+    'No active scan loaded.',
+    'Upload a radiograph or select a study to perform neural network inference.'
   ],
-  metrics: [
-    { label: 'Displacement', value: '2.4 mm dorsal cortical shift' },
-    { label: 'Angulation', value: '11.8° radial tilt' },
-    { label: 'Articular Extension', value: 'None detected' },
-    { label: 'Proximal/Distal Radioulnar Joints', value: 'Preserved' }
-  ],
-  recommendation: 'Isolated complete radial fracture without ulna plastic deformation (Galeazzi equivalent rule-out recommended with orthogonal wrist view).',
-  confidenceGrade: 'Grade A1 AI-Verified (98.6% IoU Match)'
+  recommendation: 'Upload an image via "+ New case" to generate clinical findings.',
+  confidenceGrade: 'Pending Inference'
 };
 
 const MedicalAppContext = createContext<MedicalAppContextType | undefined>(undefined);
@@ -251,22 +188,34 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [selectedModel, setSelectedModel] = useState<ModelType>(getInitialModel);
   
   const [patientForm, setPatientForm] = useState<PatientData>({
-    id: 'kt-523476',
-    name: 'Mohamad',
-    age: '33',
+    id: '',
+    name: '',
+    age: '',
     sex: 'male',
-    studyDate: '2026-08-21',
+    studyDate: '',
     modality: 'Digital Radiography (DX)',
-    bodyPart: 'Knee Bilateral AP'
+    bodyPart: ''
   });
 
-  const [uploadedFile, setUploadedFile] = useState<string | null>('/assets/images/model_knee_osteoarthritis.png');
-  const [uploadedFileName, setUploadedFileName] = useState('knee_osteoarthritis_scan.dicom');
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState('');
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
 
   const [cases, setCases] = useState<CaseRecord[]>(defaultCases);
-  const [activeCaseId, setActiveCaseId] = useState('kt-523476');
+  const [activeCaseId, setActiveCaseId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Synchronize PACS cases with backend
+  useEffect(() => {
+    fetch('http://localhost:8000/api/cases')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCases(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectionProgress, setDetectionProgress] = useState(0);
@@ -274,7 +223,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [accuracyScore, setAccuracyScore] = useState(98.6);
+  const [accuracyScore, setAccuracyScore] = useState(0);
   const [diagnosticReport, setDiagnosticReport] = useState<DiagnosticReportData>(defaultDiagnosticReport);
   const [detectedFractures, setDetectedFractures] = useState<Array<{
     bounding_box: { x1: number; y1: number; x2: number; y2: number };

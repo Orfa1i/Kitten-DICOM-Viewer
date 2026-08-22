@@ -75,7 +75,7 @@ fracture_model = YOLO(FRACTURE_MODEL_PATH)
 print("[Server] YOLO11n Bone Fracture model loaded successfully into memory.")
 
 # ============================================================================
-# 2. Pydantic Models & In-Memory Cases DB
+# 2. Pydantic Models & In-Memory Cases DB (Initialized empty)
 # ============================================================================
 class LlmTestRequest(BaseModel):
     provider: str
@@ -88,56 +88,8 @@ class DynamicChatRequest(BaseModel):
     config: Optional[Dict[str, Any]] = None
     context: Optional[Dict[str, Any]] = None
 
-cases_db = [
-    {
-        "id": "kt-523476",
-        "patientName": "Mohamad",
-        "age": 33,
-        "sex": "male",
-        "type": "Knee Abnormality",
-        "typeSub": "CTFS Lateral View",
-        "date": "2026-08-21",
-        "status": "Completed",
-        "confidence": 98.6,
-        "findings": [
-            "Lateral tibial plateau cortical discontinuity",
-            "Soft tissue swelling anterior to proximal fibula",
-            "CTFS measurement indicates grade II displacement"
-        ]
-    },
-    {
-        "id": "kt-523477",
-        "patientName": "Sarah Jenkins",
-        "age": 45,
-        "sex": "female",
-        "type": "Knee Osteoarthritis",
-        "typeSub": "Bilateral Weight-Bearing AP",
-        "date": "2026-08-20",
-        "status": "Completed",
-        "confidence": 97.4,
-        "findings": [
-            "Medial joint space narrowing (Kellgren-Lawrence Grade 3)",
-            "Subchondral sclerosis of medial tibial plateau",
-            "Marginal osteophyte formation along distal femur"
-        ]
-    },
-    {
-        "id": "kt-523478",
-        "patientName": "Marcus Vance",
-        "age": 28,
-        "sex": "male",
-        "type": "Fracture Detection",
-        "typeSub": "Forearm / Radius AP-Lat",
-        "date": "2026-08-19",
-        "status": "Completed",
-        "confidence": 99.1,
-        "findings": [
-            "Complete transverse mid-shaft radial fracture",
-            "2.4mm dorsal cortical displacement",
-            "Radiocapitellar and distal radioulnar joints intact"
-        ]
-    }
-]
+# Pure dynamic PACS Cases Database (No hardcoded dummy data)
+cases_db: List[Dict[str, Any]] = []
 
 # ============================================================================
 # 3. Detection Router (Contains both /knee-oa and /bone-fracture)
@@ -198,10 +150,10 @@ async def detect_bone_fracture(file: UploadFile = File(..., description="Radiogr
 @detection_router.post("/knee-oa", summary="Detect Knee Osteoarthritis & Kellgren-Lawrence Staging")
 async def detect_knee_oa(
     file: UploadFile = File(..., description="Knee Radiograph AP View"),
-    patient_id: str = Form("kt-523476"),
-    patient_name: str = Form("Mohamad"),
-    age: int = Form(33),
-    sex: str = Form("male")
+    patient_id: Optional[str] = Form(None),
+    patient_name: Optional[str] = Form(None),
+    age: Optional[int] = Form(None),
+    sex: Optional[str] = Form(None)
 ):
     """
     POST route for Knee Osteoarthritis Detection:
@@ -223,10 +175,10 @@ async def detect_knee_oa(
             **analysis_result,
             "request_id": request_id,
             "patient_info": {
-                "id": patient_id,
-                "name": patient_name,
+                "id": patient_id or f"kt-{request_id}",
+                "name": patient_name or "Anonymous",
                 "age": age,
-                "sex": sex,
+                "sex": sex or "unspecified",
                 "study_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
                 "body_part": "Knee Bilateral AP"
             },
@@ -295,7 +247,7 @@ def get_all_cases():
 @cases_router.post("/cases", summary="Save Diagnostic Case")
 def create_case(case_data: dict):
     """Save or update a case in the PACS database"""
-    existing_idx = next((i for i, c in enumerate(cases_db) if c["id"] == case_data.get("id")), -1)
+    existing_idx = next((i for i, c in enumerate(cases_db) if c.get("id") == case_data.get("id")), -1)
     if existing_idx >= 0:
         cases_db[existing_idx] = case_data
     else:
