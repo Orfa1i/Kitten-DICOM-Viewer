@@ -35,6 +35,21 @@ class KneeOAResponse(BaseModel):
     clinical_report: Dict[str, Any]
     image_url: Optional[str] = None
 
+class BoundingBoxCoordinates(BaseModel):
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+
+class FractureDetectionItem(BaseModel):
+    bounding_box: BoundingBoxCoordinates
+    confidence: float
+
+class BoneFractureResponse(BaseModel):
+    status: str = "success"
+    fractures_found: int
+    data: List[FractureDetectionItem]
+
 class ChatRequest(BaseModel):
     message: str
     context: Optional[Dict[str, Any]] = None

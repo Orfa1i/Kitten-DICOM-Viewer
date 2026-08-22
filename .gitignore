@@ -5,3 +5,11 @@ dist-ssr
 .vscode
 .DS_Store
 .originkit/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+*/venv/
+*/**/venv/
+backend/temp_uploads/

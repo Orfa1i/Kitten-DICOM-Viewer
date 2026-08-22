@@ -141,6 +141,40 @@ export const apiService = {
     return null;
   },
 
+  async runBoneFractureDetection(
+    fileBlobOrUrl: Blob | string
+  ): Promise<{
+    status: string;
+    fractures_found: number;
+    data: Array<{
+      bounding_box: { x1: number; y1: number; x2: number; y2: number };
+      confidence: number;
+    }>;
+  } | null> {
+    try {
+      const formData = new FormData();
+      if (typeof fileBlobOrUrl === 'string') {
+        const imageRes = await fetch(fileBlobOrUrl);
+        const blob = await imageRes.blob();
+        formData.append('file', blob, 'fracture_study.png');
+      } else {
+        formData.append('file', fileBlobOrUrl, 'fracture_study.png');
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/detect/bone-fracture`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('API runBoneFractureDetection fallback', e);
+    }
+    return null;
+  },
+
   async sendChatMessage(
     message: string,
     config?: LlmConfig,
