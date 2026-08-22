@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { ModelType } from '../../types';
-import PixelReveal from '../originkit/ui/pixel-reveal-custom-sred';
+import DitherEffect2 from '../originkit/ui/dither-effect-2-custom-style344';
 import { SparkleIcon, LottieIcon } from '../ui/LottieIcon';
 import { 
   ArrowRight, 
@@ -81,11 +81,17 @@ export const LandingPageView: React.FC = () => {
         </div>
       </header>
 
-      {/* HERO SECTION WITH PIXELREVEAL CANVAS BACKGROUND */}
+      {/* HERO SECTION WITH DITHER EFFECT SHADER BACKGROUND */}
       <section className="relative min-h-[92vh] flex items-center justify-center pt-24 pb-16 px-4 md:px-8 overflow-hidden bg-[#8D321F]">
-        {/* Interactive Pixel Reveal Canvas Background */}
-        <div className="absolute inset-0 z-0 opacity-95">
-          <PixelReveal />
+        {/* Interactive WebGL2 Dither Swirl Shader Background */}
+        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
+          <DitherEffect2
+            background="#3D1007"
+            color="#FF8A65"
+            size={34}
+            speed={40}
+            scale={42}
+          />
         </div>
 
         {/* Gradient Vignette Overlays for Maximum Text Legibility */}
