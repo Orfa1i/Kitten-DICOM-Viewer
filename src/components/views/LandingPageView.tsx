@@ -39,7 +39,7 @@ export const LandingPageView: React.FC = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#8D321F]/90 backdrop-blur-md border-b border-white/10 text-white px-6 md:px-12 py-4 flex items-center justify-between transition-all">
         {/* Brand */}
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <span className="font-['Fredoka'] font-semibold text-[32px] tracking-normal text-white drop-shadow-sm">
+          <span className="font-spartan font-bold text-[34px] tracking-tight text-white drop-shadow-sm">
             Kitten
           </span>
           <span className="bg-white/15 border border-white/20 text-white text-[11.5px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
@@ -108,8 +108,8 @@ export const LandingPageView: React.FC = () => {
             <span>Next-Gen Medical Imaging & Deep Learning Diagnostic Suite</span>
           </div>
 
-          {/* Main Headline */}
-          <h1 className="font-display font-bold text-[38px] sm:text-[54px] md:text-[68px] leading-[1.08] tracking-tight text-white drop-shadow-md">
+          {/* Main Headline with League Spartan */}
+          <h1 className="font-spartan font-bold text-[40px] sm:text-[56px] md:text-[72px] leading-[1.04] tracking-tight text-white drop-shadow-md">
             Precision Radiograph AI.<br />
             <span className="text-white/90">Sub-Second Diagnostic Intelligence.</span>
           </h1>
@@ -123,7 +123,7 @@ export const LandingPageView: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-2 w-full justify-center">
             <button
               onClick={() => setCurrentScreen('dashboard')}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white hover:bg-zinc-100 text-[#8D321F] text-[17px] font-bold px-8 py-4 rounded-full shadow-2xl hover:shadow-glow-rust transition-all duration-200 active:scale-95 group"
+              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white hover:bg-zinc-100 text-[#8D321F] text-[17px] font-bold px-8 py-4 rounded-full shadow-2xl hover:shadow-glow-rust transition-all duration-200 active:scale-95 group font-spartan"
             >
               <span>Enter Diagnostic Studio</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform text-[#8D321F]" />
@@ -131,7 +131,7 @@ export const LandingPageView: React.FC = () => {
 
             <button
               onClick={() => handleLaunchModel('knee-osteoarthritis')}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur-md text-white text-[16px] font-semibold px-7 py-4 rounded-full transition-all duration-200 active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur-md text-white text-[16px] font-semibold px-7 py-4 rounded-full transition-all duration-200 active:scale-95 font-spartan"
             >
               <Activity className="w-5 h-5 text-emerald-300" />
               <span>Test Knee OA Model</span>
@@ -145,8 +145,8 @@ export const LandingPageView: React.FC = () => {
                 <Cpu className="w-5 h-5 text-emerald-300" />
               </div>
               <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold">Hardware</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight">RTX 4060 GPU</span>
+                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Hardware</span>
+                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">RTX 4060 GPU</span>
               </div>
             </div>
 
@@ -155,8 +155,8 @@ export const LandingPageView: React.FC = () => {
                 <CheckCircle2 className="w-5 h-5 text-emerald-300" />
               </div>
               <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold">Accuracy</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight">98.6% IoU Match</span>
+                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Accuracy</span>
+                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">98.6% IoU Match</span>
               </div>
             </div>
 
@@ -165,8 +165,8 @@ export const LandingPageView: React.FC = () => {
                 <ShieldCheck className="w-5 h-5 text-emerald-300" />
               </div>
               <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold">Security</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight">256-bit AES PACS</span>
+                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Security</span>
+                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">256-bit AES PACS</span>
               </div>
             </div>
 
@@ -175,8 +175,8 @@ export const LandingPageView: React.FC = () => {
                 <Zap className="w-5 h-5 text-emerald-300" />
               </div>
               <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold">Latency</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight">&lt; 0.4s Inference</span>
+                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Latency</span>
+                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">&lt; 0.4s Inference</span>
               </div>
             </div>
           </div>
@@ -187,10 +187,10 @@ export const LandingPageView: React.FC = () => {
       <section id="models" className="py-20 px-6 md:px-12 max-w-[1360px] mx-auto w-full">
         {/* Section Header */}
         <div className="text-center max-w-[720px] mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8D321F]/10 text-[#8D321F] text-[13px] font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8D321F]/10 text-[#8D321F] text-[13px] font-bold uppercase tracking-wider font-spartan">
             Clinical Neural Networks
           </div>
-          <h2 className="text-[36px] md:text-[44px] font-display font-bold text-[#1F1F1F] tracking-tight">
+          <h2 className="text-[38px] md:text-[48px] font-spartan font-bold text-[#1F1F1F] tracking-tight">
             Specialized Medical Vision Models
           </h2>
           <p className="text-[16px] text-zinc-600 leading-relaxed">
@@ -209,13 +209,13 @@ export const LandingPageView: React.FC = () => {
                   alt="Knee Osteoarthritis Detection"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-[#8D321F] text-white text-[11.5px] font-bold px-3 py-1 rounded-full">
+                <div className="absolute top-3 left-3 bg-[#8D321F] text-white text-[11.5px] font-bold px-3 py-1 rounded-full font-spartan">
                   KL0 – KL4 Staging
                 </div>
               </div>
 
               <div>
-                <h3 className="text-[22px] font-display font-semibold text-zinc-900 tracking-tight">
+                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight">
                   Knee Osteoarthritis
                 </h3>
                 <p className="text-[14px] text-zinc-500 font-mono mt-0.5">
@@ -230,7 +230,7 @@ export const LandingPageView: React.FC = () => {
               <div className="space-y-2 pt-2 border-t border-zinc-100 text-[13px]">
                 <div className="flex justify-between text-zinc-600">
                   <span>Accuracy Benchmark:</span>
-                  <strong className="text-[#00BF63] font-bold">97.8% verified</strong>
+                  <strong className="text-[#00BF63] font-bold font-spartan">97.8% verified</strong>
                 </div>
                 <div className="flex justify-between text-zinc-600">
                   <span>Modality:</span>
@@ -241,7 +241,7 @@ export const LandingPageView: React.FC = () => {
 
             <button
               onClick={() => handleLaunchModel('knee-osteoarthritis')}
-              className="mt-6 w-full bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm"
+              className="mt-6 w-full bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
             >
               <span>Run Diagnostic Scan</span>
               <ChevronRight className="w-4 h-4" />
@@ -257,13 +257,13 @@ export const LandingPageView: React.FC = () => {
                   alt="Knee Abnormality"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-zinc-800 text-white text-[11.5px] font-bold px-3 py-1 rounded-full">
+                <div className="absolute top-3 left-3 bg-zinc-800 text-white text-[11.5px] font-bold px-3 py-1 rounded-full font-spartan">
                   CTFS Alignment
                 </div>
               </div>
 
               <div>
-                <h3 className="text-[22px] font-display font-semibold text-zinc-900 tracking-tight">
+                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight">
                   Knee Abnormality
                 </h3>
                 <p className="text-[14px] text-zinc-500 font-mono mt-0.5">
@@ -278,7 +278,7 @@ export const LandingPageView: React.FC = () => {
               <div className="space-y-2 pt-2 border-t border-zinc-100 text-[13px]">
                 <div className="flex justify-between text-zinc-600">
                   <span>Accuracy Benchmark:</span>
-                  <strong className="text-[#00BF63] font-bold">98.6% verified</strong>
+                  <strong className="text-[#00BF63] font-bold font-spartan">98.6% verified</strong>
                 </div>
                 <div className="flex justify-between text-zinc-600">
                   <span>Modality:</span>
@@ -289,7 +289,7 @@ export const LandingPageView: React.FC = () => {
 
             <button
               onClick={() => handleLaunchModel('knee-abnormality')}
-              className="mt-6 w-full bg-zinc-900 hover:bg-[#8D321F] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm"
+              className="mt-6 w-full bg-zinc-900 hover:bg-[#8D321F] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
             >
               <span>Run Diagnostic Scan</span>
               <ChevronRight className="w-4 h-4" />
@@ -305,13 +305,13 @@ export const LandingPageView: React.FC = () => {
                   alt="Fracture Detection"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-[#00BF63] text-white text-[11.5px] font-bold px-3 py-1 rounded-full">
+                <div className="absolute top-3 left-3 bg-[#00BF63] text-white text-[11.5px] font-bold px-3 py-1 rounded-full font-spartan">
                   Cortical Break
                 </div>
               </div>
 
               <div>
-                <h3 className="text-[22px] font-display font-semibold text-zinc-900 tracking-tight">
+                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight">
                   Fracture Detection
                 </h3>
                 <p className="text-[14px] text-zinc-500 font-mono mt-0.5">
@@ -326,7 +326,7 @@ export const LandingPageView: React.FC = () => {
               <div className="space-y-2 pt-2 border-t border-zinc-100 text-[13px]">
                 <div className="flex justify-between text-zinc-600">
                   <span>Accuracy Benchmark:</span>
-                  <strong className="text-[#00BF63] font-bold">99.1% verified</strong>
+                  <strong className="text-[#00BF63] font-bold font-spartan">99.1% verified</strong>
                 </div>
                 <div className="flex justify-between text-zinc-600">
                   <span>Modality:</span>
@@ -337,7 +337,7 @@ export const LandingPageView: React.FC = () => {
 
             <button
               onClick={() => handleLaunchModel('fracture-detection')}
-              className="mt-6 w-full bg-zinc-900 hover:bg-[#8D321F] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm"
+              className="mt-6 w-full bg-zinc-900 hover:bg-[#8D321F] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
             >
               <span>Run Diagnostic Scan</span>
               <ChevronRight className="w-4 h-4" />
@@ -350,10 +350,10 @@ export const LandingPageView: React.FC = () => {
       <section id="workflow" className="py-20 bg-[#FAF6F6] border-y border-zinc-200/80 px-6 md:px-12">
         <div className="max-w-[1360px] mx-auto w-full">
           <div className="text-center max-w-[720px] mx-auto mb-14 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8D321F]/10 text-[#8D321F] text-[13px] font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8D321F]/10 text-[#8D321F] text-[13px] font-bold uppercase tracking-wider font-spartan">
               Diagnostic Pipeline
             </div>
-            <h2 className="text-[36px] md:text-[44px] font-display font-bold text-[#1F1F1F] tracking-tight">
+            <h2 className="text-[38px] md:text-[48px] font-spartan font-bold text-[#1F1F1F] tracking-tight">
               Seamless 3-Step Radiologist Workflow
             </h2>
             <p className="text-[16px] text-zinc-600">
@@ -364,10 +364,10 @@ export const LandingPageView: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="bg-white rounded-[28px] border border-zinc-300 p-8 shadow-sm relative space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#8D321F] text-white font-display font-bold text-[20px] flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-[#8D321F] text-white font-spartan font-bold text-[22px] flex items-center justify-center shadow-md">
                 1
               </div>
-              <h3 className="text-[21px] font-display font-semibold text-zinc-900">
+              <h3 className="text-[22px] font-spartan font-bold text-zinc-900">
                 DICOM Intake & Ingestion
               </h3>
               <p className="text-[14.5px] text-zinc-600 leading-relaxed">
@@ -381,10 +381,10 @@ export const LandingPageView: React.FC = () => {
 
             {/* Step 2 */}
             <div className="bg-white rounded-[28px] border border-zinc-300 p-8 shadow-sm relative space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#8D321F] text-white font-display font-bold text-[20px] flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-[#8D321F] text-white font-spartan font-bold text-[22px] flex items-center justify-center shadow-md">
                 2
               </div>
-              <h3 className="text-[21px] font-display font-semibold text-zinc-900">
+              <h3 className="text-[22px] font-spartan font-bold text-zinc-900">
                 GPU Ensemble Inference
               </h3>
               <p className="text-[14.5px] text-zinc-600 leading-relaxed">
@@ -398,10 +398,10 @@ export const LandingPageView: React.FC = () => {
 
             {/* Step 3 */}
             <div className="bg-white rounded-[28px] border border-zinc-300 p-8 shadow-sm relative space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#8D321F] text-white font-display font-bold text-[20px] flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-[#8D321F] text-white font-spartan font-bold text-[22px] flex items-center justify-center shadow-md">
                 3
               </div>
-              <h3 className="text-[21px] font-display font-semibold text-zinc-900">
+              <h3 className="text-[22px] font-spartan font-bold text-zinc-900">
                 Diagnostic Studio & PACS Sync
               </h3>
               <p className="text-[14.5px] text-zinc-600 leading-relaxed">
@@ -420,11 +420,11 @@ export const LandingPageView: React.FC = () => {
       <section id="copilot" className="py-20 px-6 md:px-12 max-w-[1360px] mx-auto w-full">
         <div className="bg-[#8D321F] rounded-[36px] p-8 md:p-14 text-white shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-10">
           <div className="space-y-6 max-w-[620px]">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 text-white text-[13px] font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 text-white text-[13px] font-bold uppercase tracking-wider font-spartan">
               <SparkleIcon className="w-4 h-4 text-white" />
               Multi-Provider AI Diagnostic Copilot
             </div>
-            <h2 className="text-[34px] md:text-[46px] font-display font-bold leading-[1.1] tracking-tight">
+            <h2 className="text-[36px] md:text-[50px] font-spartan font-bold leading-[1.08] tracking-tight">
               Bring Your Own LLM.<br />
               <span className="text-white/90">Gemini, Claude, GPT-4o, or Ollama.</span>
             </h2>
@@ -435,14 +435,14 @@ export const LandingPageView: React.FC = () => {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => setIsLlmSettingsOpen(true)}
-                className="bg-white hover:bg-zinc-100 text-[#8D321F] font-bold px-7 py-3 rounded-full text-[15px] transition active:scale-95 shadow-md flex items-center gap-2"
+                className="bg-white hover:bg-zinc-100 text-[#8D321F] font-bold px-7 py-3 rounded-full text-[15px] transition active:scale-95 shadow-md flex items-center gap-2 font-spartan"
               >
                 <Sliders className="w-4.5 h-4.5 text-[#8D321F]" />
                 <span>Configure LLM Settings</span>
               </button>
               <button
                 onClick={() => setCurrentScreen('ai-assistant')}
-                className="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold px-6 py-3 rounded-full text-[15px] transition active:scale-95"
+                className="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold px-6 py-3 rounded-full text-[15px] transition active:scale-95 font-spartan"
               >
                 Open AI Assistant Drawer
               </button>
@@ -454,7 +454,7 @@ export const LandingPageView: React.FC = () => {
             <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
               <div className="flex items-center gap-2.5">
                 <SparkleIcon className="w-5 h-5 text-[#8D321F]" />
-                <span className="font-display font-semibold text-[17px] text-zinc-900">Kitten Clinical Copilot</span>
+                <span className="font-spartan font-bold text-[19px] text-zinc-900">Kitten Clinical Copilot</span>
               </div>
               <span className="text-[11px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
                 Online
@@ -463,12 +463,12 @@ export const LandingPageView: React.FC = () => {
 
             <div className="space-y-3 text-[13.5px]">
               <div className="bg-[#F5F2F2] rounded-2xl p-3.5 text-zinc-700">
-                <strong className="text-[#8D321F] block text-xs uppercase mb-1">Radiologist Query:</strong>
+                <strong className="text-[#8D321F] block text-xs uppercase mb-1 font-spartan">Radiologist Query:</strong>
                 "Explain the Kellgren-Lawrence grading criteria for Case #kt-523477."
               </div>
 
               <div className="bg-[#8D321F]/10 border border-[#8D321F]/20 rounded-2xl p-3.5 text-zinc-800 space-y-1.5">
-                <strong className="text-[#8D321F] block text-xs uppercase">AI Copilot Analysis:</strong>
+                <strong className="text-[#8D321F] block text-xs uppercase font-spartan">AI Copilot Analysis:</strong>
                 <p className="leading-relaxed text-[12.5px]">
                   Case #kt-523477 presents with marked medial joint space narrowing (&gt;50%), subchondral sclerosis of the tibial plateau, and osteophytes along the femoral condyle, consistent with <strong>KL Grade 3 (Moderate OA)</strong>.
                 </p>
@@ -485,12 +485,12 @@ export const LandingPageView: React.FC = () => {
       {/* FOOTER */}
       <footer className="bg-white border-t border-zinc-200 py-12 px-6 md:px-12 text-zinc-600">
         <div className="max-w-[1360px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Brand & Watermark */}
+          {/* Brand & Watermark with League Spartan */}
           <div className="flex items-center gap-3">
-            <span className="font-['Fredoka'] font-semibold text-[36px] text-[#8D321F] tracking-normal">
+            <span className="font-spartan font-bold text-[38px] text-[#8D321F] tracking-tight">
               Kitten
             </span>
-            <span className="font-['Fredoka'] font-semibold text-[20px] text-[#8D321F]/70">
+            <span className="font-spartan font-bold text-[22px] text-[#8D321F]/70 tracking-tight">
               2026
             </span>
             <span className="text-zinc-300 mx-2">|</span>
@@ -512,14 +512,14 @@ export const LandingPageView: React.FC = () => {
           <div>
             <button
               onClick={() => setCurrentScreen('dashboard')}
-              className="bg-[#8D321F] hover:bg-[#7D2A18] text-white px-6 py-2.5 rounded-full font-semibold text-[14px] transition active:scale-95 shadow-sm"
+              className="bg-[#8D321F] hover:bg-[#7D2A18] text-white px-6 py-2.5 rounded-full font-bold text-[14px] transition active:scale-95 shadow-sm font-spartan"
             >
               Launch Workstation &rarr;
             </button>
           </div>
         </div>
 
-        <div className="max-w-[1360px] mx-auto mt-8 pt-6 border-t border-zinc-100 text-center text-[11.5px] text-zinc-400">
+        <div className="max-w-[1360px] mx-auto mt-8 pt-6 border-t border-zinc-100 text-center text-[11.5px] text-zinc-400 font-spartan">
           © 2026 Kitten Medical Systems. AI Diagnostic Decision Support System — For Research & Clinical Triaging.
         </div>
       </footer>

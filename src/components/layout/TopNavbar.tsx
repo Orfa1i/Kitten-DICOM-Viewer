@@ -21,7 +21,7 @@ export const TopNavbar: React.FC = () => {
           className="flex items-center gap-2 group focus:outline-none"
           title="Return to Kitten Landing Page"
         >
-          <span className="font-['Fredoka'] font-semibold text-[34px] tracking-normal text-white hover:opacity-95 transition-opacity">
+          <span className="font-spartan font-bold text-[35px] tracking-tight text-white hover:opacity-95 transition-opacity">
             Kitten
           </span>
         </button>

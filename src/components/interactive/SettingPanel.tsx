@@ -75,12 +75,12 @@ export const SettingPanel: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom Watermark */}
+          {/* Bottom Watermark with League Spartan */}
           <div className="pt-6 pb-2 text-center flex flex-col items-center select-none">
-            <h1 className="font-['Fredoka'] font-semibold text-[46px] leading-none text-[#8D321F] tracking-normal">
+            <h1 className="font-spartan font-bold text-[48px] leading-none text-[#8D321F] tracking-tight">
               Kitten
             </h1>
-            <span className="font-['Fredoka'] font-semibold text-[23px] text-[#8D321F] tracking-wide mt-1">
+            <span className="font-spartan font-bold text-[24px] text-[#8D321F] tracking-tight mt-1">
               2026
             </span>
           </div>

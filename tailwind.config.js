@@ -40,7 +40,8 @@ export default {
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
-        display: ['Outfit', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        display: ['"League Spartan"', 'Outfit', '"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        spartan: ['"League Spartan"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {

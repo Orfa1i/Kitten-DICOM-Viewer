@@ -1,3 +1,33 @@
+@font-face {
+  font-family: 'League Spartan';
+  src: url('/fonts/leaguespartan-bold.woff2') format('woff2'),
+       url('/fonts/leaguespartan-bold.woff') format('woff'),
+       url('/fonts/leaguespartan-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'League Spartan';
+  src: url('/fonts/leaguespartan-bold.woff2') format('woff2'),
+       url('/fonts/leaguespartan-bold.woff') format('woff'),
+       url('/fonts/leaguespartan-bold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'League Spartan';
+  src: url('/fonts/leaguespartan-bold.woff2') format('woff2'),
+       url('/fonts/leaguespartan-bold.woff') format('woff'),
+       url('/fonts/leaguespartan-bold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
