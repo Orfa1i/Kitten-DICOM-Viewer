@@ -9,6 +9,7 @@ export const IntakeUploadModal: React.FC = () => {
     setPatientForm, 
     uploadedFile, 
     setUploadedFile, 
+    setUploadedFileRaw,
     setUploadedFileName,
     runInference, 
     isDetecting,
@@ -34,6 +35,7 @@ export const IntakeUploadModal: React.FC = () => {
     if (file) {
       const url = URL.createObjectURL(file);
       setUploadedFile(url);
+      setUploadedFileRaw(file);
       setUploadedFileName(file.name);
     }
   };
@@ -43,6 +45,7 @@ export const IntakeUploadModal: React.FC = () => {
     if (file) {
       const url = URL.createObjectURL(file);
       setUploadedFile(url);
+      setUploadedFileRaw(file);
       setUploadedFileName(file.name);
     }
   };

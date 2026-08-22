@@ -158,16 +158,18 @@ export const apiService = {
   },
 
   async runBoneFractureDetection(
-    fileBlobOrUrl: Blob | string
+    fileBlobOrUrl: Blob | File | string
   ): Promise<BoneFractureApiResponse | null> {
     try {
       const formData = new FormData();
-      if (typeof fileBlobOrUrl === 'string') {
+      if (fileBlobOrUrl instanceof File) {
+        formData.append('file', fileBlobOrUrl, fileBlobOrUrl.name);
+      } else if (fileBlobOrUrl instanceof Blob) {
+        formData.append('file', fileBlobOrUrl, 'fracture_study.png');
+      } else if (typeof fileBlobOrUrl === 'string') {
         const imageRes = await fetch(fileBlobOrUrl);
         const blob = await imageRes.blob();
         formData.append('file', blob, 'fracture_study.png');
-      } else {
-        formData.append('file', fileBlobOrUrl, 'fracture_study.png');
       }
 
       const res = await fetch(`${API_BASE_URL}/api/detect/bone-fracture`, {

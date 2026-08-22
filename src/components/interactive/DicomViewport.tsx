@@ -57,10 +57,10 @@ export const DicomViewport: React.FC = () => {
     setPanPosition({ x: 0, y: 0 });
   };
 
-  // Determine active radiograph image based on model and annotation
+  // Always prioritize the user's actual uploaded file/preview URL
   const imageSrc = (() => {
+    if (uploadedFile) return uploadedFile;
     if (annotatedImageUrl) return annotatedImageUrl;
-    if (uploadedFile && uploadedFile.startsWith('data:')) return uploadedFile;
     if (selectedModel === 'fracture-detection') return '/assets/images/model_fracture.png';
     if (selectedModel === 'knee-osteoarthritis') return '/assets/images/model_knee_osteoarthritis.png';
     return '/assets/images/model_knee_abnormality.png';

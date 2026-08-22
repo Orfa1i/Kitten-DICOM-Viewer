@@ -37,6 +37,8 @@ interface MedicalAppContextType {
   setPatientForm: React.Dispatch<React.SetStateAction<PatientData>>;
   uploadedFile: string | null;
   setUploadedFile: (url: string | null) => void;
+  uploadedFileRaw: File | Blob | null;
+  setUploadedFileRaw: (file: File | Blob | null) => void;
   uploadedFileName: string;
   setUploadedFileName: (name: string) => void;
   annotatedImageUrl: string | null;
@@ -198,6 +200,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   });
 
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [uploadedFileRaw, setUploadedFileRaw] = useState<File | Blob | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [annotatedImageUrl, setAnnotatedImageUrl] = useState<string | null>(null);
 
@@ -294,8 +297,26 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     try {
       if (selectedModel === 'fracture-detection') {
-        const fractureScan = uploadedFile || '/assets/images/model_fracture.png';
-        const apiResult = await apiService.runBoneFractureDetection(fractureScan);
+        const fileToSend = uploadedFileRaw || uploadedFile;
+        if (!fileToSend) {
+          clearInterval(progressInterval);
+          setIsDetecting(false);
+          setDetectedFractures([]);
+          setAccuracyScore(0);
+          setDiagnosticReport({
+            diagnosis: 'No Radiograph Uploaded',
+            findings: [
+              'Please upload a radiograph image file before running fracture detection.',
+              'Click "+ New case" to select an image from your device.'
+            ],
+            recommendation: 'Upload a JPEG, PNG, or DICOM radiograph to perform AI analysis.',
+            confidenceGrade: 'Awaiting Upload'
+          });
+          setCurrentScreen('diagnostic-studio');
+          return;
+        }
+
+        const apiResult = await apiService.runBoneFractureDetection(fileToSend);
 
         clearInterval(progressInterval);
         setDetectionProgress(100);
@@ -347,9 +368,10 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           });
         }
       } else if (selectedModel === 'knee-osteoarthritis') {
+        const fileToSend = uploadedFileRaw || uploadedFile;
         let apiResult: KneeOAApiResponse | null = null;
-        if (uploadedFile) {
-          apiResult = await apiService.runKneeOADetection(uploadedFile, {
+        if (fileToSend) {
+          apiResult = await apiService.runKneeOADetection(fileToSend, {
             id: patientForm.id,
             name: patientForm.name,
             age: patientForm.age,
@@ -503,6 +525,8 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setPatientForm,
         uploadedFile,
         setUploadedFile,
+        uploadedFileRaw,
+        setUploadedFileRaw,
         uploadedFileName,
         setUploadedFileName,
         annotatedImageUrl,
