@@ -194,7 +194,7 @@ export const apiService = {
     message: string,
     config?: LlmConfig,
     context?: Record<string, any>
-  ): Promise<{ reply: string; modelUsed?: string } | null> {
+  ): Promise<{ reply: string; modelUsed?: string; pubmedArticles?: any[] } | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/api/ai/chat`, {
         method: 'POST',
@@ -206,10 +206,23 @@ export const apiService = {
         return {
           reply: data.reply,
           modelUsed: data.modelUsed,
+          pubmedArticles: data.pubmedArticles || [],
         };
       }
     } catch (e) {
       console.warn('API sendChatMessage fallback', e);
+    }
+    return null;
+  },
+
+  async searchPubMedLiterature(query: string, maxResults = 3) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/literature/pubmed?query=${encodeURIComponent(query)}&max_results=${maxResults}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn('API searchPubMedLiterature error', e);
     }
     return null;
   }

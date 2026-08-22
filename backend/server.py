@@ -247,13 +247,13 @@ def test_llm_connection(req: LlmTestRequest):
         base_url=req.base_url
     )
 
-@llm_router.post("/ai/chat", summary="Chat with AI Copilot")
+@llm_router.post("/ai/chat", summary="Chat with AI Copilot with PubMed Grounding")
 def ai_assistant_chat(req: DynamicChatRequest):
-    """AI Assistant copilot providing diagnostic assistance using configured LLM"""
+    """AI Assistant copilot providing diagnostic assistance using configured LLM + PubMed literature"""
     config = req.config or {
         "provider": "gemini",
         "modelVersion": "gemini-2.5-flash",
-        "temperature": 0.3
+        "temperature": 0.25
     }
     result = LlmService.chat_completion(
         message=req.message,
@@ -263,7 +263,20 @@ def ai_assistant_chat(req: DynamicChatRequest):
     return {
         "reply": result["reply"],
         "modelUsed": result.get("model_used", "Kitten Copilot"),
+        "pubmedArticles": result.get("pubmed_articles", []),
         "timestamp": datetime.now().strftime("%H:%M")
+    }
+
+@llm_router.get("/literature/pubmed", summary="Search PubMed Biomedical Literature")
+def search_pubmed_literature(query: str = "fracture radiograph", max_results: int = 3):
+    """Retrieves peer-reviewed literature and PMIDs from PubMed for clinical diagnosis"""
+    from pubmed_service import PubMedService
+    articles = PubMedService.search_pubmed(query=query, max_results=max_results)
+    return {
+        "status": "success",
+        "query": query,
+        "count": len(articles),
+        "articles": articles
     }
 
 # ============================================================================

@@ -42,6 +42,14 @@ export interface PatientData {
   bodyPart?: string;
 }
 
+export interface DiagnosticReportData {
+  diagnosis: string;
+  klGrade?: number;
+  findings: string[];
+  recommendation?: string;
+  confidenceGrade?: string;
+}
+
 export interface CaseRecord {
   id: string;
   patientName: string;
@@ -58,6 +66,15 @@ export interface CaseRecord {
   recommendation?: string;
 }
 
+export interface PubMedCitation {
+  pmid: string;
+  title: string;
+  authors: string;
+  journal: string;
+  url?: string;
+  takeaway?: string;
+}
+
 export interface AiChatMessage {
   id: string;
   sender: 'user' | 'assistant';
@@ -65,4 +82,5 @@ export interface AiChatMessage {
   timestamp: string;
   attachment?: string;
   modelUsed?: string;
+  pubmedArticles?: PubMedCitation[];
 }

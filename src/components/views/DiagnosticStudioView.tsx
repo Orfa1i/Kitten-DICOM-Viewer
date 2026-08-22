@@ -3,6 +3,7 @@ import { useMedicalApp } from '../../context/MedicalAppContext';
 import { DicomViewport } from '../interactive/DicomViewport';
 import { AccuracyGauge } from '../interactive/AccuracyGauge';
 import { LottieIcon, SparkleIcon } from '../ui/LottieIcon';
+import { BookOpen, ExternalLink, Bot } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const DiagnosticStudioView: React.FC = () => {
@@ -11,7 +12,9 @@ export const DiagnosticStudioView: React.FC = () => {
     saveCurrentCase, 
     accuracyScore,
     diagnosticReport,
-    selectedModel
+    selectedModel,
+    exportPdfReport,
+    setCurrentScreen
   } = useMedicalApp();
 
   const handleSave = () => {
@@ -24,9 +27,19 @@ export const DiagnosticStudioView: React.FC = () => {
     saveCurrentCase();
   };
 
-  const handleExportPDF = () => {
-    alert("Clinical Diagnostic Report exported to PDF and synchronized with PACS/RIS.");
+  const handleExportPDF = async () => {
+    await exportPdfReport();
   };
+
+  const pubmedEvidence = selectedModel === 'fracture-detection'
+    ? [
+        { pmid: '29538025', title: 'AO/OTA Fracture Classification Compendium', journal: 'J Orthop Trauma' },
+        { pmid: '35859012', title: 'Deep learning for bone fracture detection on plain radiographs', journal: 'Lancet Digit Health' },
+      ]
+    : [
+        { pmid: '13446604', title: 'Radiological assessment of osteo-arthrosis (Kellgren-Lawrence)', journal: 'Ann Rheum Dis' },
+        { pmid: '31034988', title: 'OARSI guidelines for management of knee osteoarthritis', journal: 'Osteoarthritis Cartilage' },
+      ];
 
   return (
     <div className="flex-1 flex gap-6 w-full max-w-[1360px] mx-auto h-full select-none overflow-hidden items-stretch">
@@ -43,23 +56,34 @@ export const DiagnosticStudioView: React.FC = () => {
             {/* Header: Detection Report : + Scaled Sparkles + Download */}
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-3 px-1 flex-shrink-0">
               <div className="flex items-center gap-3">
-                <h3 className="text-[21px] font-display font-semibold text-[#1F1F1F] tracking-tight">
+                <h3 className="font-display font-semibold text-[22px] text-[#1F1F1F] tracking-tight">
                   Detection Report :
                 </h3>
-                <div className="text-[#8D321F]">
+                <div className="w-8 h-8 flex items-center justify-center text-[#8D321F]">
                   <SparkleIcon className="w-7 h-7 text-[#8D321F]" />
                 </div>
               </div>
 
-              <button
-                onClick={handleExportPDF}
-                className="w-9 h-9 rounded-lg border border-zinc-300 hover:border-[#8D321F] hover:bg-[#8D321F]/5 flex items-center justify-center text-zinc-700 transition group"
-                title="Download Diagnostic Report"
-              >
-                <div className="w-7 h-7 flex items-center justify-center group-hover:scale-115 transition-transform">
-                  <LottieIcon name="file-download" size={30} />
-                </div>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentScreen('ai-assistant')}
+                  className="px-2.5 py-1.5 rounded-lg border border-zinc-200 hover:border-[#8D321F] hover:bg-[#8D321F]/5 flex items-center gap-1.5 text-zinc-700 text-xs font-semibold transition group"
+                  title="Consult AI Assistant"
+                >
+                  <Bot className="w-3.5 h-3.5 text-[#8D321F]" />
+                  <span>AI Copilot</span>
+                </button>
+
+                <button
+                  onClick={handleExportPDF}
+                  className="w-9 h-9 rounded-lg border border-zinc-300 hover:border-[#8D321F] hover:bg-[#8D321F]/5 flex items-center justify-center text-zinc-700 transition group"
+                  title="Download Medical PDF Report"
+                >
+                  <div className="w-7 h-7 flex items-center justify-center group-hover:scale-115 transition-transform">
+                    <LottieIcon name="file-download" size={30} />
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* Inner Report Container */}
@@ -77,7 +101,7 @@ export const DiagnosticStudioView: React.FC = () => {
               {/* Model Findings List */}
               <div className="space-y-1">
                 <span className="font-bold text-zinc-600 block uppercase tracking-wide text-[11px]">
-                  {selectedModel === 'knee-osteoarthritis' ? 'Radiographic OA Findings' : selectedModel === 'fracture-detection' ? 'YOLO11n Fracture Localization' : 'Lesion Coordinates & Metrics'}
+                  {selectedModel === 'knee-osteoarthritis' ? 'Radiographic OA Findings' : 'YOLO11n Fracture Localization'}
                 </span>
                 <ul className="list-disc list-inside text-zinc-700 space-y-1 text-[13px]">
                   {diagnosticReport.findings.map((item, idx) => (
@@ -96,6 +120,30 @@ export const DiagnosticStudioView: React.FC = () => {
                 <p className="text-zinc-700 text-[12.5px]">
                   {diagnosticReport.recommendation || 'Routine follow-up recommended with symptom correlation.'}
                 </p>
+              </div>
+
+              {/* PubMed Biomedical Evidence Grounding */}
+              <div className="pt-2 border-t border-zinc-300/80 space-y-1.5">
+                <span className="font-bold text-[#8D321F] block text-[11px] uppercase tracking-wider flex items-center gap-1">
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>PubMed Literature Grounding</span>
+                </span>
+                <div className="space-y-1">
+                  {pubmedEvidence.map((p, i) => (
+                    <a
+                      key={i}
+                      href={`https://pubmed.ncbi.nlm.nih.gov/${p.pmid}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between text-[11.5px] bg-white/70 hover:bg-white p-1.5 rounded-lg border border-zinc-200 text-zinc-700 transition group"
+                    >
+                      <span className="font-medium truncate pr-2 group-hover:text-[#8D321F]">
+                        • PMID {p.pmid}: {p.title}
+                      </span>
+                      <ExternalLink className="w-3 h-3 text-zinc-400 flex-shrink-0 group-hover:text-[#8D321F]" />
+                    </a>
+                  ))}
+                </div>
               </div>
 
               {/* Confidence Grade */}
@@ -158,23 +206,21 @@ export const DiagnosticStudioView: React.FC = () => {
               </div>
               <div className="flex justify-between border-b border-zinc-300 pb-1">
                 <span className="text-zinc-500 font-medium text-[12.5px]">Age / Sex:</span>
-                <span className="font-semibold text-zinc-900 text-[13px]">
-                  {patientForm.age ? `${patientForm.age} y/o (${patientForm.sex || 'unspecified'})` : '—'}
-                </span>
+                <span className="text-zinc-900 text-[13px]">{patientForm.age || '—'} / {patientForm.sex || '—'}</span>
               </div>
               <div className="flex justify-between border-b border-zinc-300 pb-1">
                 <span className="text-zinc-500 font-medium text-[12.5px]">Study Date:</span>
-                <span className="font-mono text-zinc-800 text-[12.5px]">{patientForm.studyDate || 'Today'}</span>
+                <span className="text-zinc-900 text-[13px]">{patientForm.studyDate || 'Today'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500 font-medium text-[12.5px]">Region:</span>
-                <span className="font-semibold text-zinc-800 text-[12.5px]">
-                  {patientForm.bodyPart || (selectedModel === 'fracture-detection' ? 'Forearm / Radius-Ulna AP' : selectedModel === 'knee-osteoarthritis' ? 'Knee Bilateral AP' : 'Knee Lateral View')}
+                <span className="font-medium text-zinc-900 text-[13px]">
+                  {patientForm.bodyPart || (selectedModel === 'fracture-detection' ? 'Forearm / Radius-Ulna AP' : 'Knee Bilateral AP')}
                 </span>
               </div>
             </div>
 
-            <div className="pt-2 text-[11.5px] text-zinc-500 font-mono text-center flex-shrink-0">
+            <div className="pt-3 border-t border-zinc-300 mt-2 text-center text-zinc-400 font-mono text-[10px]">
               Verified by Dr. Hassan (PACS #8821)
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ScreenState, ModelType, CaseRecord, PatientData, AiChatMessage, LlmConfig } from '../types';
 import { apiService, KneeOAApiResponse } from '../services/api';
+import { generateAndDownloadPdfReport } from '../services/pdfReportGenerator';
 
 export interface DiagnosticReportData {
   diagnosis: string;
@@ -86,7 +87,8 @@ interface MedicalAppContextType {
   chatMessages: AiChatMessage[];
   addChatMessage: (msg: string, sender?: 'user' | 'assistant') => void;
 
-  // Reset/Trigger helpers
+  // PDF Export & Reset/Trigger helpers
+  exportPdfReport: () => Promise<void>;
   openNewCaseModal: () => void;
   saveCurrentCase: () => void;
   loadCase: (caseId: string) => void;
@@ -251,18 +253,25 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setChatMessages(prev => [...prev, newMsg]);
 
     if (sender === 'user') {
-      // Send to backend with active LLM config & diagnostic context
+      // Send to backend with active LLM config, patient metadata, detection telemetry, & PubMed grounding
       const chatContext = {
-        activeCaseId,
-        patientName: patientForm.name,
+        patientId: patientForm.id || 'Pending ID',
+        patientName: patientForm.name || 'Unassigned',
+        patientAge: patientForm.age || '—',
+        patientSex: patientForm.sex || '—',
+        modelType: selectedModel,
+        confidence: accuracyScore,
         diagnosis: diagnosticReport.diagnosis,
-        accuracyScore
+        findings: diagnosticReport.findings,
+        recommendation: diagnosticReport.recommendation,
+        detectedFracturesCount: detectedFractures.length,
       };
 
       const backendResponse = await apiService.sendChatMessage(msg, llmConfig, chatContext);
       
       let reply = backendResponse?.reply || "I've analyzed the radiograph. The highlighted region shows findings consistent with your study.";
       let modelUsed = backendResponse?.modelUsed;
+      let pubmedArticles = backendResponse?.pubmedArticles || [];
 
       if (!backendResponse) {
         if (msg.toLowerCase().includes('accuracy') || msg.toLowerCase().includes('score')) {
@@ -279,10 +288,22 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           sender: 'assistant',
           text: reply,
           modelUsed,
+          pubmedArticles,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
     }
+  };
+
+  const exportPdfReport = async () => {
+    await generateAndDownloadPdfReport({
+      patient: patientForm,
+      report: diagnosticReport,
+      modelType: selectedModel,
+      accuracyScore,
+      annotatedImageUrl,
+      uploadedImageUrl: uploadedFile,
+    });
   };
 
   const addCase = (newCase: CaseRecord) => {
@@ -567,6 +588,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setDetectedFractures,
         chatMessages,
         addChatMessage,
+        exportPdfReport,
         openNewCaseModal,
         saveCurrentCase,
         loadCase,
