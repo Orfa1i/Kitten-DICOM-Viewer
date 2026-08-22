@@ -23,6 +23,15 @@ export const DicomViewport: React.FC = () => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showTools, setShowTools] = useState(false);
 
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number }>({ width: 640, height: 640 });
+
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const imgEl = e.currentTarget;
+    if (imgEl.naturalWidth > 0 && imgEl.naturalHeight > 0) {
+      setImageDimensions({ width: imgEl.naturalWidth, height: imgEl.naturalHeight });
+    }
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setDragStart({ x: e.clientX - panPosition.x, y: e.clientY - panPosition.y });
@@ -104,44 +113,36 @@ export const DicomViewport: React.FC = () => {
           <img
             src={imageSrc}
             alt="Clinical Radiograph Viewport"
+            onLoad={handleImageLoad}
             className="w-full max-h-[480px] object-contain select-none pointer-events-none rounded-xl"
           />
 
-          {/* Dynamic Bounding Box Overlay for Bone Fracture Detection */}
-          {showBoundingBoxes && selectedModel === 'fracture-detection' && (
+          {/* Real Dynamic Bounding Box Overlay for Bone Fracture Detection from Server YOLO11n */}
+          {showBoundingBoxes && selectedModel === 'fracture-detection' && detectedFractures.length > 0 && (
             <div className="absolute inset-0 pointer-events-none">
-              {detectedFractures.length > 0 ? (
-                detectedFractures.map((df, idx) => (
+              {detectedFractures.map((df, idx) => {
+                const left = (df.bounding_box.x1 / imageDimensions.width) * 100;
+                const top = (df.bounding_box.y1 / imageDimensions.height) * 100;
+                const width = ((df.bounding_box.x2 - df.bounding_box.x1) / imageDimensions.width) * 100;
+                const height = ((df.bounding_box.y2 - df.bounding_box.y1) / imageDimensions.height) * 100;
+
+                return (
                   <div
                     key={idx}
-                    className="absolute border-2 border-[#00E676] bg-[#00E676]/15 rounded-md shadow-[0_0_15px_rgba(0,230,118,0.4)] animate-pulse"
+                    className="absolute border-2 border-[#00E676] bg-[#00E676]/20 rounded-md shadow-[0_0_15px_rgba(0,230,118,0.5)] animate-pulse"
                     style={{
-                      top: '28%',
-                      left: '22%',
-                      width: '56%',
-                      height: '42%',
+                      left: `${left}%`,
+                      top: `${top}%`,
+                      width: `${width}%`,
+                      height: `${height}%`,
                     }}
                   >
-                    <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow">
-                      Fracture ({Math.round(df.confidence * 100)}%)
+                    <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                      Fracture ({(df.confidence * 100).toFixed(1)}%)
                     </span>
                   </div>
-                ))
-              ) : (
-                <div
-                  className="absolute border-2 border-[#00E676] bg-[#00E676]/10 rounded-md shadow-[0_0_12px_rgba(0,230,118,0.3)] animate-pulse"
-                  style={{
-                    top: '28%',
-                    left: '22%',
-                    width: '56%',
-                    height: '42%',
-                  }}
-                >
-                  <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow">
-                    YOLO11n Fracture (99.1%)
-                  </span>
-                </div>
-              )}
+                );
+              })}
             </div>
           )}
 

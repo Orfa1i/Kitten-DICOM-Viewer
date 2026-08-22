@@ -12,11 +12,11 @@ export const DiagnosticStudioView: React.FC = () => {
     patientForm, 
     saveCurrentCase, 
     accuracyScore,
-    setAccuracyScore,
     diagnosticReport,
-    setDiagnosticReport,
     selectedModel,
-    setSelectedModel
+    setSelectedModel,
+    runInference,
+    isDetecting
   } = useMedicalApp();
 
   const handleSave = () => {
@@ -33,46 +33,8 @@ export const DiagnosticStudioView: React.FC = () => {
     alert("Clinical Diagnostic Report exported to PDF and synchronized with PACS/RIS.");
   };
 
-  const handleModelSwitch = (model: ModelType) => {
+  const handleModelSwitch = async (model: ModelType) => {
     setSelectedModel(model);
-    if (model === 'fracture-detection') {
-      setAccuracyScore(99.1);
-      setDiagnosticReport({
-        diagnosis: 'Acute Cortical Bone Discontinuity / Fracture',
-        findings: [
-          'Identified focal cortical break via Ultralytics YOLO11n',
-          'Diaphyseal cortical discontinuity with 2.4mm step-off',
-          'Intact radiocapitellar articulation without gross dislocation'
-        ],
-        recommendation: 'Closed reduction under hematoma block, sugar-tong splint immobilization, and repeat orthogonal radiographs in 7 days.',
-        confidenceGrade: 'Grade A1 YOLO11n Verified (99.1% Confidence)'
-      });
-    } else if (model === 'knee-osteoarthritis') {
-      setAccuracyScore(97.8);
-      setDiagnosticReport({
-        diagnosis: 'KL Grade 2: Mild Knee Osteoarthritis',
-        klGrade: 2,
-        findings: [
-          'Definite small osteophytes along medial femoral condyle and tibial plateau',
-          'Mild joint space narrowing in the medial compartment',
-          'Subtle subchondral bone sclerosis without significant deformity'
-        ],
-        recommendation: 'Physical therapy, quadriceps strengthening, weight management, and oral/topical NSAIDs as clinically indicated.',
-        confidenceGrade: 'Grade A1 AI-Verified (97.8% Confidence)'
-      });
-    } else {
-      setAccuracyScore(98.6);
-      setDiagnosticReport({
-        diagnosis: 'Lateral Tibial Plateau Alignment Disruption',
-        findings: [
-          'Lateral tibial plateau cortical discontinuity',
-          'Soft tissue swelling anterior to proximal fibula',
-          'CTFS measurement indicates grade II displacement'
-        ],
-        recommendation: 'Weight-bearing CT scan and orthopedic sports medicine evaluation.',
-        confidenceGrade: 'Grade A1 AI-Verified (98.6% Confidence)'
-      });
-    }
   };
 
   return (
@@ -133,9 +95,20 @@ export const DiagnosticStudioView: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-zinc-600">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>GPU Acceleration: RTX 4060</span>
+        <div className="flex items-center gap-3">
+          <button
+            disabled={isDetecting}
+            onClick={runInference}
+            className="bg-[#8D321F] hover:bg-[#7D2A18] text-white px-3.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-xs disabled:opacity-50"
+          >
+            <Activity className="w-3.5 h-3.5" />
+            <span>{isDetecting ? 'Analyzing...' : 'Run Inference'}</span>
+          </button>
+
+          <div className="flex items-center gap-2 text-xs font-mono text-zinc-600">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>RTX 4060 Active</span>
+          </div>
         </div>
       </div>
 

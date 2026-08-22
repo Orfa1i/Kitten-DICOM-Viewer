@@ -47,6 +47,22 @@ export interface KneeOAApiResponse {
   };
 }
 
+export interface BoneFractureItem {
+  bounding_box: {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  };
+  confidence: number;
+}
+
+export interface BoneFractureApiResponse {
+  status: string;
+  fractures_found: number;
+  data: BoneFractureItem[];
+}
+
 export interface LlmTestResult {
   success: boolean;
   provider: string;
@@ -136,21 +152,14 @@ export const apiService = {
         return await res.json();
       }
     } catch (e) {
-      console.warn('API runKneeOADetection fallback', e);
+      console.error('API runKneeOADetection error:', e);
     }
     return null;
   },
 
   async runBoneFractureDetection(
     fileBlobOrUrl: Blob | string
-  ): Promise<{
-    status: string;
-    fractures_found: number;
-    data: Array<{
-      bounding_box: { x1: number; y1: number; x2: number; y2: number };
-      confidence: number;
-    }>;
-  } | null> {
+  ): Promise<BoneFractureApiResponse | null> {
     try {
       const formData = new FormData();
       if (typeof fileBlobOrUrl === 'string') {
@@ -167,10 +176,13 @@ export const apiService = {
       });
 
       if (res.ok) {
-        return await res.json();
+        const json: BoneFractureApiResponse = await res.json();
+        return json;
+      } else {
+        console.error(`Bone fracture detection failed: HTTP ${res.status}`);
       }
     } catch (e) {
-      console.warn('API runBoneFractureDetection fallback', e);
+      console.error('API runBoneFractureDetection network failure:', e);
     }
     return null;
   },

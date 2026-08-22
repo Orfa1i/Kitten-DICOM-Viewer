@@ -19,3 +19,8 @@
 2026-08-22 22:09:09,163 [INFO] [97e98af6] Processed Knee OA: Grade 2 (40.1%)
 2026-08-22 22:22:50,730 [INFO] [f0d40018] Processed Knee OA: Grade 2 (40.1%)
 2026-08-22 22:24:15,900 [INFO] [e7bf85b6] Processed Knee OA: Grade 2 (40.1%)
+2026-08-22 22:40:21,558 [INFO] Testing LLM connection for provider: gemini, model: gemini-2.5-flash
+2026-08-22 22:40:25,552 [INFO] AFC is enabled with max remote calls: 10.
+2026-08-22 22:40:26,742 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-08-22 22:40:41,009 [INFO] AFC is enabled with max remote calls: 10.
+2026-08-22 22:40:42,555 [INFO] HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
