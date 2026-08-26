@@ -104,5 +104,5 @@
 .animate-glow-box {
   animation: green-pulse 2s infinite ease-in-out;
 }
-@keyframes float-syringe { 0% { transform: translate(0, 0) rotate(-25deg) scale(1); } 20% { transform: translate(-60px, -80px) rotate(-97deg) scale(0.95); } 40% { transform: translate(-120px, -20px) rotate(-169deg) scale(0.9); } 60% { transform: translate(-80px, 60px) rotate(-241deg) scale(0.95); } 80% { transform: translate(20px, 40px) rotate(-313deg) scale(1); } 100% { transform: translate(0, 0) rotate(-385deg) scale(1); } }
-.animate-float-syringe { animation: float-syringe 6s linear infinite; }
+@keyframes float-syringe { 0% { transform: translate(0vw, 0vh) rotate(-25deg) scale(1); } 25% { transform: translate(-35vw, -25vh) rotate(-115deg) scale(1.1); } 50% { transform: translate(15vw, 35vh) rotate(-205deg) scale(0.9); } 75% { transform: translate(45vw, -10vh) rotate(-295deg) scale(1.2); } 100% { transform: translate(0vw, 0vh) rotate(-385deg) scale(1); } }
+.animate-float-syringe { animation: float-syringe linear infinite; }
