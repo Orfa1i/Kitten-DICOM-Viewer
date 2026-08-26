@@ -42,7 +42,7 @@ export const LandingPageView: React.FC = () => {
       left: Math.random() * 100,
       delay: Math.random() * -10,
       duration: 6 + Math.random() * 8,
-      opacity: 0.15 + Math.random() * 0.25,
+      opacity: 0.5 + Math.random() * 0.4,
     }));
   }, []);
 
