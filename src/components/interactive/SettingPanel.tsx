@@ -87,26 +87,6 @@ export const SettingPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Pointer Arrow from Gear to Card */}
-      <div className="absolute -bottom-6 -left-7 pointer-events-none hidden md:block">
-        <svg width="44" height="44" viewBox="0 0 50 50" fill="none" className="text-[#1F1F1F]">
-          <path
-            d="M10 40 Q 25 35 35 15"
-            stroke="currentColor"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M23 12 L 36 14 L 38 27"
-            stroke="currentColor"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-        </svg>
-      </div>
     </aside>
   );
 };
