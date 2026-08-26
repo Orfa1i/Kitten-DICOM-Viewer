@@ -219,7 +219,7 @@ export const LandingPageView: React.FC = () => {
           {/* Card 2: Fracture Detection */}
           <motion.div 
             style={{ y: cardsY, opacity: cardsOpacity }}
-            className="bg-white rounded-[32px] border-[2.5px] border-zinc-300 hover:border-[#8D321F] p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+            className="bg-white rounded-[32px] border-[2.5px] border-[#8D321F] p-6 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
           >
             <div className="space-y-4">
               <div className="h-52 bg-black rounded-2xl overflow-hidden flex items-center justify-center relative">
