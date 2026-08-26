@@ -29,6 +29,21 @@ export const LandingPageView: React.FC = () => {
 
   const [isScrolledPastHero, setIsScrolledPastHero] = React.useState(false);
 
+  // Copilot Mock Simulation State
+  const [copilotQuery, setCopilotQuery] = React.useState('');
+  const [copilotState, setCopilotState] = React.useState<'idle' | 'loading' | 'responded'>('idle');
+  const [submittedQuery, setSubmittedQuery] = React.useState('');
+
+  const handleSimulateSend = () => {
+    if (!copilotQuery.trim()) return;
+    setSubmittedQuery(copilotQuery);
+    setCopilotQuery('');
+    setCopilotState('loading');
+    setTimeout(() => {
+      setCopilotState('responded');
+    }, 1500);
+  };
+
   const syringeConfigs = React.useMemo(() => {
     return Array.from({ length: 16 }).map(() => ({
       size: 100 + Math.random() * 140,
@@ -377,21 +392,62 @@ export const LandingPageView: React.FC = () => {
             </div>
 
             <div className="space-y-3 text-[13.5px]">
-              <div className="bg-[#F5F2F2] rounded-2xl p-3.5 text-zinc-700">
-                <strong className="text-[#8D321F] block text-xs uppercase mb-1 font-spartan">Radiologist Query:</strong>
-                "Explain the Kellgren-Lawrence grading criteria for Case #kt-523477."
-              </div>
+              {copilotState === 'idle' && (
+                <div className="bg-[#F5F2F2] rounded-2xl p-3.5 text-zinc-700">
+                  <strong className="text-[#8D321F] block text-xs uppercase mb-1 font-spartan">System:</strong>
+                  Kitten Clinical Copilot is ready. Ask a question or request an analysis to begin.
+                </div>
+              )}
 
-              <div className="bg-[#8D321F]/10 border border-[#8D321F]/20 rounded-2xl p-3.5 text-zinc-800 space-y-1.5">
-                <strong className="text-[#8D321F] block text-xs uppercase font-spartan">AI Copilot Analysis:</strong>
-                <p className="leading-relaxed text-[12.5px]">
-                  Case #kt-523477 presents with marked medial joint space narrowing (&gt;50%), subchondral sclerosis of the tibial plateau, and osteophytes along the femoral condyle, consistent with <strong>KL Grade 3 (Moderate OA)</strong>.
-                </p>
-              </div>
+              {(copilotState === 'loading' || copilotState === 'responded') && (
+                <div className="bg-[#F5F2F2] rounded-2xl p-3.5 text-zinc-700 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <strong className="text-[#8D321F] block text-xs uppercase mb-1 font-spartan">Radiologist Query:</strong>
+                  "{submittedQuery}"
+                </div>
+              )}
+
+              {copilotState === 'loading' && (
+                <div className="bg-[#8D321F]/10 border border-[#8D321F]/20 rounded-2xl p-3.5 text-zinc-800 space-y-1.5 flex items-center justify-center py-6 animate-in fade-in duration-300">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 bg-[#8D321F]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-[#8D321F]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-[#8D321F]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              )}
+
+              {copilotState === 'responded' && (
+                <div className="bg-[#8D321F]/10 border border-[#8D321F]/20 rounded-2xl p-3.5 text-zinc-800 space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <strong className="text-[#8D321F] block text-xs uppercase font-spartan">AI Copilot Analysis:</strong>
+                  <p className="leading-relaxed text-[12.5px]">
+                    I have analyzed the current study based on your query. Findings indicate marked medial joint space narrowing (&gt;50%), subchondral sclerosis, and marginal osteophytes. This correlates with <strong>KL Grade 3 (Moderate OA)</strong>. Please review the highlighted regions in the Diagnostic Studio.
+                  </p>
+                </div>
+              )}
             </div>
 
-            <div className="pt-2 text-center text-[11.5px] text-zinc-400 font-mono">
-              Active Provider: {llmConfig?.modelName || 'Google Gemini 2.5 Flash'}
+            <div className="pt-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Type a clinical query..."
+                  value={copilotQuery}
+                  onChange={(e) => setCopilotQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSimulateSend()}
+                  disabled={copilotState === 'loading'}
+                  className="flex-1 bg-[#F5F2F2] border border-zinc-200 rounded-full px-4 py-2 text-[13.5px] text-zinc-800 placeholder-zinc-400 focus:outline-none focus:border-[#8D321F]/40 focus:ring-1 focus:ring-[#8D321F]/40 transition disabled:opacity-70"
+                />
+                <button
+                  onClick={handleSimulateSend}
+                  disabled={!copilotQuery.trim() || copilotState === 'loading'}
+                  className="w-9 h-9 rounded-full bg-[#8D321F] text-white flex items-center justify-center shadow hover:bg-[#7D2A18] disabled:opacity-50 disabled:hover:bg-[#8D321F] transition active:scale-95 flex-shrink-0"
+                >
+                  <ChevronRight className="w-4.5 h-4.5" />
+                </button>
+              </div>
+              <div className="text-center text-[10.5px] text-zinc-400 font-mono mt-3">
+                Active Provider: {llmConfig?.modelName || 'Google Gemini 2.5 Flash'}
+              </div>
             </div>
           </div>
         </div>
