@@ -29,20 +29,60 @@ export const LandingPageView: React.FC = () => {
 
   const [isScrolledPastHero, setIsScrolledPastHero] = React.useState(false);
 
-  // Copilot Mock Simulation State
+  // Copilot Mock Automated Simulation State
   const [copilotQuery, setCopilotQuery] = React.useState('');
   const [copilotState, setCopilotState] = React.useState<'idle' | 'loading' | 'responded'>('idle');
   const [submittedQuery, setSubmittedQuery] = React.useState('');
+  const [isClicking, setIsClicking] = React.useState(false);
 
-  const handleSimulateSend = () => {
-    if (!copilotQuery.trim()) return;
-    setSubmittedQuery(copilotQuery);
-    setCopilotQuery('');
-    setCopilotState('loading');
-    setTimeout(() => {
-      setCopilotState('responded');
-    }, 1500);
-  };
+  React.useEffect(() => {
+    let isActive = true;
+    const targetText = "Analyze the joint space narrowing in the medial compartment";
+    
+    const runSequence = async () => {
+      while (isActive) {
+        // 1. Idle state before typing
+        setCopilotState('idle');
+        setCopilotQuery('');
+        setSubmittedQuery('');
+        setIsClicking(false);
+        await new Promise(r => setTimeout(r, 2000));
+        if (!isActive) break;
+
+        // 2. Typing Effect
+        for (let i = 1; i <= targetText.length; i++) {
+          if (!isActive) break;
+          setCopilotQuery(targetText.slice(0, i));
+          await new Promise(r => setTimeout(r, 40 + Math.random() * 30));
+        }
+        if (!isActive) break;
+
+        // 3. Pause before clicking send
+        await new Promise(r => setTimeout(r, 600));
+        if (!isActive) break;
+        setIsClicking(true); // Visual feedback for click
+        await new Promise(r => setTimeout(r, 200));
+        if (!isActive) break;
+        setIsClicking(false);
+
+        // 4. Loading State
+        setSubmittedQuery(targetText);
+        setCopilotQuery('');
+        setCopilotState('loading');
+        await new Promise(r => setTimeout(r, 1500));
+        if (!isActive) break;
+
+        // 5. Response Reveal
+        setCopilotState('responded');
+        
+        // 6. Wait before looping
+        await new Promise(r => setTimeout(r, 5000));
+      }
+    };
+
+    runSequence();
+    return () => { isActive = false; };
+  }, []);
 
   const syringeConfigs = React.useMemo(() => {
     return Array.from({ length: 16 }).map(() => ({
@@ -432,15 +472,14 @@ export const LandingPageView: React.FC = () => {
                   type="text"
                   placeholder="Type a clinical query..."
                   value={copilotQuery}
-                  onChange={(e) => setCopilotQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSimulateSend()}
-                  disabled={copilotState === 'loading'}
-                  className="flex-1 bg-[#F5F2F2] border border-zinc-200 rounded-full px-4 py-2 text-[13.5px] text-zinc-800 placeholder-zinc-400 focus:outline-none focus:border-[#8D321F]/40 focus:ring-1 focus:ring-[#8D321F]/40 transition disabled:opacity-70"
+                  readOnly
+                  className="flex-1 bg-[#F5F2F2] border border-zinc-200 rounded-full px-4 py-2 text-[13.5px] text-zinc-800 placeholder-zinc-400 focus:outline-none transition pointer-events-none"
                 />
                 <button
-                  onClick={handleSimulateSend}
-                  disabled={!copilotQuery.trim() || copilotState === 'loading'}
-                  className="w-9 h-9 rounded-full bg-[#8D321F] text-white flex items-center justify-center shadow hover:bg-[#7D2A18] disabled:opacity-50 disabled:hover:bg-[#8D321F] transition active:scale-95 flex-shrink-0"
+                  disabled
+                  className={`w-9 h-9 rounded-full text-white flex items-center justify-center shadow transition-all flex-shrink-0 ${
+                    isClicking ? 'bg-[#7D2A18] scale-95' : 'bg-[#8D321F]'
+                  } ${copilotState === 'loading' || !copilotQuery.trim() ? 'opacity-50' : 'opacity-100'}`}
                 >
                   <ChevronRight className="w-4.5 h-4.5" />
                 </button>
