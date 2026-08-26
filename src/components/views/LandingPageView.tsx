@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useMedicalApp } from '../../context/MedicalAppContext';
-import { ModelType } from '../../types';
 import DitherEffect2 from '../originkit/ui/dither-effect-2-custom-style344';
 import { SparkleIcon, LottieIcon } from '../ui/LottieIcon';
 import { 
@@ -24,15 +23,9 @@ import {
 export const LandingPageView: React.FC = () => {
   const { 
     setCurrentScreen, 
-    setSelectedModel, 
     setIsLlmSettingsOpen, 
     llmConfig 
   } = useMedicalApp();
-
-  const handleLaunchModel = (model: ModelType) => {
-    setSelectedModel(model);
-    setCurrentScreen('intake-upload');
-  };
 
   const [isScrolledPastHero, setIsScrolledPastHero] = React.useState(false);
 
@@ -221,14 +214,6 @@ export const LandingPageView: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            <button
-              onClick={() => handleLaunchModel('knee-osteoarthritis')}
-              className="mt-6 w-full bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
-            >
-              <span>Run Diagnostic Scan</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </motion.div>
 
           {/* Card 2: Fracture Detection */}
@@ -272,14 +257,6 @@ export const LandingPageView: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            <button
-              onClick={() => handleLaunchModel('fracture-detection')}
-              className="mt-6 w-full bg-[#8D321F] hover:bg-[#7D2A18] text-white py-3 px-5 rounded-full font-semibold text-[15px] flex items-center justify-center gap-2 transition active:scale-95 shadow-sm font-spartan"
-            >
-              <span>Run Diagnostic Scan</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </motion.div>
         </div>
       </section>
