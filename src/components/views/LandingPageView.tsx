@@ -90,11 +90,13 @@ export const LandingPageView: React.FC = () => {
           />
         </div>
 
-        {/* Floating 3D Medical Syringe Animation Cloud (mix-blend-screen for black bg removal) */}
+        {/* Floating 3D Medical Syringe Animation Cloud (Fixed to Viewport) */}
         {syringeConfigs.map((config, i) => (
           <div 
             key={`syringe-${i}`}
-            className="absolute pointer-events-none z-0 mix-blend-screen animate-float-syringe md:block hidden"
+            className={`fixed pointer-events-none z-0 animate-float-syringe md:block hidden transition-all duration-700 ${
+              isScrolledPastHero ? 'mix-blend-multiply' : 'mix-blend-screen'
+            }`}
             style={{
               top: `${config.top}%`,
               left: `${config.left}%`,
@@ -108,7 +110,11 @@ export const LandingPageView: React.FC = () => {
             <img 
               src="/assets/images/3d_syringe.jpg" 
               alt="" 
-              className="w-full h-full object-contain filter saturate-[1.5] contrast-[1.5] brightness-[1.3]" 
+              className={`w-full h-full object-contain transition-all duration-700 ${
+                isScrolledPastHero 
+                  ? 'filter invert sepia hue-rotate-[330deg] saturate-[5] contrast-[1.2]'
+                  : 'filter saturate-[1.5] contrast-[1.5] brightness-[1.3]'
+              }`} 
             />
           </div>
         ))}
