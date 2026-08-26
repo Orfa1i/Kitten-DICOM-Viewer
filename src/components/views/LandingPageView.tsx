@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { ModelType } from '../../types';
 import DitherEffect2 from '../originkit/ui/dither-effect-2-custom-style344';
@@ -45,6 +46,16 @@ export const LandingPageView: React.FC = () => {
       opacity: 0.85 + Math.random() * 0.15,
     }));
   }, []);
+
+  // Scroll animations for the Models section cards
+  const modelsRef = React.useRef<HTMLDivElement>(null);
+  const { scrollYProgress: modelsScrollProgress } = useScroll({
+    target: modelsRef,
+    offset: ["0 1", "0.4 1"] // Animation starts when top of container hits bottom of viewport, ends when it's 40% up
+  });
+
+  const cardsY = useTransform(modelsScrollProgress, [0, 1], [150, 0]);
+  const cardsOpacity = useTransform(modelsScrollProgress, [0, 1], [0, 1]);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -168,9 +179,12 @@ export const LandingPageView: React.FC = () => {
         </div>
 
         {/* 2 Model Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[1040px] mx-auto">
+        <div ref={modelsRef} className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[1040px] mx-auto">
           {/* Card 1: Knee Osteoarthritis */}
-          <div className="bg-white rounded-[32px] border-[2.5px] border-[#8D321F] p-6 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+          <motion.div 
+            style={{ y: cardsY, opacity: cardsOpacity }}
+            className="bg-white rounded-[32px] border-[2.5px] border-[#8D321F] p-6 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+          >
             <div className="space-y-4">
               <div className="h-52 bg-black rounded-2xl overflow-hidden flex items-center justify-center relative">
                 <img
@@ -215,10 +229,13 @@ export const LandingPageView: React.FC = () => {
               <span>Run Diagnostic Scan</span>
               <ChevronRight className="w-4 h-4" />
             </button>
-          </div>
+          </motion.div>
 
           {/* Card 2: Fracture Detection */}
-          <div className="bg-white rounded-[32px] border-[2.5px] border-zinc-300 hover:border-[#8D321F] p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+          <motion.div 
+            style={{ y: cardsY, opacity: cardsOpacity }}
+            className="bg-white rounded-[32px] border-[2.5px] border-zinc-300 hover:border-[#8D321F] p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+          >
             <div className="space-y-4">
               <div className="h-52 bg-black rounded-2xl overflow-hidden flex items-center justify-center relative">
                 <img
@@ -263,7 +280,7 @@ export const LandingPageView: React.FC = () => {
               <span>Run Diagnostic Scan</span>
               <ChevronRight className="w-4 h-4" />
             </button>
-          </div>
+          </motion.div>
         </div>
       </section>
 
