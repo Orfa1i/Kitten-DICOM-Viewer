@@ -80,7 +80,8 @@ export const LandingPageView: React.FC = () => {
       {/* HERO SECTION WITH DITHER EFFECT SHADER BACKGROUND */}
       <section className="relative min-h-[92vh] flex items-center justify-center pt-24 pb-16 px-4 md:px-8 overflow-hidden bg-[#8D321F]">
         {/* Interactive WebGL2 Dither Swirl Shader Background */}
-        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
+        <div className="absolute -inset-[5vw] z-0 opacity-80 pointer-events-none flex items-center justify-center">
+          <div className="w-full h-full scale-[1.05]">
           <DitherEffect2
             background="#3D1007"
             color="#FF8A65"
@@ -88,6 +89,7 @@ export const LandingPageView: React.FC = () => {
             speed={40}
             scale={42}
           />
+          </div>
         </div>
 
         {/* Floating 3D Medical Syringe Animation Cloud */}
