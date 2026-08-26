@@ -420,8 +420,8 @@ export const LandingPageView: React.FC = () => {
           </div>
 
           {/* Right Floating Copilot Mockup */}
-          <div className="w-full max-w-[420px] bg-white rounded-[28px] p-5 text-zinc-900 shadow-2xl border border-white/20 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
+          <div className="w-full max-w-[420px] h-[430px] flex flex-col bg-white rounded-[28px] p-5 text-zinc-900 shadow-2xl border border-white/20">
+            <div className="flex items-center justify-between border-b border-zinc-200 pb-3 flex-shrink-0">
               <div className="flex items-center gap-2.5">
                 <SparkleIcon className="w-5 h-5 text-[#8D321F]" />
                 <span className="font-spartan font-bold text-[19px] text-zinc-900">Kitten Clinical Copilot</span>
@@ -431,7 +431,7 @@ export const LandingPageView: React.FC = () => {
               </span>
             </div>
 
-            <div className="space-y-3 text-[13.5px]">
+            <div className="flex-1 flex flex-col justify-end space-y-3 text-[13.5px] overflow-hidden py-3">
               {copilotState === 'idle' && (
                 <div className="bg-[#F5F2F2] rounded-2xl p-3.5 text-zinc-700">
                   <strong className="text-[#8D321F] block text-xs uppercase mb-1 font-spartan">System:</strong>
@@ -466,7 +466,7 @@ export const LandingPageView: React.FC = () => {
               )}
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <input
                   type="text"
