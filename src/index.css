@@ -1,4 +1,4 @@
-@font-face {
+﻿@font-face {
   font-family: 'League Spartan';
   src: url('/fonts/leaguespartan-bold.woff2') format('woff2'),
        url('/fonts/leaguespartan-bold.woff') format('woff'),
@@ -104,3 +104,5 @@
 .animate-glow-box {
   animation: green-pulse 2s infinite ease-in-out;
 }
+@keyframes float-syringe { 0%, 100% { transform: translateY(0) rotate(-25deg); } 50% { transform: translateY(-30px) rotate(-22deg); } }
+.animate-float-syringe { animation: float-syringe 12s ease-in-out infinite; }

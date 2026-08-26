@@ -79,6 +79,11 @@ export const LandingPageView: React.FC = () => {
           />
         </div>
 
+        {/* Floating 3D Medical Syringe Animation (mix-blend-screen for black bg removal) */}
+        <div className="absolute right-[-15%] top-[10%] w-[700px] h-[700px] opacity-40 mix-blend-screen pointer-events-none z-0 animate-float-syringe md:block hidden">
+          <img src="/assets/images/3d_syringe.jpg" alt="" className="w-full h-full object-contain filter saturate-[1.5] contrast-[1.2]" />
+        </div>
+
         {/* Gradient Vignette Overlays for Maximum Text Legibility */}
         <div className="absolute inset-0 z-1 bg-gradient-to-t from-[#8D321F]/90 via-transparent to-[#8D321F]/80 pointer-events-none" />
         <div className="absolute inset-0 z-1 bg-radial from-transparent via-[#8D321F]/40 to-[#8D321F]/80 pointer-events-none" />
