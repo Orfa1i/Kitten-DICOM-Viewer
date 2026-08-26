@@ -156,9 +156,7 @@ export const LandingPageView: React.FC = () => {
       <section id="models" className="py-20 px-6 md:px-12 max-w-[1360px] mx-auto w-full">
         {/* Section Header */}
         <div className="text-center max-w-[720px] mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8D321F]/10 text-[#8D321F] text-[13px] font-bold uppercase tracking-wider font-spartan">
-            Clinical Neural Networks
-          </div>
+
           <h2 className="text-[38px] md:text-[48px] font-spartan font-bold text-[#1F1F1F] tracking-tight">
             Specialized Medical Vision Models
           </h2>
