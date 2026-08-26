@@ -47,29 +47,7 @@ export const LandingPageView: React.FC = () => {
           </span>
         </div>
 
-        {/* Center Nav Links */}
-        <nav className="hidden lg:flex items-center gap-8 text-[14.5px] font-medium text-white/80">
-          <a href="#models" className="hover:text-white transition-colors">Clinical Models</a>
-          <a href="#workflow" className="hover:text-white transition-colors">PACS Workflow</a>
-          <a href="#copilot" className="hover:text-white transition-colors">AI Copilot</a>
-          <a href="#security" className="hover:text-white transition-colors">Enterprise Security</a>
-        </nav>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          {/* LLM Settings Trigger */}
-          <button
-            onClick={() => setIsLlmSettingsOpen(true)}
-            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-full text-[13.5px] font-medium transition active:scale-95 shadow-2xs"
-            title="Configure LLM Model & API Key"
-          >
-            <Bot className="w-4 h-4 text-white" />
-            <span className="hidden md:inline">LLM Models</span>
-            {llmConfig?.provider && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-300/40" />
-            )}
-          </button>
-        </div>
       </header>
 
       {/* HERO SECTION WITH DITHER EFFECT SHADER BACKGROUND */}
