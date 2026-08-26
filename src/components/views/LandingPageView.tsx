@@ -33,16 +33,32 @@ export const LandingPageView: React.FC = () => {
     setCurrentScreen('intake-upload');
   };
 
+  const [isScrolledPastHero, setIsScrolledPastHero] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > window.innerHeight * 0.85) {
+        setIsScrolledPastHero(true);
+      } else {
+        setIsScrolledPastHero(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Run once on mount in case we start scrolled down
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen w-full bg-[#FDF9F9] text-[#1F1F1F] flex flex-col relative overflow-x-hidden selection:bg-[#8D321F] selection:text-white">
       {/* Top Floating Glass Navigation Bar - Apple Vision Pro Style */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/5 backdrop-blur-[48px] saturate-[1.2] border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] text-white px-6 md:px-12 py-4 flex items-center justify-between transition-all">
+      <header className={`fixed top-0 left-0 right-0 z-50 bg-white/5 backdrop-blur-[48px] saturate-[1.2] border-b shadow-[0_8px_32px_rgba(0,0,0,0.12)] px-6 md:px-12 py-4 flex items-center justify-between transition-all duration-300 ${isScrolledPastHero ? 'border-zinc-200/50' : 'border-white/10'}`}>
         {/* Brand */}
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <span className="font-spartan font-bold text-[34px] tracking-tight text-white drop-shadow-sm">
+          <span className={`font-spartan font-bold text-[34px] tracking-tight drop-shadow-sm transition-colors duration-300 ${isScrolledPastHero ? 'text-[#8D321F]' : 'text-white'}`}>
             Kitten
           </span>
-          <span className="bg-white/15 border border-white/20 text-white text-[11.5px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
+          <span className={`border text-[11.5px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block transition-colors duration-300 ${isScrolledPastHero ? 'bg-[#8D321F]/10 border-[#8D321F]/20 text-[#8D321F]' : 'bg-white/15 border-white/20 text-white'}`}>
             2026 Edition
           </span>
         </div>
