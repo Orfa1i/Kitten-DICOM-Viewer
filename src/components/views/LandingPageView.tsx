@@ -69,15 +69,6 @@ export const LandingPageView: React.FC = () => {
               <span className="w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-300/40" />
             )}
           </button>
-
-          {/* Launch Workstation CTA */}
-          <button
-            onClick={() => setCurrentScreen('dashboard')}
-            className="flex items-center gap-2.5 bg-white hover:bg-zinc-100 text-[#8D321F] font-semibold px-5 py-2 rounded-full text-[14.5px] transition active:scale-95 shadow-md hover:shadow-lg group"
-          >
-            <span>Launch Workstation</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
         </div>
       </header>
 
@@ -128,58 +119,8 @@ export const LandingPageView: React.FC = () => {
               <span>Enter Diagnostic Studio</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform text-[#8D321F]" />
             </button>
-
-            <button
-              onClick={() => handleLaunchModel('knee-osteoarthritis')}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur-md text-white text-[16px] font-semibold px-7 py-4 rounded-full transition-all duration-200 active:scale-95 font-spartan"
-            >
-              <Activity className="w-5 h-5 text-emerald-300" />
-              <span>Test Knee OA Model</span>
-            </button>
           </div>
 
-          {/* Live Trust & Hardware Acceleration Metric Badges */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 w-full max-w-[880px]">
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 flex items-center gap-3 text-left">
-              <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
-                <Cpu className="w-5 h-5 text-emerald-300" />
-              </div>
-              <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Hardware</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">RTX 4060 GPU</span>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 flex items-center gap-3 text-left">
-              <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-emerald-300" />
-              </div>
-              <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Accuracy</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">98.6% IoU Match</span>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 flex items-center gap-3 text-left">
-              <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
-                <ShieldCheck className="w-5 h-5 text-emerald-300" />
-              </div>
-              <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Security</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">256-bit AES PACS</span>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 flex items-center gap-3 text-left">
-              <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
-                <Zap className="w-5 h-5 text-emerald-300" />
-              </div>
-              <div>
-                <span className="block text-[11px] uppercase tracking-wider text-white/60 font-semibold font-spartan">Latency</span>
-                <span className="text-[13.5px] font-bold text-white leading-tight font-spartan">&lt; 0.4s Inference</span>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
