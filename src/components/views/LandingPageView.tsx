@@ -35,8 +35,8 @@ export const LandingPageView: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-[#FDF9F9] text-[#1F1F1F] flex flex-col relative overflow-x-hidden selection:bg-[#8D321F] selection:text-white">
-      {/* Top Floating Glass Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#8D321F]/90 backdrop-blur-md border-b border-white/10 text-white px-6 md:px-12 py-4 flex items-center justify-between transition-all">
+      {/* Top Floating Glass Navigation Bar - Apple Vision Pro Style */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/5 backdrop-blur-[48px] saturate-[1.2] border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.12)] text-white px-6 md:px-12 py-4 flex items-center justify-between transition-all">
         {/* Brand */}
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <span className="font-spartan font-bold text-[34px] tracking-tight text-white drop-shadow-sm">
