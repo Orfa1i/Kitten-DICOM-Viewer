@@ -49,9 +49,9 @@ export const DiagnosticStudioView: React.FC = () => {
       </div>
 
       {/* Column 2: Center Structured Detection Report */}
-      <div className="flex-1 flex flex-col justify-between max-w-[460px] h-full">
+      <div className="flex-1 flex flex-col justify-between max-w-[460px] h-full relative z-10">
         {/* Detection Report Card */}
-        <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-5 shadow-sm flex flex-col justify-between h-full overflow-hidden">
+        <div className="bg-white/85 backdrop-blur-2xl rounded-[32px] border-[2.5px] border-[#1F1F1F] p-5 shadow-sm flex flex-col justify-between h-full overflow-hidden">
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Header: Detection Report : + Scaled Sparkles + Download */}
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 mb-3 px-1 flex-shrink-0">
@@ -176,10 +176,10 @@ export const DiagnosticStudioView: React.FC = () => {
       </div>
 
       {/* Column 3: Right Side (Accuracy Gauge + Patient Information) */}
-      <div className="w-[310px] flex-shrink-0 flex flex-col justify-between gap-4 h-full">
+      <div className="w-[310px] flex-shrink-0 flex flex-col justify-between gap-4 h-full relative z-10">
         {/* Top: Detection Accuracy Card */}
-        <div className="bg-[#8D321F] rounded-[32px] p-4 shadow-md flex flex-col flex-shrink-0">
-          <div className="bg-white rounded-[24px] p-4 flex flex-col items-center shadow-inner">
+        <div className="bg-[#8D321F]/90 backdrop-blur-xl border border-[#8D321F]/30 rounded-[32px] p-4 shadow-md flex flex-col flex-shrink-0">
+          <div className="bg-white/95 rounded-[24px] p-4 flex flex-col items-center shadow-inner">
             <h4 className="w-full text-left font-semibold text-[15.5px] text-zinc-900 mb-2">
               Detection Accuracy:
             </h4>
@@ -190,7 +190,7 @@ export const DiagnosticStudioView: React.FC = () => {
         </div>
 
         {/* Bottom: Patient Information Card */}
-        <div className="bg-white rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 shadow-sm flex flex-col flex-1 overflow-hidden">
+        <div className="bg-white/85 backdrop-blur-2xl rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 shadow-sm flex flex-col flex-1 overflow-hidden">
           <h4 className="font-semibold text-[15.5px] text-zinc-900 mb-2 px-1 flex-shrink-0">
             Patient information :
           </h4>

@@ -19,7 +19,7 @@ export const DashboardView: React.FC = () => {
       <SettingPanel />
 
       {/* Right: Cases Card */}
-      <div className="flex-1 bg-[#8D321F] rounded-[32px] p-6 shadow-md flex flex-col justify-between h-full overflow-hidden">
+      <div className="flex-1 bg-[#8D321F]/90 backdrop-blur-3xl border border-[#8D321F]/20 rounded-[32px] p-6 shadow-md flex flex-col justify-between h-full overflow-hidden relative z-10">
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Card Header: Cases + File Icon Scaled Up to 40px */}
           <div className="flex items-center justify-between mb-4 px-2 flex-shrink-0">
@@ -42,7 +42,7 @@ export const DashboardView: React.FC = () => {
           </div>
 
           {/* Inner Table Card */}
-          <div className="bg-white rounded-[24px] p-5 shadow-sm border border-dashed border-[#B8B5B5]/80 flex-1 flex flex-col overflow-hidden">
+          <div className="bg-white/95 backdrop-blur-xl rounded-[24px] p-5 shadow-sm border border-dashed border-[#B8B5B5]/80 flex-1 flex flex-col overflow-hidden">
             {/* Table Header */}
             <div className="grid grid-cols-12 text-[14.5px] font-semibold text-zinc-800 pb-3 border-b border-dashed border-[#B8B5B5] px-4 flex-shrink-0">
               <div className="col-span-3 text-left">Case ID</div>

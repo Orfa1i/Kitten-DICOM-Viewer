@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { LottieIcon, SparkleIcon } from '../ui/LottieIcon';
 import { Search, BookOpen, FileText, Download, ExternalLink, Activity } from 'lucide-react';
@@ -51,15 +52,19 @@ export const AiAssistantDrawer: React.FC = () => {
   return (
     <div className="flex-1 flex gap-8 w-full max-w-[1360px] mx-auto h-full items-stretch select-none overflow-hidden">
       {/* Left: AI Assistant Card */}
-      <aside className="w-[420px] flex-shrink-0 flex flex-col h-full">
-        <div className="bg-white rounded-[32px] border-[3.5px] border-[#8D321F] p-4 shadow-sm h-full flex flex-col justify-between overflow-hidden">
+      <aside className="w-[420px] flex-shrink-0 flex flex-col h-full relative z-10">
+        <div className="bg-white/80 backdrop-blur-2xl rounded-[32px] border-[3.5px] border-[#8D321F]/80 p-4 shadow-sm h-full flex flex-col justify-between overflow-hidden">
           {/* Header with Sparkle Icon and Live Sync Telemetry Badge */}
           <div className="px-2 pt-1 pb-2 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="text-[#8D321F]">
+                <motion.div 
+                  className="text-[#8D321F]"
+                  animate={{ scale: [1, 1.2, 1], rotate: [0, 10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
                   <SparkleIcon className="w-7 h-7 text-[#8D321F]" />
-                </div>
+                </motion.div>
                 <h2 className="text-[23px] font-display font-semibold text-[#1F1F1F] tracking-tight">
                   AI Diagnostic Copilot
                 </h2>

@@ -77,7 +77,7 @@ export const DicomViewport: React.FC = () => {
     : 'YOLOv8 + KL ENSEMBLE';
 
   return (
-    <div className="flex-1 max-w-[390px] bg-[#141517] rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 flex flex-col justify-between relative shadow-md overflow-hidden select-none h-full">
+    <div className="flex-1 max-w-[390px] bg-[#141517]/80 backdrop-blur-2xl rounded-[32px] border-[2.5px] border-[#1F1F1F] p-4 flex flex-col justify-between relative shadow-md overflow-hidden select-none h-full">
       {/* Top DICOM Overlay HUD */}
       <div className="absolute top-5 left-5 right-5 flex items-center justify-between text-zinc-400 text-[11px] font-mono pointer-events-none z-20">
         <div>

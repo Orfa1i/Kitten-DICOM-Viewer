@@ -11,6 +11,7 @@ import { ScreenStateNavigator } from './components/interactive/ScreenStateNaviga
 import { LaptopMockupFrame } from './components/layout/LaptopMockupFrame';
 import { LlmSettingsModal } from './components/modals/LlmSettingsModal';
 import MagicCursor from './components/originkit/ui/spin-cursor-cusor-me';
+import { DashboardBackground } from './components/ui/DashboardBackground';
 
 const MainContent: React.FC = () => {
   const { currentScreen, presentationMode } = useMedicalApp();
@@ -42,7 +43,8 @@ const MainContent: React.FC = () => {
   };
 
   const appView = (
-    <div className="w-full h-full bg-[#FDF9F9] flex flex-col relative overflow-hidden flex-1">
+    <div className="w-full h-full bg-transparent flex flex-col relative overflow-hidden flex-1">
+      <DashboardBackground />
       {/* Top Global Navigation Bar */}
       <TopNavbar />
 

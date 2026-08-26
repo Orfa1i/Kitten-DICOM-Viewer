@@ -6,11 +6,11 @@ export const SettingPanel: React.FC = () => {
   const { setIsLlmSettingsOpen, llmConfig } = useMedicalApp();
 
   return (
-    <aside className="w-[315px] flex-shrink-0 relative flex flex-col select-none h-full">
+    <aside className="w-[315px] flex-shrink-0 relative flex flex-col select-none h-full z-10">
       {/* Outer Card Container */}
-      <div className="bg-white rounded-[32px] border-[3px] border-[#8D321F] p-3.5 shadow-sm h-full flex flex-col justify-between relative overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-3xl rounded-[32px] border-[3px] border-[#8D321F]/80 p-3.5 shadow-sm h-full flex flex-col justify-between relative overflow-hidden">
         {/* Inner Dashed Border Guide */}
-        <div className="border border-dashed border-[#B8B5B5] rounded-[24px] p-4 flex flex-col justify-between h-full bg-white">
+        <div className="border border-dashed border-[#B8B5B5] rounded-[24px] p-4 flex flex-col justify-between h-full bg-white/60">
           {/* Top Section */}
           <div className="space-y-3.5">
             {/* Header: Setting + Gear Scaled Up to 36px */}
