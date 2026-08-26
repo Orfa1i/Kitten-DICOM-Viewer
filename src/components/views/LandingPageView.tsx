@@ -69,7 +69,7 @@ export const LandingPageView: React.FC = () => {
         setSubmittedQuery(targetText);
         setCopilotQuery('');
         setCopilotState('loading');
-        await new Promise(r => setTimeout(r, 1500));
+        await new Promise(r => setTimeout(r, 2500));
         if (!isActive) break;
 
         // 5. Response Reveal
@@ -447,20 +447,56 @@ export const LandingPageView: React.FC = () => {
               )}
 
               {copilotState === 'loading' && (
-                <div className="bg-[#8D321F]/10 border border-[#8D321F]/20 rounded-2xl p-3.5 text-zinc-800 space-y-1.5 flex items-center justify-center py-6 animate-in fade-in duration-300">
-                  <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-[#8D321F]/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-[#8D321F]/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-[#8D321F]/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="bg-[#8D321F]/10 border border-[#8D321F]/20 rounded-2xl p-3.5 text-zinc-800 animate-in fade-in duration-300">
+                  <strong className="text-[#8D321F] block text-xs uppercase mb-2 font-spartan">AI Processing Sub-Tasks:</strong>
+                  <div className="space-y-2">
+                    {['Joint Space Narrowing', 'Subchondral Sclerosis', 'Marginal Osteophytes'].map((category, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-[12px] text-zinc-600 animate-pulse">{category}...</span>
+                        <div className="w-14 h-4 relative overflow-hidden flex items-center">
+                          <motion.svg
+                            viewBox="0 0 100 20"
+                            className="w-full h-full absolute"
+                            preserveAspectRatio="none"
+                            initial={{ x: "-100%" }}
+                            animate={{ x: "100%" }}
+                            transition={{ duration: 1.2, repeat: Infinity, ease: "linear", delay: i * 0.2 }}
+                          >
+                            <path
+                              d="M0 10 L30 10 L35 2 L45 18 L50 10 L100 10"
+                              stroke="#8D321F"
+                              strokeWidth="2.5"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </motion.svg>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
               {copilotState === 'responded' && (
                 <div className="bg-[#8D321F]/10 border border-[#8D321F]/20 rounded-2xl p-3.5 text-zinc-800 space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <strong className="text-[#8D321F] block text-xs uppercase font-spartan">AI Copilot Analysis:</strong>
-                  <p className="leading-relaxed text-[12.5px]">
-                    I have analyzed the current study based on your query. Findings indicate marked medial joint space narrowing (&gt;50%), subchondral sclerosis, and marginal osteophytes. This correlates with <strong>KL Grade 3 (Moderate OA)</strong>. Please review the highlighted regions in the Diagnostic Studio.
+                  <strong className="text-[#8D321F] block text-xs uppercase mb-2 font-spartan">AI Copilot Analysis:</strong>
+                  <div className="space-y-1.5">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00BF63] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] leading-tight"><strong>Joint Space:</strong> Marked medial narrowing (&gt;50%)</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00BF63] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] leading-tight"><strong>Sclerosis:</strong> Subchondral plateau sclerosis</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00BF63] flex-shrink-0 mt-0.5" />
+                      <span className="text-[12px] leading-tight"><strong>Osteophytes:</strong> Marginal femoral condyle</span>
+                    </div>
+                  </div>
+                  <p className="pt-2 border-t border-[#8D321F]/10 text-[11.5px] leading-relaxed mt-2 text-zinc-700">
+                    This correlates with <strong>KL Grade 3 (Moderate OA)</strong>. Please review findings in the Diagnostic Studio.
                   </p>
                 </div>
               )}
