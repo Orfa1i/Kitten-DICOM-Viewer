@@ -35,6 +35,17 @@ export const LandingPageView: React.FC = () => {
 
   const [isScrolledPastHero, setIsScrolledPastHero] = React.useState(false);
 
+  const syringeConfigs = React.useMemo(() => {
+    return Array.from({ length: 16 }).map(() => ({
+      size: 60 + Math.random() * 100,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      delay: Math.random() * -10,
+      duration: 6 + Math.random() * 8,
+      opacity: 0.15 + Math.random() * 0.25,
+    }));
+  }, []);
+
   React.useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > window.innerHeight * 0.85) {
@@ -79,10 +90,28 @@ export const LandingPageView: React.FC = () => {
           />
         </div>
 
-        {/* Floating 3D Medical Syringe Animation (mix-blend-screen for black bg removal) */}
-        <div className="absolute right-[-15%] top-[10%] w-[700px] h-[700px] opacity-40 mix-blend-screen pointer-events-none z-0 animate-float-syringe md:block hidden">
-          <img src="/assets/images/3d_syringe.jpg" alt="" className="w-full h-full object-contain filter saturate-[1.5] contrast-[1.2]" />
-        </div>
+        {/* Floating 3D Medical Syringe Animation Cloud (mix-blend-screen for black bg removal) */}
+        {syringeConfigs.map((config, i) => (
+          <div 
+            key={`syringe-${i}`}
+            className="absolute pointer-events-none z-0 mix-blend-screen animate-float-syringe md:block hidden"
+            style={{
+              top: `${config.top}%`,
+              left: `${config.left}%`,
+              width: `${config.size}px`,
+              height: `${config.size}px`,
+              opacity: config.opacity,
+              animationDuration: `${config.duration}s`,
+              animationDelay: `${config.delay}s`,
+            }}
+          >
+            <img 
+              src="/assets/images/3d_syringe.jpg" 
+              alt="" 
+              className="w-full h-full object-contain filter saturate-[1.5] contrast-[1.2]" 
+            />
+          </div>
+        ))}
 
         {/* Gradient Vignette Overlays for Maximum Text Legibility */}
         <div className="absolute inset-0 z-1 bg-gradient-to-t from-[#8D321F]/90 via-transparent to-[#8D321F]/80 pointer-events-none" />
