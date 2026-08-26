@@ -37,12 +37,12 @@ export const LandingPageView: React.FC = () => {
 
   const syringeConfigs = React.useMemo(() => {
     return Array.from({ length: 16 }).map(() => ({
-      size: 60 + Math.random() * 100,
+      size: 100 + Math.random() * 140,
       top: Math.random() * 100,
       left: Math.random() * 100,
       delay: Math.random() * -10,
       duration: 6 + Math.random() * 8,
-      opacity: 0.5 + Math.random() * 0.4,
+      opacity: 0.85 + Math.random() * 0.15,
     }));
   }, []);
 
@@ -108,7 +108,7 @@ export const LandingPageView: React.FC = () => {
             <img 
               src="/assets/images/3d_syringe.jpg" 
               alt="" 
-              className="w-full h-full object-contain filter saturate-[1.5] contrast-[1.2]" 
+              className="w-full h-full object-contain filter saturate-[1.5] contrast-[1.5] brightness-[1.3]" 
             />
           </div>
         ))}
