@@ -240,13 +240,13 @@ export const LandingPageView: React.FC = () => {
                   alt="Knee Osteoarthritis Detection"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-[#8D321F] text-white text-[11.5px] font-bold px-3 py-1 rounded-full font-spartan">
-                  KL0 – KL4 Staging
-                </div>
               </div>
 
               <div>
-                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight">
+                <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 font-spartan">
+                  KL0 KL4 Staging
+                </div>
+                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight leading-none mb-1">
                   Knee Osteoarthritis
                 </h3>
                 <p className="text-[14px] text-zinc-500 font-mono mt-0.5">
@@ -283,13 +283,13 @@ export const LandingPageView: React.FC = () => {
                   alt="Fracture Detection"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-[#00BF63] text-white text-[11.5px] font-bold px-3 py-1 rounded-full font-spartan">
-                  Cortical Break
-                </div>
               </div>
 
               <div>
-                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight">
+                <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 font-spartan">
+                  Cortical Break
+                </div>
+                <h3 className="text-[24px] font-spartan font-bold text-zinc-900 tracking-tight leading-none mb-1">
                   Bone Fracture Detection
                 </h3>
                 <p className="text-[14px] text-zinc-500 font-mono mt-0.5">
