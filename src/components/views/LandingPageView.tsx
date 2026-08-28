@@ -521,7 +521,7 @@ export const LandingPageView: React.FC = () => {
                 </button>
               </div>
               <div className="text-center text-[10.5px] text-zinc-400 font-mono mt-3">
-                Active Provider: {llmConfig?.modelName || 'Google Gemini 2.5 Flash'}
+                Powered by your preferred LLM
               </div>
             </div>
           </div>
