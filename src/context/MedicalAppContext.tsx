@@ -60,8 +60,8 @@ interface MedicalAppContextType {
   runInference: () => Promise<void>;
   showBoundingBoxes: boolean;
   setShowBoundingBoxes: (val: boolean) => void;
-  visualizationMode: 'bbox' | 'heatmap';
-  setVisualizationMode: (mode: 'bbox' | 'heatmap') => void;
+  visualizationMode: 'bbox' | 'heatmap' | 'dicom';
+  setVisualizationMode: (mode: 'bbox' | 'heatmap' | 'dicom') => void;
   heatmapImage: string | null;
   setHeatmapImage: (img: string | null) => void;
   brightness: number;
@@ -229,7 +229,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectionProgress, setDetectionProgress] = useState(0);
   const [showBoundingBoxes, setShowBoundingBoxes] = useState(true);
-  const [visualizationMode, setVisualizationMode] = useState<'bbox' | 'heatmap'>('bbox');
+  const [visualizationMode, setVisualizationMode] = useState<'bbox' | 'heatmap' | 'dicom'>('bbox');
   const [heatmapImage, setHeatmapImage] = useState<string | null>(null);
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);

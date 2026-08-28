@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
-import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Sun, Box, Flame } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Sun, Box, Flame, MousePointer2 } from 'lucide-react';
+import { CornerstoneViewport } from './CornerstoneViewport';
 
 export const DicomViewport: React.FC = () => {
   const { 
@@ -120,132 +121,148 @@ export const DicomViewport: React.FC = () => {
             <Flame className="w-3.5 h-3.5" />
             <span>Heatmap</span>
           </button>
+          
+          <button
+            type="button"
+            onClick={() => setVisualizationMode('dicom')}
+            className={`px-3 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
+              visualizationMode === 'dicom'
+                ? 'bg-[#4A90E2] text-white shadow-xs font-bold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <MousePointer2 className="w-3.5 h-3.5" />
+            <span>Cornerstone</span>
+          </button>
         </div>
       </div>
 
       {/* Main Viewport Container */}
       <div 
-        className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-[24px] cursor-grab active:cursor-grabbing flex-1"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        className={`w-full h-full flex items-center justify-center relative overflow-hidden rounded-[24px] flex-1 ${visualizationMode === 'dicom' ? '' : 'cursor-grab active:cursor-grabbing'}`}
+        onMouseDown={visualizationMode === 'dicom' ? undefined : handleMouseDown}
+        onMouseMove={visualizationMode === 'dicom' ? undefined : handleMouseMove}
+        onMouseUp={visualizationMode === 'dicom' ? undefined : handleMouseUp}
+        onMouseLeave={visualizationMode === 'dicom' ? undefined : handleMouseUp}
       >
-        {/* Radiograph Image with CSS filters */}
-        <div
-          className="relative transition-transform duration-75 flex items-center justify-center h-full max-w-full"
-          style={{
-            transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomLevel})`,
-            filter: `brightness(${brightness}%) contrast(${contrast}%)`,
-          }}
-        >
-          <img
-            src={imageSrc}
-            alt="Clinical Radiograph Viewport"
-            onLoad={handleImageLoad}
-            className="w-full max-h-[480px] object-contain select-none pointer-events-none rounded-xl"
-          />
+        {visualizationMode === 'dicom' ? (
+          <CornerstoneViewport imageIds={['wadouri:/assets/images/sample.dcm']} />
+        ) : (
+          <div
+            className="relative transition-transform duration-75 flex items-center justify-center h-full max-w-full"
+            style={{
+              transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomLevel})`,
+              filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+            }}
+          >
+            <img
+              src={imageSrc}
+              alt="Clinical Radiograph Viewport"
+              onLoad={handleImageLoad}
+              className="w-full max-h-[480px] object-contain select-none pointer-events-none rounded-xl"
+            />
 
-          {/* Mode 1: Bounding Box Overlay for Bone Fracture Detection */}
-          {visualizationMode === 'bbox' && showBoundingBoxes && selectedModel === 'fracture-detection' && detectedFractures.length > 0 && (
-            <div className="absolute inset-0 pointer-events-none">
-              {detectedFractures.map((df, idx) => {
-                const left = (df.bounding_box.x1 / imageDimensions.width) * 100;
-                const top = (df.bounding_box.y1 / imageDimensions.height) * 100;
-                const width = ((df.bounding_box.x2 - df.bounding_box.x1) / imageDimensions.width) * 100;
-                const height = ((df.bounding_box.y2 - df.bounding_box.y1) / imageDimensions.height) * 100;
+            {/* Mode 1: Bounding Box Overlay for Bone Fracture Detection */}
+            {visualizationMode === 'bbox' && showBoundingBoxes && selectedModel === 'fracture-detection' && detectedFractures.length > 0 && (
+              <div className="absolute inset-0 pointer-events-none">
+                {detectedFractures.map((df, idx) => {
+                  const left = (df.bounding_box.x1 / imageDimensions.width) * 100;
+                  const top = (df.bounding_box.y1 / imageDimensions.height) * 100;
+                  const width = ((df.bounding_box.x2 - df.bounding_box.x1) / imageDimensions.width) * 100;
+                  const height = ((df.bounding_box.y2 - df.bounding_box.y1) / imageDimensions.height) * 100;
 
-                return (
-                  <div
-                    key={idx}
-                    className="absolute border-2 border-[#00E676] bg-[#00E676]/20 rounded-md shadow-[0_0_15px_rgba(0,230,118,0.5)] animate-pulse"
-                    style={{
-                      left: `${left}%`,
-                      top: `${top}%`,
-                      width: `${width}%`,
-                      height: `${height}%`,
-                    }}
-                  >
-                    <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
-                      Fracture ({(df.confidence * 100).toFixed(1)}%)
-                    </span>
+                  return (
+                    <div
+                      key={idx}
+                      className="absolute border-2 border-[#00E676] bg-[#00E676]/20 rounded-md shadow-[0_0_15px_rgba(0,230,118,0.5)] animate-pulse"
+                      style={{
+                        left: `${left}%`,
+                        top: `${top}%`,
+                        width: `${width}%`,
+                        height: `${height}%`,
+                      }}
+                    >
+                      <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">
+                        Fracture ({(df.confidence * 100).toFixed(1)}%)
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Mode 2: Heatmap Overlay for Bone Fracture Detection */}
+            {visualizationMode === 'heatmap' && (
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                {heatmapImage ? (
+                  <img
+                    src={heatmapImage}
+                    alt="AI Heatmap Overlay"
+                    className="w-full max-h-[480px] object-contain rounded-xl transition-opacity duration-300"
+                    style={{ opacity: 0.55, mixBlendMode: 'screen' }}
+                  />
+                ) : detectedFractures.length > 0 ? (
+                  // Procedural SVG Heatmap fallback if backend base64 not yet cached
+                  <div className="absolute inset-0 pointer-events-none">
+                    {detectedFractures.map((df, idx) => {
+                      const cx = ((df.bounding_box.x1 + df.bounding_box.x2) / 2 / imageDimensions.width) * 100;
+                      const cy = ((df.bounding_box.y1 + df.bounding_box.y2) / 2 / imageDimensions.height) * 100;
+                      const r = (Math.max(df.bounding_box.x2 - df.bounding_box.x1, df.bounding_box.y2 - df.bounding_box.y1) / imageDimensions.width) * 100;
+
+                      return (
+                        <div
+                          key={idx}
+                          className="absolute rounded-full blur-xl animate-pulse"
+                          style={{
+                            left: `${cx - r / 2}%`,
+                            top: `${cy - r / 2}%`,
+                            width: `${r * 1.5}%`,
+                            height: `${r * 1.5}%`,
+                            background: 'radial-gradient(circle, rgba(255,0,0,0.85) 0%, rgba(255,165,0,0.65) 45%, rgba(0,230,118,0.4) 75%, transparent 100%)',
+                            opacity: 0.7,
+                            mixBlendMode: 'screen',
+                          }}
+                        />
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                ) : null}
+              </div>
+            )}
 
-          {/* Mode 2: Heatmap Overlay for Bone Fracture Detection */}
-          {visualizationMode === 'heatmap' && (
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              {heatmapImage ? (
-                <img
-                  src={heatmapImage}
-                  alt="AI Heatmap Overlay"
-                  className="w-full max-h-[480px] object-contain rounded-xl transition-opacity duration-300"
-                  style={{ opacity: 0.55, mixBlendMode: 'screen' }}
-                />
-              ) : detectedFractures.length > 0 ? (
-                // Procedural SVG Heatmap fallback if backend base64 not yet cached
-                <div className="absolute inset-0 pointer-events-none">
-                  {detectedFractures.map((df, idx) => {
-                    const cx = ((df.bounding_box.x1 + df.bounding_box.x2) / 2 / imageDimensions.width) * 100;
-                    const cy = ((df.bounding_box.y1 + df.bounding_box.y2) / 2 / imageDimensions.height) * 100;
-                    const r = (Math.max(df.bounding_box.x2 - df.bounding_box.x1, df.bounding_box.y2 - df.bounding_box.y1) / imageDimensions.width) * 100;
-
-                    return (
-                      <div
-                        key={idx}
-                        className="absolute rounded-full blur-xl animate-pulse"
-                        style={{
-                          left: `${cx - r / 2}%`,
-                          top: `${cy - r / 2}%`,
-                          width: `${r * 1.5}%`,
-                          height: `${r * 1.5}%`,
-                          background: 'radial-gradient(circle, rgba(255,0,0,0.85) 0%, rgba(255,165,0,0.65) 45%, rgba(0,230,118,0.4) 75%, transparent 100%)',
-                          opacity: 0.7,
-                          mixBlendMode: 'screen',
-                        }}
-                      />
-                    );
-                  })}
+            {/* Knee Osteoarthritis Bounding Box Overlay */}
+            {showBoundingBoxes && selectedModel === 'knee-osteoarthritis' && !annotatedImageUrl && (
+              <div className="absolute inset-0 pointer-events-none">
+                <div
+                  className="absolute border-2 border-[#FF9800] bg-[#FF9800]/10 rounded-md shadow-[0_0_12px_rgba(255,152,0,0.3)] animate-pulse"
+                  style={{
+                    top: '30%',
+                    left: '12%',
+                    width: '36%',
+                    height: '40%',
+                  }}
+                >
+                  <span className="absolute -top-6 left-0 bg-[#FF9800] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                    Right Knee: KL-2
+                  </span>
                 </div>
-              ) : null}
-            </div>
-          )}
-
-          {/* Knee Osteoarthritis Bounding Box Overlay */}
-          {showBoundingBoxes && selectedModel === 'knee-osteoarthritis' && !annotatedImageUrl && (
-            <div className="absolute inset-0 pointer-events-none">
-              <div
-                className="absolute border-2 border-[#FF9800] bg-[#FF9800]/10 rounded-md shadow-[0_0_12px_rgba(255,152,0,0.3)] animate-pulse"
-                style={{
-                  top: '30%',
-                  left: '12%',
-                  width: '36%',
-                  height: '40%',
-                }}
-              >
-                <span className="absolute -top-6 left-0 bg-[#FF9800] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
-                  Right Knee: KL-2
-                </span>
+                <div
+                  className="absolute border-2 border-[#00E676] bg-[#00E676]/10 rounded-md shadow-[0_0_12px_rgba(0,230,118,0.3)] animate-pulse"
+                  style={{
+                    top: '30%',
+                    right: '12%',
+                    width: '36%',
+                    height: '40%',
+                  }}
+                >
+                  <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                    Left Knee: KL-0
+                  </span>
+                </div>
               </div>
-              <div
-                className="absolute border-2 border-[#00E676] bg-[#00E676]/10 rounded-md shadow-[0_0_12px_rgba(0,230,118,0.3)] animate-pulse"
-                style={{
-                  top: '30%',
-                  right: '12%',
-                  width: '36%',
-                  height: '40%',
-                }}
-              >
-                <span className="absolute -top-6 left-0 bg-[#00E676] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
-                  Left Knee: KL-0
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Bottom Floating PACS Tools Pill Scaled */}

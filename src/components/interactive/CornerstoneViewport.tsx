@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import { RenderingEngine, Enums } from "@cornerstonejs/core";
+import React, { useEffect, useRef, useState } from "react";
+import { RenderingEngine, Enums, type Types, volumeLoader } from "@cornerstonejs/core";
+import * as csTools from "@cornerstonejs/tools";
 import { useCornerstone } from "../../utils/useCornerstone";
 
 interface CornerstoneViewportProps {
@@ -17,7 +18,36 @@ export const CornerstoneViewport: React.FC<CornerstoneViewportProps> = ({ imageI
 
     const renderingEngineId = "myRenderingEngine";
     const viewportId = "CT_AXIAL_STACK";
+    const toolGroupId = "myToolGroup";
 
+    // 1. Setup ToolGroup
+    let toolGroup = csTools.ToolGroupManager.getToolGroup(toolGroupId);
+    if (!toolGroup) {
+      toolGroup = csTools.ToolGroupManager.createToolGroup(toolGroupId)!;
+      
+      // Add tools
+      csTools.addTool(csTools.WindowLevelTool);
+      csTools.addTool(csTools.PanTool);
+      csTools.addTool(csTools.ZoomTool);
+      
+      // Add to toolgroup
+      toolGroup.addTool(csTools.WindowLevelTool.toolName);
+      toolGroup.addTool(csTools.PanTool.toolName);
+      toolGroup.addTool(csTools.ZoomTool.toolName);
+      
+      // Set active tools
+      toolGroup.setToolActive(csTools.WindowLevelTool.toolName, {
+        bindings: [{ mouseButton: csTools.Enums.MouseBindings.Primary }],
+      });
+      toolGroup.setToolActive(csTools.PanTool.toolName, {
+        bindings: [{ mouseButton: csTools.Enums.MouseBindings.Auxiliary }],
+      });
+      toolGroup.setToolActive(csTools.ZoomTool.toolName, {
+        bindings: [{ mouseButton: csTools.Enums.MouseBindings.Secondary }],
+      });
+    }
+
+    // 2. Setup Rendering Engine & Viewport
     const renderingEngine = new RenderingEngine(renderingEngineId);
     
     const viewportInput = {
@@ -30,8 +60,13 @@ export const CornerstoneViewport: React.FC<CornerstoneViewportProps> = ({ imageI
     };
 
     renderingEngine.enableElement(viewportInput);
-    const viewport = renderingEngine.getViewport(viewportId) as any;
+    
+    // Add viewport to toolgroup
+    toolGroup.addViewport(viewportId, renderingEngineId);
+    
+    const viewport = renderingEngine.getViewport(viewportId) as Types.IStackViewport;
 
+    // 3. Load Images
     const run = async () => {
       try {
         await viewport.setStack(imageIds);
@@ -44,6 +79,10 @@ export const CornerstoneViewport: React.FC<CornerstoneViewportProps> = ({ imageI
     run();
 
     return () => {
+      const tg = csTools.ToolGroupManager.getToolGroup(toolGroupId);
+      if (tg) {
+        tg.removeViewports(renderingEngineId, viewportId);
+      }
       renderingEngine.disableElement(viewportId);
       renderingEngine.destroy();
       runningRef.current = false;
@@ -51,7 +90,7 @@ export const CornerstoneViewport: React.FC<CornerstoneViewportProps> = ({ imageI
   }, [isReady, imageIds]);
 
   return (
-    <div className="w-full h-full bg-black rounded-xl overflow-hidden relative border border-zinc-700/50 shadow-inner">
+    <div className="w-full h-full bg-black rounded-[22px] overflow-hidden relative shadow-inner">
       {!isReady && (
         <div className="absolute inset-0 flex items-center justify-center text-zinc-400 font-mono text-sm">
           Initializing WebGL Engine...
