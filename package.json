@@ -16,7 +16,6 @@
     "clsx": "^2.1.1",
     "dcmjs": "^0.52.0",
     "dicom-parser": "^1.8.21",
-    "docx": "^9.7.1",
     "framer-motion": "^12.43.0",
     "jspdf": "^4.2.1",
     "lottie-react": "^2.4.1",

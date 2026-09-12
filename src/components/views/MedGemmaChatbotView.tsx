@@ -2,9 +2,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { SettingPanel } from '../interactive/SettingPanel';
-import { Bot, Send, User, Loader2, FileWarning, Sparkles, FileText, Download } from 'lucide-react';
-import { WordDocumentModal } from '../modals/WordDocumentModal';
-import { generateAndDownloadWordReport } from '../../services/wordReportGenerator';
+import { Bot, Send, User, Loader2, Cpu, FileWarning, Sparkles } from 'lucide-react';
+import { SparkleIcon } from '../ui/LottieIcon';
 
 interface ChatMessage {
   id: string;
@@ -13,20 +12,13 @@ interface ChatMessage {
 }
 
 export const MedGemmaChatbotView: React.FC = () => {
-  const { setCurrentScreen, activeCaseId, cases } = useMedicalApp();
+  const { setCurrentScreen } = useMedicalApp();
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: '1', role: 'assistant', content: 'Hello! I am MedGemma, a specialized clinical AI assistant. How can I help you today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [wordModalData, setWordModalData] = useState<{
-    isOpen: boolean;
-    findings: string;
-    title?: string;
-  }>({ isOpen: false, findings: '', title: '' });
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const activeCase = cases.find(c => c.id === activeCaseId);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -74,38 +66,13 @@ export const MedGemmaChatbotView: React.FC = () => {
     }
   };
 
-  const handleExportAllChatToWord = async () => {
-    const consultationContent = messages
-      .filter(m => m.id !== '1')
-      .map(m => `**${m.role === 'user' ? 'Physician / Clinical Question' : 'MedGemma AI Clinical Assessment'}:**\n${m.content}`)
-      .join('\n\n---\n\n');
-
-    if (!consultationContent.trim()) {
-      alert("No consultation messages to export yet.");
-      return;
-    }
-
-    await generateAndDownloadWordReport({
-      patient: {
-        id: activeCase?.id || 'CONSULT-' + Date.now().toString().slice(-4),
-        name: activeCase?.patientName || 'Consultation Patient',
-        age: String(activeCase?.age || 'N/A'),
-        sex: String(activeCase?.sex || 'N/A'),
-        studyDate: activeCase?.date || new Date().toLocaleDateString(),
-        modality: activeCase?.type || 'Multimodal AI Consultation'
-      },
-      findings: consultationContent,
-      diagnosisTitle: "MedGemma Clinical Consultation Summary"
-    });
-  };
-
   return (
     <div className="flex-1 flex overflow-hidden">
       <SettingPanel />
       
       <div className="flex-1 h-full bg-[#FDF9F9] flex flex-col p-8 overflow-hidden">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-3 mb-1">
               <div className="bg-[#8D321F]/10 p-2 rounded-xl">
@@ -116,19 +83,9 @@ export const MedGemmaChatbotView: React.FC = () => {
             <p className="text-sm text-zinc-500 font-sans ml-12">Conversational interface for the dedicated 4B quantized model</p>
           </div>
           
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleExportAllChatToWord}
-              className="bg-[#185ABD] hover:bg-[#104a9b] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
-              title="Convert entire AI conversation outcome to a Microsoft Word document"
-            >
-              <FileText className="w-4 h-4" /> Export Consultation to Word (.docx)
-            </button>
-
-            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full border border-emerald-100">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-xs font-bold text-emerald-700 tracking-wider">MEDGEMMA ONLINE</span>
-            </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full border border-emerald-100">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span className="text-xs font-bold text-emerald-700 tracking-wider">MEDGEMMA ONLINE</span>
           </div>
         </div>
         
@@ -151,45 +108,12 @@ export const MedGemmaChatbotView: React.FC = () => {
                     {msg.role === 'user' ? <User className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
                   </div>
                   
-                  <div className={`px-6 py-4 rounded-2xl text-[15px] leading-relaxed flex flex-col ${
+                  <div className={`px-6 py-4 rounded-2xl text-[15px] leading-relaxed ${
                     msg.role === 'user' 
                       ? 'bg-zinc-800 text-white rounded-tr-sm' 
                       : 'bg-zinc-50 border border-zinc-100 text-zinc-800 rounded-tl-sm shadow-sm'
                   }`}>
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
-
-                    {/* Word Formatted Actions for AI Responses */}
-                    {msg.role === 'assistant' && msg.id !== '1' && (
-                      <div className="mt-4 pt-3 border-t border-zinc-200/70 flex flex-wrap items-center gap-2">
-                        <button
-                          onClick={() => setWordModalData({
-                            isOpen: true,
-                            findings: msg.content,
-                            title: "MedGemma Clinical Consultation Report"
-                          })}
-                          className="bg-white hover:bg-zinc-100 text-[#185ABD] border border-[#185ABD]/30 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
-                          title="View this outcome formatted as an MS Word document"
-                        >
-                          <FileText className="w-3.5 h-3.5" /> Word Formatted View
-                        </button>
-                        
-                        <button
-                          onClick={() => generateAndDownloadWordReport({
-                            patient: {
-                              id: activeCase?.id || 'CONSULT-' + msg.id.slice(-4),
-                              name: activeCase?.patientName || 'Consultation Patient',
-                              studyDate: new Date().toLocaleDateString()
-                            },
-                            findings: msg.content,
-                            diagnosisTitle: "MedGemma Diagnostic Assessment"
-                          })}
-                          className="bg-[#185ABD] hover:bg-[#124b9e] text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
-                          title="Download this response as a .docx file"
-                        >
-                          <Download className="w-3.5 h-3.5" /> Download .DOCX
-                        </button>
-                      </div>
-                    )}
+                    {msg.content}
                   </div>
                 </motion.div>
               ))}
@@ -242,20 +166,6 @@ export const MedGemmaChatbotView: React.FC = () => {
           
         </div>
       </div>
-
-      {/* MS Word Formatted Document Modal */}
-      <WordDocumentModal 
-        isOpen={wordModalData.isOpen}
-        onClose={() => setWordModalData(prev => ({ ...prev, isOpen: false }))}
-        title={wordModalData.title}
-        findings={wordModalData.findings}
-        patientName={activeCase?.patientName}
-        patientId={activeCase?.id}
-        age={activeCase?.age ? String(activeCase.age) : undefined}
-        sex={activeCase?.sex}
-        modality={activeCase?.type}
-        thumbnailUrl={activeCase?.id ? `http://127.0.0.1:8000/api/cases/${activeCase.id}/thumbnail` : undefined}
-      />
     </div>
   );
 };

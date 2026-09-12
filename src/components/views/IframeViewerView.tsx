@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Save, X, Edit3, Loader2, ChevronLeft, ChevronRight, FileText, Brain, User, Activity, Bone, Download } from 'lucide-react';
-import { generateAndDownloadWordReport } from '../../services/wordReportGenerator';
-import { WordDocumentModal } from '../modals/WordDocumentModal';
+import { Sparkles, Save, X, Edit3, Loader2, ChevronLeft, ChevronRight, FileText, Brain, User, Activity, Bone } from 'lucide-react';
 
 type SidebarTab = 'reporter' | 'models' | 'patient';
 
@@ -22,7 +20,6 @@ export const IframeViewerView: React.FC = () => {
   const [report, setReport] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isWordModalOpen, setIsWordModalOpen] = useState(false);
 
   // Specialized Models State
   const [isRunningModel, setIsRunningModel] = useState<string | null>(null);
@@ -286,48 +283,18 @@ export const IframeViewerView: React.FC = () => {
                         </div>
                       )}
                       
-                      <div className="pt-4 mt-auto shrink-0 flex flex-col gap-2">
+                      <div className="pt-5 mt-auto shrink-0">
                         <button
                           onClick={handleSaveReport}
                           disabled={isSaving}
-                          className="w-full bg-[#8D321F] hover:bg-[#a03823] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 text-sm shadow-md"
+                          className="w-full bg-[#8D321F] hover:bg-[#a03823] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
                         >
                           {isSaving ? (
-                            <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                            <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
                           ) : (
-                            <><Save className="w-4 h-4" /> Save & Finalize Case</>
+                            <><Save className="w-5 h-5" /> Save & Finalize Case</>
                           )}
                         </button>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            onClick={() => setIsWordModalOpen(true)}
-                            className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-zinc-700 shadow-sm"
-                            title="Preview MS Word formatted document"
-                          >
-                            <FileText className="w-3.5 h-3.5 text-[#185ABD]" /> Word View
-                          </button>
-                          <button
-                            onClick={() => generateAndDownloadWordReport({
-                              patient: {
-                                id: activeCase?.id || 'Case',
-                                name: activeCase?.patientName || 'Unknown',
-                                age: String(activeCase?.age || 'N/A'),
-                                sex: String(activeCase?.sex || 'N/A'),
-                                studyDate: activeCase?.date || new Date().toLocaleDateString(),
-                                modality: activeCase?.type || 'DX',
-                                bodyPart: activeCase?.typeSub || ''
-                              },
-                              findings: report,
-                              diagnosisTitle: activeCase?.diagnosisTitle || "MedGemma Radiologic Evaluation",
-                              modelType: activeCase?.type
-                            })}
-                            className="bg-[#185ABD] hover:bg-[#124b9e] text-white py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95"
-                            title="Download Microsoft Word .docx"
-                          >
-                            <Download className="w-3.5 h-3.5" /> Export .DOCX
-                          </button>
-                        </div>
                       </div>
                     </>
                   )}
@@ -441,20 +408,6 @@ export const IframeViewerView: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* MS Word Formatted Document Modal */}
-      <WordDocumentModal
-        isOpen={isWordModalOpen}
-        onClose={() => setIsWordModalOpen(false)}
-        title={activeCase?.diagnosisTitle || "MedGemma Clinical Diagnostic Evaluation"}
-        findings={report}
-        patientName={activeCase?.patientName}
-        patientId={activeCase?.id}
-        age={activeCase?.age ? String(activeCase.age) : undefined}
-        sex={activeCase?.sex}
-        modality={activeCase?.type}
-        thumbnailUrl={activeCase?.id ? `http://127.0.0.1:8000/api/cases/${activeCase.id}/thumbnail` : undefined}
-      />
     </div>
   );
 };
