@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Save, X, Edit3, Loader2, ChevronLeft, ChevronRight, FileText, Brain, User, Activity, Bone } from 'lucide-react';
+import { Sparkles, Save, X, Edit3, Loader2, ChevronLeft, ChevronRight, FileText, Brain, User, Activity, Bone, FileDown } from 'lucide-react';
+import { generateAndDownloadPdfReport } from '../../services/pdfReportGenerator';
 
 type SidebarTab = 'reporter' | 'models' | 'patient';
 
@@ -103,6 +104,57 @@ export const IframeViewerView: React.FC = () => {
       setModelResults(prev => ({ ...prev, [modelType]: "Error: " + err.message }));
     } finally {
       setIsRunningModel(null);
+    }
+  };
+
+  const handleSaveAsPdf = async () => {
+    if (!activeCaseId) return;
+    setIsSaving(true);
+    
+    const updatedCase = {
+      ...activeCase,
+      status: "Completed", 
+      findings: report
+    };
+    
+    try {
+      // 1. Persist updated report and status in database
+      await fetch("http://127.0.0.1:8000/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCase)
+      });
+      await fetchCases();
+
+      // 2. Generate and trigger download of the PDF report
+      const findingsArray = Array.isArray(report) ? report : [report || "No findings recorded."];
+      await generateAndDownloadPdfReport({
+        patient: {
+          id: activeCase?.id || activeCaseId,
+          name: activeCase?.patientName || 'Unknown Patient',
+          age: activeCase?.age || '',
+          sex: (activeCase?.sex === 'female' ? 'female' : 'male'),
+          studyDate: activeCase?.date || '',
+          modality: activeCase?.type || 'Digital Radiography',
+          bodyPart: activeCase?.typeSub || ''
+        },
+        report: {
+          diagnosis: activeCase?.diagnosisTitle || (activeCase?.type?.includes('Knee') ? 'Knee Radiograph - Preservation Assessment' : 'Diagnostic Radiograph Examination'),
+          findings: findingsArray,
+          recommendation: activeCase?.recommendation || 'Clinical correlation recommended.',
+          confidenceGrade: `Grade A1 AI-Verified (${activeCase?.confidence || 95}% Confidence)`
+        },
+        modelType: activeCase?.type || 'DICOM Study',
+        accuracyScore: activeCase?.confidence || 95,
+        uploadedImageUrl: `http://127.0.0.1:8000/api/cases/${activeCaseId}/thumbnail`
+      });
+
+      setIsSaving(false);
+      setIsEditing(false);
+      setCurrentScreen('dashboard');
+    } catch (err) {
+      console.error("Failed to generate and save PDF:", err);
+      setIsSaving(false);
     }
   };
 
@@ -283,17 +335,24 @@ export const IframeViewerView: React.FC = () => {
                         </div>
                       )}
                       
-                      <div className="pt-5 mt-auto shrink-0">
+                      <div className="pt-5 mt-auto shrink-0 flex flex-col gap-2.5">
+                        <button
+                          onClick={handleSaveAsPdf}
+                          disabled={isSaving}
+                          className="w-full bg-[#8D321F] hover:bg-[#a03823] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg"
+                        >
+                          {isSaving ? (
+                            <><Loader2 className="w-5 h-5 animate-spin" /> Generating PDF...</>
+                          ) : (
+                            <><FileDown className="w-5 h-5" /> Save as PDF &amp; Finalize</>
+                          )}
+                        </button>
                         <button
                           onClick={handleSaveReport}
                           disabled={isSaving}
-                          className="w-full bg-[#8D321F] hover:bg-[#a03823] text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
+                          className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition-all"
                         >
-                          {isSaving ? (
-                            <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
-                          ) : (
-                            <><Save className="w-5 h-5" /> Save & Finalize Case</>
-                          )}
+                          <Save className="w-4 h-4" /> Save Without PDF
                         </button>
                       </div>
                     </>

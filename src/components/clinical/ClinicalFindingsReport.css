@@ -1,0 +1,206 @@
+/* ==========================================================================
+   Clinical Findings Report Stylesheet
+   Designed for Kitten Medical AI Workstation (WCAG AA, Responsive, Print-ready)
+   ========================================================================== */
+
+.clinical-findings-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  border-radius: 1rem; /* 16px */
+  border: 1px solid rgba(39, 39, 42, 0.6); /* border-zinc-800/60 */
+  background-color: #121214; /* Dark studio card surface */
+  color: #F4F4F5; /* text-zinc-100 */
+  font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Light mode overrides when parent container uses light theme */
+.light .clinical-findings-card,
+[data-theme="light"] .clinical-findings-card {
+  background-color: #FFFFFF;
+  border-color: #E4E4E7;
+  color: #18181B;
+  box-shadow: 0 4px 20px rgba(141, 50, 31, 0.05);
+}
+
+/* Header */
+.clinical-findings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(39, 39, 42, 0.7);
+  background: rgba(24, 24, 27, 0.5);
+}
+
+.light .clinical-findings-header,
+[data-theme="light"] .clinical-findings-header {
+  border-bottom-color: #F4F4F5;
+  background: #FAF8F8;
+}
+
+/* Section Headings */
+.clinical-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem; /* 12px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  color: #D77766; /* kitten-rust-400 for dark mode contrast */
+  margin-bottom: 0.625rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid #8D321F; /* Kitten Burgundy Accent */
+}
+
+.light .clinical-section-heading,
+[data-theme="light"] .clinical-section-heading {
+  color: #8D321F;
+  border-left-color: #8D321F;
+}
+
+/* Body & Content */
+.clinical-section-body {
+  font-size: 0.9375rem; /* 15px */
+  line-height: 1.6;
+  max-width: 70ch;
+  color: #E4E4E7;
+}
+
+.light .clinical-section-body,
+[data-theme="light"] .clinical-section-body {
+  color: #27272A;
+}
+
+/* Observations List */
+.clinical-observations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clinical-observation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  max-width: 72ch;
+  color: #D4D4D8;
+}
+
+.light .clinical-observation-item,
+[data-theme="light"] .clinical-observation-item {
+  color: #3F3F46;
+}
+
+.clinical-bullet-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background-color: #8D321F;
+  margin-top: 0.55rem;
+  flex-shrink: 0;
+}
+
+/* Limitations Box (Visually Secondary) */
+.clinical-limitations-box {
+  background: rgba(10, 10, 12, 0.6);
+  border: 1px solid rgba(39, 39, 42, 0.6);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+}
+
+.light .clinical-limitations-box,
+[data-theme="light"] .clinical-limitations-box {
+  background: #F9F7F7;
+  border-color: #EBE6E6;
+}
+
+.clinical-limitations-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #A1A1AA;
+}
+
+.light .clinical-limitations-item,
+[data-theme="light"] .clinical-limitations-item {
+  color: #71717A;
+}
+
+/* Disclaimer Footer */
+.clinical-findings-footer {
+  margin-top: auto;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid rgba(39, 39, 42, 0.5);
+  background: rgba(15, 15, 18, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.light .clinical-findings-footer,
+[data-theme="light"] .clinical-findings-footer {
+  border-top-color: #E4E4E7;
+  background: #FAF8F8;
+}
+
+/* ==========================================================================
+   Print Stylesheet
+   Ensures clean black-on-white output without dark backgrounds or shadows
+   ========================================================================== */
+@media print {
+  .clinical-findings-card {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #CCCCCC !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .clinical-findings-header {
+    background: #FFFFFF !important;
+    border-bottom: 2px solid #8D321F !important;
+    padding: 0.5rem 0 !important;
+  }
+
+  .clinical-section-heading {
+    color: #8D321F !important;
+    border-left-color: #8D321F !important;
+  }
+
+  .clinical-section-body,
+  .clinical-observation-item,
+  .clinical-limitations-item {
+    color: #111111 !important;
+  }
+
+  .clinical-bullet-dot {
+    background-color: #000000 !important;
+  }
+
+  .clinical-limitations-box {
+    background: #F8F8F8 !important;
+    border: 1px solid #DDDDDD !important;
+  }
+
+  .clinical-findings-footer {
+    background: #FFFFFF !important;
+    border-top: 1px solid #CCCCCC !important;
+    color: #444444 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

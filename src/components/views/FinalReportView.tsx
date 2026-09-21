@@ -1,7 +1,8 @@
-﻿import React from 'react';
+import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { ArrowLeft, Download, FileText, User, Activity, Bone } from 'lucide-react';
 import { generateAndDownloadPdfReport } from '../../services/pdfReportGenerator';
+import { ClinicalFindingsReport } from '../clinical/ClinicalFindingsReport';
 
 export const FinalReportView: React.FC = () => {
   const { cases, activeCaseId, setCurrentScreen } = useMedicalApp();
@@ -137,12 +138,11 @@ export const FinalReportView: React.FC = () => {
 
           {/* Report Column */}
           <div className="col-span-1 flex flex-col h-full">
-            <div className="flex-1 bg-zinc-950 rounded-xl p-6 border border-zinc-800/50 flex flex-col min-h-[400px]">
-              <h2 className="text-lg font-bold text-white mb-6 border-b border-zinc-800 pb-4">Clinical Findings</h2>
-              <div className="flex-1 text-zinc-300 leading-relaxed whitespace-pre-wrap font-serif text-[15px] md:text-base overflow-y-auto custom-scrollbar">
-                {Array.isArray(activeCase.findings) ? activeCase.findings.join('\n') : (activeCase.findings || "No findings have been recorded for this case.")}
-              </div>
-            </div>
+            <ClinicalFindingsReport
+              reportText={activeCase.findings}
+              studyTitle={activeCase.diagnosisTitle || (activeCase.type === 'fracture-detection' ? 'Fracture Detection Analysis' : 'Knee Osteoarthritis Analysis')}
+              className="flex-1 min-h-[400px]"
+            />
           </div>
         </div>
       </div>

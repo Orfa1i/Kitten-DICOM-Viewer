@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
-import { DiagnosticReportData, PatientData } from '../types';
+import type { DiagnosticReportData, PatientData } from '../types/index.ts';
+import { parseReport, AI_REPORT_DISCLAIMER } from '../utils/reportParser.ts';
 
 export interface PdfReportPayload {
   patient: PatientData;
@@ -21,280 +22,300 @@ export const generateAndDownloadPdfReport = async (data: PdfReportPayload) => {
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 18;
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
   const contentWidth = pageWidth - margin * 2;
-  let currentY = 16;
+  let currentY = 25;
 
   // Colors
-  const rustColor = [141, 50, 31]; // #8D321F
-  const darkZinc = [33, 37, 41];
-  const mutedZinc = [108, 117, 125];
-  const lightBg = [248, 249, 250];
-  const greenColor = [0, 191, 99]; // #00BF63
+  const rustColor = [141, 50, 31]; // #8D321F Kitten Burgundy
+  const darkText = [45, 45, 48];
+  const mutedText = [100, 100, 105];
+  const lightMutedText = [125, 125, 130];
 
-  // =========================================================================
-  // 1. Header Banner & Branding
-  // =========================================================================
-  doc.setFillColor(rustColor[0], rustColor[1], rustColor[2]);
-  doc.roundedRect(margin, currentY, contentWidth, 24, 3, 3, 'F');
+  // Helper: check space and avoid orphaned section headers
+  const checkPageBreak = (neededMm: number) => {
+    if (currentY + neededMm > pageHeight - margin) {
+      doc.addPage();
+      currentY = margin + 5;
+      return true;
+    }
+    return false;
+  };
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.text('KITTEN MEDICAL IMAGING', margin + 6, currentY + 10);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text('CLINICAL RADIOLOGY & DEEP LEARNING PACS DIAGNOSTIC REPORT', margin + 6, currentY + 17);
-
-  // Top right badge
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.text('CONFIDENTIAL MEDICAL RECORD', pageWidth - margin - 6, currentY + 9, { align: 'right' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.text(`DATE: ${new Date().toLocaleDateString()} | TIME: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, pageWidth - margin - 6, currentY + 16, { align: 'right' });
-
-  currentY += 30;
-
-  // =========================================================================
-  // 2. Patient Demographics & Study Metadata Table
-  // =========================================================================
-  doc.setFillColor(lightBg[0], lightBg[1], lightBg[2]);
-  doc.roundedRect(margin, currentY, contentWidth, 26, 2, 2, 'F');
-  doc.setDrawColor(220, 224, 230);
-  doc.roundedRect(margin, currentY, contentWidth, 26, 2, 2, 'S');
-
+  // 1. HEADER (Kitten & Client Info)
   doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9.5);
-  doc.text('PATIENT & EXAMINATION INFORMATION', margin + 4, currentY + 6);
+  doc.setFontSize(36);
+  doc.text('Kitten', margin, currentY);
 
-  doc.setTextColor(darkZinc[0], darkZinc[1], darkZinc[2]);
-  doc.setFontSize(8.5);
-  
-  // Row 1
-  doc.setFont('helvetica', 'bold');
-  doc.text('Patient ID:', margin + 4, currentY + 13);
+  // Client Info (Right Side)
+  const rightColumnX = pageWidth - margin - 50;
+  doc.setFontSize(10);
+  doc.text('\u2022 Client Information:', rightColumnX, currentY - 10);
   doc.setFont('helvetica', 'normal');
-  doc.text(data.patient.id || 'Pending ID', margin + 24, currentY + 13);
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.text('Hospital Name: Kitten Central', rightColumnX + 3, currentY - 4);
+  doc.text('Location: Radiology Dept', rightColumnX + 3, currentY + 2);
+  doc.text('Reported By: Dr. Hassan, MD', rightColumnX + 3, currentY + 8);
 
-  doc.setFont('helvetica', 'bold');
-  doc.text('Name:', margin + 65, currentY + 13);
-  doc.setFont('helvetica', 'normal');
-  doc.text(data.patient.name || 'Unassigned Patient', margin + 78, currentY + 13);
+  currentY += 5;
 
-  doc.setFont('helvetica', 'bold');
-  doc.text('Age / Sex:', margin + 135, currentY + 13);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`${data.patient.age || '—'} / ${data.patient.sex || '—'}`, margin + 154, currentY + 13);
-
-  // Row 2
-  doc.setFont('helvetica', 'bold');
-  doc.text('Modality:', margin + 4, currentY + 21);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Digital Radiography (DX)', margin + 24, currentY + 21);
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Study Date:', margin + 65, currentY + 21);
-  doc.setFont('helvetica', 'normal');
-  doc.text(data.patient.studyDate || 'Today', margin + 85, currentY + 21);
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('Region:', margin + 135, currentY + 21);
-  doc.setFont('helvetica', 'normal');
-  doc.text(data.patient.bodyPart || (data.modelType === 'fracture-detection' ? 'Forearm AP' : 'Knee Bilateral AP'), margin + 150, currentY + 21);
-
-  currentY += 32;
-
-  // =========================================================================
-  // 3. AI Neural Network Vision Model Telemetry
-  // =========================================================================
-  doc.setFillColor(245, 247, 250);
-  doc.roundedRect(margin, currentY, contentWidth, 16, 2, 2, 'F');
-  doc.setDrawColor(220, 224, 230);
-  doc.roundedRect(margin, currentY, contentWidth, 16, 2, 2, 'S');
-
-  const modelTitle = data.modelType === 'fracture-detection'
-    ? 'Ultralytics YOLO11n Bone Fracture Detection Model'
-    : 'YOLOv8 + ResNet34/101 + DenseNet201 Knee OA Ensemble';
-
-  doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.text('AI VISION ARCHITECTURE:', margin + 4, currentY + 6);
-
-  doc.setTextColor(darkZinc[0], darkZinc[1], darkZinc[2]);
-  doc.setFont('helvetica', 'normal');
-  doc.text(modelTitle, margin + 49, currentY + 6);
-
-  doc.setFont('helvetica', 'bold');
-  doc.text('MODEL CONFIDENCE:', margin + 4, currentY + 12);
-  doc.setTextColor(greenColor[0], greenColor[1], greenColor[2]);
-  doc.text(`${(data.accuracyScore || 98.6).toFixed(1)}% AI Precision Grade A1`, margin + 42, currentY + 12);
-
-  currentY += 22;
-
-  // =========================================================================
-  // 4. Primary Diagnosis Banner
-  // =========================================================================
+  // 2. THIN BAR
+  const barWidth = contentWidth - 55;
   doc.setFillColor(rustColor[0], rustColor[1], rustColor[2]);
-  doc.roundedRect(margin, currentY, contentWidth, 14, 2, 2, 'F');
-
+  doc.rect(margin, currentY, barWidth, 5, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('PRIMARY CLINICAL DIAGNOSIS', margin + 4, currentY + 6);
-  doc.setFontSize(11);
-  doc.text(data.report.diagnosis || 'Acute Diagnostic Evaluation Complete', margin + 4, currentY + 11);
+  doc.setFontSize(7);
+  doc.text(
+    'Precision Radiograph AI. Sub-Second Diagnostic Intelligence.',
+    margin + 2,
+    currentY + 3.5
+  );
+
+  currentY += 6;
+
+  // 3. THICK BAR
+  doc.setFillColor(rustColor[0], rustColor[1], rustColor[2]);
+  doc.rect(margin, currentY, barWidth, 12, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.text('Diagnostic Report', margin + 2, currentY + 8);
 
   currentY += 20;
 
-  // =========================================================================
-  // 5. Radiographic Findings
-  // =========================================================================
-  doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
-  doc.text('DETAILED RADIOGRAPHIC FINDINGS', margin, currentY);
-  currentY += 5;
+  // 4. TABLE
+  const rowHeight = 11;
+  const col1Width = 40;
+  const col2Width = contentWidth - col1Width;
+  const tableData = [
+    {
+      label: 'Report title',
+      value:
+        data.modelType === 'fracture-detection'
+          ? 'Fracture Detection Analysis'
+          : 'Knee Osteoarthritis Analysis',
+    },
+    { label: 'Name', value: data.patient.name || 'Unknown Patient' },
+    { label: 'Date', value: new Date().toLocaleDateString() },
+    {
+      label: 'Ticket ID',
+      value: data.patient.id || `CASE-${Math.floor(Math.random() * 10000)}`,
+    },
+  ];
 
-  doc.setTextColor(darkZinc[0], darkZinc[1], darkZinc[2]);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.4);
 
-  const findingsList = data.report.findings && data.report.findings.length > 0
-    ? data.report.findings
-    : [
-        'Anatomical alignment and bone density reviewed.',
-        'Cortical surfaces examined with high-resolution neural edge localization.',
-        'No displaced avulsion or significant soft tissue swelling beyond indicated margin.'
-      ];
+  tableData.forEach((row) => {
+    // Col 1
+    doc.setFillColor(rustColor[0], rustColor[1], rustColor[2]);
+    doc.rect(margin, currentY, col1Width, rowHeight, 'FD');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.text(row.label, margin + col1Width / 2, currentY + 7.5, { align: 'center' });
 
-  findingsList.forEach((finding: string) => {
-    const splitText = doc.splitTextToSize(`•  ${finding}`, contentWidth - 4);
-    doc.text(splitText, margin + 2, currentY);
-    currentY += splitText.length * 4.2;
+    // Col 2
+    doc.setFillColor(255, 255, 255);
+    doc.rect(margin + col1Width, currentY, col2Width, rowHeight, 'FD');
+    doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text(row.value, margin + col1Width + 5, currentY + 7.5);
+
+    currentY += rowHeight;
   });
 
-  currentY += 4;
+  currentY += 12;
 
-  // =========================================================================
-  // 6. Impression & Clinical Recommendation
-  // =========================================================================
+  // Helper for Section Headers (Keep-with-next to avoid orphan headers)
+  const drawSectionHeader = (title: string) => {
+    checkPageBreak(35); // Ensure at least header + first content lines fit
+    doc.setFillColor(rustColor[0], rustColor[1], rustColor[2]);
+    doc.rect(margin, currentY, 75, 9, 'F');
+
+    // Thin line extending from the block
+    doc.setDrawColor(rustColor[0], rustColor[1], rustColor[2]);
+    doc.setLineWidth(0.3);
+    doc.line(margin + 75, currentY + 4.5, margin + contentWidth, currentY + 4.5);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11.5);
+    doc.text(title, margin + 4, currentY + 6.5);
+
+    currentY += 14;
+  };
+
+  // Shared Parsed Report Output
+  const parsed = parseReport(data.report.findings);
+
+  // 5. EXECUTIVE SUMMARY
+  drawSectionHeader('Executive Summary:');
+
+  const execSummaryStartY = currentY - 2;
+
+  // Render "Key Findings" using parsed clinical sections
   doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
-  doc.text('IMPRESSION & CLINICAL RECOMMENDATIONS', margin, currentY);
-  currentY += 5;
+  doc.setFontSize(11);
+  doc.text('\u2022 Key Findings:', margin + 5, currentY);
+  currentY += 5.5;
 
-  doc.setFillColor(lightBg[0], lightBg[1], lightBg[2]);
-  const recText = data.report.recommendation || 'Clinical correlation with physical exam. Orthopedic consultation and follow-up imaging advised.';
-  const splitRec = doc.splitTextToSize(recText, contentWidth - 8);
-  const recBoxHeight = Math.max(splitRec.length * 4.5 + 6, 14);
+  const bodyLineSpacing = 4.6; // ~10.5pt font with 1.4 line-height
+  const textIndentX = margin + 8;
+  const textWidth = contentWidth - 14;
 
-  doc.roundedRect(margin, currentY, contentWidth, recBoxHeight, 2, 2, 'F');
-  doc.setDrawColor(220, 224, 230);
-  doc.roundedRect(margin, currentY, contentWidth, recBoxHeight, 2, 2, 'S');
-
-  doc.setTextColor(darkZinc[0], darkZinc[1], darkZinc[2]);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.text(splitRec, margin + 4, currentY + 6);
-
-  currentY += recBoxHeight + 8;
-
-  // =========================================================================
-  // 7. PubMed Biomedical Literature Grounding
-  // =========================================================================
-  doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
-  doc.text('PEER-REVIEWED EVIDENCE & PUBMED GROUNDING', margin, currentY);
-  currentY += 5;
-
-  const defaultCitations = data.modelType === 'fracture-detection'
-    ? [
-        {
-          pmid: '29538025',
-          title: 'Fracture and Dislocation Classification Compendium (AO/OTA Standard)',
-          authors: 'Meinberg EG et al.',
-          journal: 'J Orthop Trauma (2018)',
-          takeaway: 'Standardizes diaphyseal cortical break metrics and displacement criteria.'
-        },
-        {
-          pmid: '35859012',
-          title: 'Deep learning for bone fracture detection on plain radiographs',
-          authors: 'Kuo RYL et al.',
-          journal: 'Lancet Digit Health (2022)',
-          takeaway: 'YOLO architectures demonstrate 94.7% sensitivity for extremity trauma.'
-        }
-      ]
-    : [
-        {
-          pmid: '13446604',
-          title: 'Radiological assessment of osteo-arthrosis (Kellgren-Lawrence Staging)',
-          authors: 'Kellgren JH, Lawrence JS',
-          journal: 'Ann Rheum Dis (1957)',
-          takeaway: 'Defines 5-tier radiographic classification based on joint space loss & osteophytes.'
-        },
-        {
-          pmid: '31034988',
-          title: 'OARSI guidelines for the non-surgical management of knee osteoarthritis',
-          authors: 'Bannuru RR et al.',
-          journal: 'Osteoarthritis Cartilage (2019)',
-          takeaway: 'Recommends biomechanical unloading and physical therapy for KL 1-3.'
-        }
-      ];
-
-  const citations = data.pubmedCitations && data.pubmedCitations.length > 0 ? data.pubmedCitations : defaultCitations;
-
-  citations.slice(0, 2).forEach((cite) => {
-    doc.setFillColor(252, 252, 253);
-    doc.roundedRect(margin, currentY, contentWidth, 13, 2, 2, 'F');
-    doc.setDrawColor(230, 233, 238);
-    doc.roundedRect(margin, currentY, contentWidth, 13, 2, 2, 'S');
-
+  // A. Overall Impression
+  if (parsed.impression) {
+    checkPageBreak(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
     doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.text(`[PubMed PMID: ${cite.pmid}]`, margin + 3, currentY + 5);
-
-    doc.setTextColor(darkZinc[0], darkZinc[1], darkZinc[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text(doc.splitTextToSize(cite.title, contentWidth - 55)[0], margin + 42, currentY + 5);
+    doc.text('Overall Impression:', textIndentX, currentY);
+    currentY += 4.5;
 
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(mutedZinc[0], mutedZinc[1], mutedZinc[2]);
-    doc.setFontSize(7.5);
-    doc.text(`${cite.authors} • ${cite.journal} — ${cite.takeaway || ''}`, margin + 3, currentY + 10);
+    doc.setFontSize(10.5);
+    doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+    const impressionLines = doc.splitTextToSize(parsed.impression, textWidth);
+    doc.text(impressionLines, textIndentX, currentY);
+    currentY += impressionLines.length * bodyLineSpacing + 4; // 6-10pt sub-section spacing
+  }
 
-    currentY += 16;
-  });
+  // B. Key Observations (proper bulleted list with hanging indent)
+  if (parsed.observations.length > 0) {
+    checkPageBreak(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
+    doc.text('Key Observations:', textIndentX, currentY);
+    currentY += 4.5;
 
-  // =========================================================================
-  // 8. Attending Radiologist Signature & Regulatory Footer
-  // =========================================================================
-  const footerY = 270;
-  doc.setDrawColor(210, 215, 222);
-  doc.setLineWidth(0.5);
-  doc.line(margin, footerY, pageWidth - margin, footerY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(darkText[0], darkText[1], darkText[2]);
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor(darkZinc[0], darkZinc[1], darkZinc[2]);
-  doc.text('ELECTRONICALLY VERIFIED BY:', margin, footerY + 5);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Dr. Hassan, MD (Fellowship MSK Radiologist) • PACS License #8821', margin + 50, footerY + 5);
+    parsed.observations.forEach((obs) => {
+      checkPageBreak(8);
+      // Bullet dot
+      doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
+      doc.text('\u2022', textIndentX + 1, currentY);
 
+      // Bullet text with hanging indent
+      doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+      const obsLines = doc.splitTextToSize(obs, textWidth - 5);
+      doc.text(obsLines, textIndentX + 5, currentY);
+      currentY += obsLines.length * bodyLineSpacing + 2;
+    });
+
+    currentY += 3;
+  }
+
+  // C. Limitations (bulleted list in slightly muted text)
+  if (parsed.limitations.length > 0) {
+    checkPageBreak(15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
+    doc.text('Limitations:', textIndentX, currentY);
+    currentY += 4.2;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5);
+    doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
+
+    parsed.limitations.forEach((lim) => {
+      checkPageBreak(7);
+      doc.text('-', textIndentX + 1, currentY);
+      const limLines = doc.splitTextToSize(lim, textWidth - 5);
+      doc.text(limLines, textIndentX + 5, currentY);
+      currentY += limLines.length * (bodyLineSpacing - 0.4) + 1.8;
+    });
+
+    currentY += 3;
+  }
+
+  // D. Small Italic Disclaimer
+  checkPageBreak(10);
   doc.setFont('helvetica', 'italic');
-  doc.setFontSize(7);
-  doc.setTextColor(mutedZinc[0], mutedZinc[1], mutedZinc[2]);
-  doc.text('Notice: Kitten Diagnostic AI is an FDA Class II / CE-MDR compliant clinical decision support system. Final medical correlation is verified by licensed medical staff.', margin, footerY + 11);
+  doc.setFontSize(8.5);
+  doc.setTextColor(lightMutedText[0], lightMutedText[1], lightMutedText[2]);
+  const disclaimerLines = doc.splitTextToSize(AI_REPORT_DISCLAIMER, textWidth);
+  doc.text(disclaimerLines, textIndentX, currentY);
+  currentY += disclaimerLines.length * 3.8 + 6;
+
+  // Purpose (follows naturally with no excessive blank gap)
+  checkPageBreak(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
+  doc.text('\u2022 Purpose:', margin + 5, currentY);
+  currentY += 5;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  const purposeText = `Clinical radiograph evaluation of ${data.patient.name || 'patient'} for ${
+    data.report.diagnosis || 'diagnostic anomalies'
+  }.`;
+  const purposeLines = doc.splitTextToSize(purposeText, textWidth);
+  doc.text(purposeLines, textIndentX, currentY);
+  currentY += purposeLines.length * bodyLineSpacing + 4;
+
+  // Draw vertical indicator line for Executive Summary if on same page
+  doc.setDrawColor(rustColor[0], rustColor[1], rustColor[2]);
+  doc.setLineWidth(0.3);
+  doc.line(margin + 1, execSummaryStartY, margin + 1, currentY - 2);
+
+  currentY += 8;
+
+  // 6. ISSUE DESCRIPTION
+  drawSectionHeader('Issue Description:');
+
+  const issueDescStartY = currentY - 2;
+
+  checkPageBreak(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
+  doc.text('\u2022 Problem Statement:', margin + 5, currentY);
+  currentY += 5;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  const problemText =
+    data.report.diagnosis || 'Undiagnosed clinical condition requiring imaging analysis.';
+  const problemLines = doc.splitTextToSize(problemText, textWidth);
+  doc.text(problemLines, textIndentX, currentY);
+  currentY += problemLines.length * bodyLineSpacing + 4;
+
+  checkPageBreak(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(rustColor[0], rustColor[1], rustColor[2]);
+  doc.text('\u2022 Symptoms and Impact:', margin + 5, currentY);
+  currentY += 5;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  const recommendationText =
+    data.report.recommendation || 'Further clinical correlation required.';
+  const recommendationLines = doc.splitTextToSize(recommendationText, textWidth);
+  doc.text(recommendationLines, textIndentX, currentY);
+  currentY += recommendationLines.length * bodyLineSpacing + 4;
+
+  // Draw vertical indicator line for Issue Description
+  doc.setDrawColor(rustColor[0], rustColor[1], rustColor[2]);
+  doc.setLineWidth(0.3);
+  doc.line(margin + 1, issueDescStartY, margin + 1, currentY - 2);
 
   // Save the PDF file
   const fileName = `Kitten_Diagnostic_Report_${data.patient.id || 'Case'}_${Date.now()}.pdf`;

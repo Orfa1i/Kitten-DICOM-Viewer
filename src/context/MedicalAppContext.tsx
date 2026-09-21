@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ScreenState, ModelType, CaseRecord, PatientData, AiChatMessage, LlmConfig } from '../types';
+export type { CaseRecord };
 import { apiService, KneeOAApiResponse } from '../services/api';
 import { generateAndDownloadPdfReport } from '../services/pdfReportGenerator';
 
@@ -13,6 +14,18 @@ export interface DiagnosticReportData {
 }
 
 interface MedicalAppContextType {
+  userProfile?: any;
+  setUserProfile: (profile: any) => void;
+  isProfileModalOpen: boolean;
+  setIsProfileModalOpen: (open: boolean) => void;
+  isMedGemmaTestOpen: boolean;
+  setIsMedGemmaTestOpen: (open: boolean) => void;
+  isWorklistOpen: boolean;
+  setIsWorklistOpen: (open: boolean) => void;
+  login: (u?: string, p?: string) => void;
+  isAuthenticated: boolean;
+  setIsAuthenticated: (auth: boolean) => void;
+
   // Navigation & Screen States
   currentScreen: ScreenState;
   setCurrentScreen: (screen: ScreenState) => void;
@@ -24,8 +37,6 @@ interface MedicalAppContextType {
   setPresentationMode: (val: boolean) => void;
 
   // LLM Settings Modal State & Config
-  isLlmSettingsOpen: boolean;
-  setIsLlmSettingsOpen: (open: boolean) => void;
   llmConfig: LlmConfig;
   setLlmConfig: (config: LlmConfig) => void;
 
@@ -92,6 +103,9 @@ interface MedicalAppContextType {
   openNewCaseModal: () => void;
   saveCurrentCase: () => void;
   loadCase: (caseId: string) => void;
+  deleteCase: (caseId: string) => Promise<void>;
+  fetchCases: () => Promise<void>;
+  updateCase: (caseId: string, updates: Partial<CaseRecord>) => Promise<void>;
 }
 
 const defaultCases: CaseRecord[] = [];
@@ -155,14 +169,6 @@ const getSavedLlmConfig = (): LlmConfig => {
   return defaultLlmConfig;
 };
 
-const getInitialLlmModal = (): boolean => {
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('settings') === 'llm' || params.get('modal') === 'llm';
-  }
-  return false;
-};
-
 const getInitialModel = (): ModelType => {
   if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
@@ -175,13 +181,18 @@ const getInitialModel = (): ModelType => {
 };
 
 export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [userProfile, setUserProfile] = React.useState<any>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+  const [isMedGemmaTestOpen, setIsMedGemmaTestOpen] = React.useState(false);
+  const [isWorklistOpen, setIsWorklistOpen] = React.useState(false);
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
+  const login = (u?: string, p?: string) => setIsAuthenticated(true);
   const [currentScreen, setCurrentScreen] = useState<ScreenState>(getInitialScreen);
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(true);
   const [presentationMode, setPresentationMode] = useState<boolean>(getInitialPresentationMode);
 
   // LLM Config & Modal State
-  const [isLlmSettingsOpen, setIsLlmSettingsOpen] = useState<boolean>(getInitialLlmModal);
   const [llmConfig, setLlmConfigState] = useState<LlmConfig>(getSavedLlmConfig);
 
   const setLlmConfig = (newConfig: LlmConfig) => {
@@ -214,17 +225,23 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [activeCaseId, setActiveCaseId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Synchronize PACS cases with backend
+  
+  const fetchCases = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/cases');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) setCases(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
-    fetch('http://localhost:8000/api/cases')
-      .then(res => res.ok ? res.json() : [])
-      .then(data => {
-        if (Array.isArray(data)) {
-          setCases(data);
-        }
-      })
-      .catch(() => {});
+    fetchCases();
   }, []);
+
 
   const [isDetecting, setIsDetecting] = useState(false);
   const [detectionProgress, setDetectionProgress] = useState(0);
@@ -339,7 +356,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             recommendation: 'Upload a JPEG, PNG, or DICOM radiograph to perform AI analysis.',
             confidenceGrade: 'Awaiting Upload'
           });
-          setCurrentScreen('diagnostic-studio');
+          setCurrentScreen('iframe-viewer');
           return;
         }
 
@@ -470,7 +487,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } finally {
       clearInterval(progressInterval);
       setIsDetecting(false);
-      setCurrentScreen('diagnostic-studio');
+      setCurrentScreen('iframe-viewer');
     }
   };
 
@@ -504,9 +521,22 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setCurrentScreen('dashboard');
   };
 
-  const loadCase = (caseId: string) => {
+  const loadCase = async (caseId: string) => {
     const c = cases.find(item => item.id === caseId);
     if (c) {
+      if (c.status === 'Pending') {
+        const updatedCase = { ...c, status: 'Review' as const };
+        setCases(prev => prev.map(item => item.id === caseId ? updatedCase : item));
+        try {
+          await fetch("http://127.0.0.1:8000/api/cases", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedCase)
+          });
+        } catch (err) {
+          console.error("Failed to update case status on load:", err);
+        }
+      }
       setActiveCaseId(caseId);
       setPatientForm({
         id: c.id,
@@ -525,17 +555,55 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }
       setDiagnosticReport({
         diagnosis: c.diagnosisTitle || (c.type === 'Knee Osteoarthritis' ? 'KL Grade 3: Moderate Knee Osteoarthritis' : 'Acute Cortical Bone Fracture Detected'),
-        findings: c.findings || defaultDiagnosticReport.findings,
+        findings: c.findings ? (Array.isArray(c.findings) ? c.findings : [c.findings]) : defaultDiagnosticReport.findings,
         recommendation: c.recommendation || defaultDiagnosticReport.recommendation,
         confidenceGrade: `Grade A1 AI-Verified (${c.confidence}% Confidence)`
       });
-      setCurrentScreen('diagnostic-studio');
+      if (c.status === 'Completed') {
+        setCurrentScreen('final-report');
+      } else {
+        setCurrentScreen('iframe-viewer');
+      }
+    }
+  };
+
+  const updateCase = async (caseId: string, updates: Partial<CaseRecord>) => {
+    setCases(prev => prev.map(c => c.id === caseId ? { ...c, ...updates } : c));
+    try {
+      const existing = cases.find(c => c.id === caseId);
+      if (existing) {
+        const updated = { ...existing, ...updates };
+        await fetch("http://127.0.0.1:8000/api/cases", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated)
+        });
+        await fetchCases();
+      }
+    } catch (err) {
+      console.error("Failed to update case:", err);
+    }
+  };
+
+  const deleteCase = async (caseId: string) => {
+    setCases(prev => prev.filter(c => c.id !== caseId));
+    try {
+      await fetch(`http://127.0.0.1:8000/api/cases/${caseId}`, { method: "DELETE" });
+    } catch (err) {
+      console.error("Failed to delete case:", err);
     }
   };
 
   return (
-    <MedicalAppContext.Provider
-      value={{
+    <MedicalAppContext.Provider value={{
+      userProfile, setUserProfile,
+      isProfileModalOpen, setIsProfileModalOpen,
+      isMedGemmaTestOpen, setIsMedGemmaTestOpen,
+      isWorklistOpen, setIsWorklistOpen,
+      login,
+      isAuthenticated,
+      setIsAuthenticated,
+      
         currentScreen,
         setCurrentScreen,
         isAiDrawerOpen,
@@ -544,8 +612,6 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setIsSettingsOpen,
         presentationMode,
         setPresentationMode,
-        isLlmSettingsOpen,
-        setIsLlmSettingsOpen,
         llmConfig,
         setLlmConfig,
         selectedModel,
@@ -592,7 +658,11 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         openNewCaseModal,
         saveCurrentCase,
         loadCase,
-      }}
+        deleteCase,
+        fetchCases,
+        updateCase,
+      
+    }}
     >
       {children}
     </MedicalAppContext.Provider>
