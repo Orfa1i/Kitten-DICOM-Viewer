@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Kitten Medical Imaging Launch Video</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Plus Jakarta Sans';
+        src: local('Plus Jakarta Sans'), local('Segoe UI'), local('Arial');
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: local('Inter'), local('Segoe UI'), local('Arial');
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        src: local('JetBrains Mono'), local('Consolas'), local('Courier New');
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #090A0D;
+        font-family: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+        color: #F8FAFC;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Base Composition Layers */
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(circle at 50% 30%, #171922 0%, #090A0D 70%);
+        overflow: hidden;
+      }
+
+      /* Subtle Medical Grid Background */
+      .grid-bg {
+        position: absolute;
+        inset: 0;
+        background-size: 60px 60px;
+        background-image: 
+          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        pointer-events: none;
+      }
+
+      /* Top Workstation Status Bar */
+      .top-nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 72px;
+        background: rgba(13, 14, 17, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 48px;
+        z-index: 100;
+      }
+      .brand-group {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .brand-badge {
+        background: #8D321F;
+        color: #FFFFFF;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 6px;
+      }
+      .brand-title {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #FFFFFF;
+      }
+      .system-status {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        font-size: 14px;
+        color: #CBD5E1;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 6px 14px;
+        border-radius: 9999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00E676;
+        box-shadow: 0 0 10px #00E676;
+      }
+
+      /* Clips / Scenes Standard Layout (Runtime manages clip display/visibility) */
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 72px; /* space for top-nav */
+      }
+
+      /* Scene 1: Ingest & Hook */
+      .ingest-card {
+        width: 900px;
+        background: #14161E;
+        border: 1px solid #8D321F;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(141, 50, 31, 0.25);
+        border-radius: 20px;
+        padding: 44px 48px;
+        position: relative;
+        overflow: hidden;
+      }
+      .card-glow-edge {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #8D321F, #E1998C, #8D321F);
+      }
+      .ingest-badge-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      .stat-pill {
+        background: rgba(141, 50, 31, 0.2);
+        color: #F87171;
+        border: 1px solid #8D321F;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .pacs-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: #94A3B8;
+      }
+      .ingest-headline {
+        font-size: 48px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 16px;
+        color: #FFFFFF;
+      }
+      .ingest-headline span {
+        color: #E1998C;
+      }
+      .ingest-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .detail-box {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 14px 18px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .detail-label {
+        font-size: 12px;
+        color: #94A3B8;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .detail-val {
+        font-size: 16px;
+        font-weight: 600;
+        color: #F8FAFC;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Scene 2: Dual Workstation & YOLO11n Detection */
+      .workstation-container {
+        width: 1760px;
+        height: 860px;
+        display: grid;
+        grid-template-columns: 1000px 1fr;
+        gap: 28px;
+      }
+      .viewport-panel {
+        background: #000000;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      }
+      .xray-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .viewport-hud {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+        pointer-events: none;
+      }
+      .viewport-hud-tr {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        text-align: right;
+        line-height: 1.6;
+      }
+      /* Scan line */
+      .scanline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 150px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #00BF63, #E1998C, transparent);
+        box-shadow: 0 0 15px #00BF63;
+        opacity: 0;
+      }
+      /* YOLO Bounding Box */
+      .bbox {
+        position: absolute;
+        left: 420px;
+        top: 360px;
+        width: 220px;
+        height: 180px;
+        border: 2px solid #00E676;
+        box-shadow: 0 0 25px rgba(0, 230, 118, 0.5), inset 0 0 20px rgba(0, 230, 118, 0.15);
+        border-radius: 4px;
+        opacity: 0;
+      }
+      .bbox-label {
+        position: absolute;
+        top: -32px;
+        left: -2px;
+        background: #00E676;
+        color: #052E16;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        padding: 4px 10px;
+        border-radius: 4px 4px 0 0;
+        white-space: nowrap;
+      }
+      .telemetry-panel {
+        background: #12141A;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 36px 32px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .engine-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0, 230, 118, 0.1);
+        border: 1px solid rgba(0, 230, 118, 0.3);
+        color: #00E676;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+      .telemetry-title {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #FFFFFF;
+        line-height: 1.2;
+        margin-bottom: 24px;
+      }
+      .metric-card-grid {
+        display: grid;
+        gap: 16px;
+      }
+      .metric-row {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .metric-name {
+        font-size: 15px;
+        color: #94A3B8;
+      }
+      .metric-val {
+        font-size: 18px;
+        font-weight: 700;
+        color: #FFFFFF;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .metric-val.green {
+        color: #00E676;
+      }
+
+      /* Scene 3: MedGemma Structured Clinical Findings */
+      .report-card-container {
+        width: 1400px;
+        background: #14161E;
+        border: 1px solid rgba(141, 50, 31, 0.5);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 40px rgba(141, 50, 31, 0.15);
+        border-radius: 20px;
+        padding: 48px;
+      }
+      .report-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 32px;
+      }
+      .report-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .report-main-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #FFFFFF;
+        letter-spacing: -0.02em;
+      }
+      .report-sub-title {
+        font-size: 15px;
+        color: #94A3B8;
+      }
+      .medgemma-pill {
+        background: linear-gradient(135deg, #8D321F 0%, #B9432B 100%);
+        color: #FFFFFF;
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 4px 15px rgba(141, 50, 31, 0.4);
+      }
+      .clinical-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+      .clinical-section {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 20px 24px;
+      }
+      .section-badge {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #E1998C;
+        margin-bottom: 8px;
+        display: block;
+      }
+      .section-text {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #F1F5F9;
+      }
+      .section-text.alert {
+        color: #FEF08A;
+        font-weight: 600;
+      }
+
+      /* Scene 4: 1-Click Save as PDF & Outro */
+      .outro-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+      }
+      .btn-save-pdf {
+        background: #8D321F;
+        color: #FFFFFF;
+        font-size: 24px;
+        font-weight: 700;
+        padding: 20px 48px;
+        border-radius: 16px;
+        border: 2px solid #E1998C;
+        box-shadow: 0 10px 30px rgba(141, 50, 31, 0.5);
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        cursor: pointer;
+        margin-bottom: 40px;
+      }
+      .simulated-cursor {
+        position: absolute;
+        top: 260px;
+        left: 960px;
+        width: 36px;
+        height: 36px;
+        z-index: 200;
+        pointer-events: none;
+        opacity: 0;
+      }
+      .final-brand-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 0;
+      }
+      .kitten-logo-img {
+        width: 240px;
+        height: auto;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 0 35px rgba(141, 50, 31, 0.6));
+      }
+      .final-punchline {
+        font-size: 52px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #FFFFFF;
+        line-height: 1.15;
+        margin-bottom: 20px;
+      }
+      .final-punchline span {
+        color: #E1998C;
+      }
+      .final-sub {
+        font-size: 22px;
+        color: #94A3B8;
+        margin-bottom: 32px;
+        max-width: 800px;
+      }
+      .pill-row {
+        display: flex;
+        gap: 16px;
+      }
+      .feature-pill {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 22px;
+        border-radius: 9999px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #E2E8F0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="18"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Background Audio Elements -->
+      <audio id="bg-music" data-start="0" data-duration="18" data-track-index="10" data-volume="0.35" src="assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3"></audio>
+      <audio id="sfx-ingest" data-start="0.5" data-duration="0.18" data-track-index="11" data-volume="0.75" src="assets/sfx/impact/impactSoft_medium_001.ogg"></audio>
+      <audio id="sfx-switch" data-start="4.6" data-duration="0.62" data-track-index="12" data-volume="0.80" src="assets/sfx/interface/switch_001.ogg"></audio>
+      <audio id="sfx-report" data-start="8.6" data-duration="0.18" data-track-index="13" data-volume="0.75" src="assets/sfx/impact/impactSoft_medium_001.ogg"></audio>
+      <audio id="sfx-click" data-start="14.0" data-duration="0.09" data-track-index="14" data-volume="0.85" src="assets/sfx/ui/click1.ogg"></audio>
+      <audio id="sfx-bell" data-start="15.5" data-duration="1.48" data-track-index="15" data-volume="0.80" src="assets/sfx/impact/impactBell_heavy_000.ogg"></audio>
+
+      <!-- Persistent Medical Grid & Navigation -->
+      <div class="grid-bg"></div>
+
+      <header class="top-nav">
+        <div class="brand-group">
+          <span class="brand-badge">CLINICAL</span>
+          <span class="brand-title">KITTEN MEDICAL AI WORKSTATION</span>
+        </div>
+        <div class="system-status">
+          <span class="status-pill">
+            <span class="status-dot"></span>
+            PACS NODE: CONNECTED
+          </span>
+          <span class="status-pill">
+            LATENCY: 18ms
+          </span>
+        </div>
+      </header>
+
+      <!-- SCENE 1: Hook / PACS Ingest (0.0s - 3.5s) -->
+      <div id="scene-1" class="clip" data-start="0" data-duration="3.5" data-track-index="1">
+        <div class="ingest-card" id="ingest-card">
+          <div class="card-glow-edge"></div>
+          <div class="ingest-badge-row">
+            <span class="stat-pill">PACS INGEST // STAT</span>
+            <span class="pacs-tag">AET: KITTEN_PACS_01 • PORT 11112</span>
+          </div>
+          <h1 class="ingest-headline">
+            Raw DICOM Study Received.<br/>
+            <span>Instant AI Triaging.</span>
+          </h1>
+          <div class="ingest-details">
+            <div class="detail-box">
+              <div class="detail-label">Patient ID</div>
+              <div class="detail-val">#84920-R</div>
+            </div>
+            <div class="detail-box">
+              <div class="detail-label">Procedure</div>
+              <div class="detail-val">WRIST AP/LAT</div>
+            </div>
+            <div class="detail-box">
+              <div class="detail-label">Status</div>
+              <div class="detail-val" style="color: #00E676;">ROUTING TO AI...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 2: DICOM Viewport & YOLO11n Detection (3.5s - 8.5s) -->
+      <div id="scene-2" class="clip" data-start="3.5" data-duration="5" data-track-index="2">
+        <div class="workstation-container" id="workstation-container">
+          <!-- Left: Radiograph Viewport -->
+          <div class="viewport-panel">
+            <img class="xray-img" src="assets/images/xray_fracture.png" alt="Wrist Radiograph" />
+            <div class="viewport-hud">
+              <div>STUDY: WRIST DX</div>
+              <div>WW: 256 / WL: 128</div>
+              <div>ZOOM: 1.0x</div>
+            </div>
+            <div class="viewport-hud-tr">
+              <div>CORNERSTONE3D</div>
+              <div>FPS: 60</div>
+            </div>
+            <!-- Animated Scanline -->
+            <div class="scanline" id="scanline"></div>
+            <!-- Bounding Box Overlay -->
+            <div class="bbox" id="bbox">
+              <div class="bbox-label">FRACTURE DETECTED: 94.2%</div>
+            </div>
+          </div>
+          <!-- Right: AI Vision Telemetry -->
+          <div class="telemetry-panel">
+            <div>
+              <div class="engine-badge">
+                <span class="status-dot"></span>
+                YOLO11n Medical Vision Engine
+              </div>
+              <h2 class="telemetry-title">Sub-second Fracture Localization</h2>
+              <div class="metric-card-grid">
+                <div class="metric-row">
+                  <span class="metric-name">Anatomical Site</span>
+                  <span class="metric-val">Distal Radial Metaphysis</span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-name">Confidence Level</span>
+                  <span class="metric-val green">94.2%</span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-name">Cortical Breach</span>
+                  <span class="metric-val" style="color: #F87171;">POSITIVE</span>
+                </div>
+                <div class="metric-row">
+                  <span class="metric-name">Detection Speed</span>
+                  <span class="metric-val">18 ms</span>
+                </div>
+              </div>
+            </div>
+            <div style="font-size: 13px; color: #94A3B8;">
+              Dual-engine AI pipeline automatically passes coordinates to MedGemma LLM.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: MedGemma Structured Clinical Findings (8.5s - 13.5s) -->
+      <div id="scene-3" class="clip" data-start="8.5" data-duration="5" data-track-index="3">
+        <div class="report-card-container" id="report-container">
+          <div class="report-header">
+            <div class="report-title-group">
+              <h2 class="report-main-title">CLINICAL FINDINGS — MEDGEMMA 27B</h2>
+              <p class="report-sub-title">Multimodal Radiology Copilot • Structured Clinical Narrative</p>
+            </div>
+            <span class="medgemma-pill">AI VERIFIED REPORT</span>
+          </div>
+          <div class="clinical-grid">
+            <div class="clinical-section">
+              <span class="section-badge">Examination</span>
+              <p class="section-text">Right Wrist Radiograph (AP and Lateral projections).</p>
+            </div>
+            <div class="clinical-section">
+              <span class="section-badge">Clinical Indication</span>
+              <p class="section-text">Fall on outstretched right hand with acute pain and dorsal wrist swelling.</p>
+            </div>
+            <div class="clinical-section" style="grid-column: span 2;">
+              <span class="section-badge">Findings</span>
+              <p class="section-text">Complete transverse fracture of the distal radial metaphysis with mild dorsal angulation. Radiocarpal articular joint space preserved. Associated pronounced soft tissue swelling over dorsal wrist.</p>
+            </div>
+            <div class="clinical-section" style="border-left: 4px solid #E1998C;">
+              <span class="section-badge">Impression</span>
+              <p class="section-text alert">Acute extra-articular distal radius fracture (Colles type).</p>
+            </div>
+            <div class="clinical-section">
+              <span class="section-badge">Recommendations</span>
+              <p class="section-text">Urgent orthopedic evaluation and immobilization with volar wrist splint.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: 1-Click PDF & Outro (13.5s - 18.0s) -->
+      <div id="scene-4" class="clip" data-start="13.5" data-duration="4.5" data-track-index="4">
+        <!-- SVG Cursor -->
+        <svg class="simulated-cursor" id="cursor" viewBox="0 0 24 24" fill="none">
+          <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="#FFFFFF" stroke="#000000" stroke-width="2"/>
+        </svg>
+
+        <div class="outro-container">
+          <!-- Button that gets clicked -->
+          <div class="btn-save-pdf" id="btn-save">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>Save as PDF</span>
+          </div>
+
+          <!-- Final Brand Lockup -->
+          <div class="final-brand-box" id="brand-box">
+            <img class="kitten-logo-img" src="assets/images/logo.svg" alt="Kitten Medical Logo" />
+            <h1 class="final-punchline">
+              From Raw DICOM to Doctor-Ready PDF<br/>
+              <span>In Under 5 Seconds.</span>
+            </h1>
+            <p class="final-sub">
+              Empowering radiologists with instant YOLO11n fracture localization and MedGemma multimodal reporting.
+            </p>
+            <div class="pill-row">
+              <div class="feature-pill">PACS Live Ingest</div>
+              <div class="feature-pill">YOLO11n Detection</div>
+              <div class="feature-pill">MedGemma 27B AI</div>
+              <div class="feature-pill">1-Click Clinical PDF</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GSAP Animations -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1: Ingest & Hook (0.0s - 3.5s)
+      tl.fromTo("#ingest-card", 
+        { scale: 0.92, opacity: 0, y: 30 }, 
+        { scale: 1, opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 
+        0.2
+      );
+      tl.fromTo(".ingest-details .detail-box",
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, stagger: 0.12, duration: 0.5, ease: "power2.out" },
+        0.8
+      );
+      tl.to("#ingest-card", { opacity: 0, scale: 0.96, duration: 0.4, ease: "power2.in" }, 3.1);
+
+      // Scene 2: Viewport & YOLO11n (3.5s - 8.5s)
+      tl.fromTo("#workstation-container",
+        { opacity: 0, scale: 0.95 },
+        { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" },
+        3.5
+      );
+      // Scanline sweep using y transform
+      tl.fromTo("#scanline",
+        { opacity: 0.9, y: 0 },
+        { opacity: 0.9, y: 550, duration: 0.9, ease: "power1.inOut" },
+        3.8
+      );
+      tl.to("#scanline", { opacity: 0, duration: 0.2 }, 4.7);
+      // Bounding Box Lock-in
+      tl.fromTo("#bbox",
+        { opacity: 0, scale: 1.3 },
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        4.6
+      );
+      tl.fromTo(".metric-row",
+        { opacity: 0, x: 20 },
+        { opacity: 1, x: 0, stagger: 0.15, duration: 0.4, ease: "power2.out" },
+        4.8
+      );
+      tl.to("#workstation-container", { opacity: 0, scale: 0.96, duration: 0.4, ease: "power2.in" }, 8.1);
+
+      // Scene 3: MedGemma Structured Report (8.5s - 13.5s)
+      tl.fromTo("#report-container",
+        { opacity: 0, y: 30, scale: 0.96 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "power3.out" },
+        8.5
+      );
+      tl.fromTo(".clinical-section",
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, stagger: 0.1, duration: 0.4, ease: "power2.out" },
+        9.0
+      );
+      tl.to("#report-container", { opacity: 0, scale: 0.96, duration: 0.4, ease: "power2.in" }, 13.1);
+
+      // Scene 4: 1-Click Save as PDF & Outro (13.5s - 18.0s)
+      tl.fromTo("#btn-save",
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.5)" },
+        13.5
+      );
+      // Cursor movement & click using x/y transforms
+      tl.fromTo("#cursor",
+        { x: 300, y: 250, opacity: 0 },
+        { x: 40, y: 40, opacity: 1, duration: 0.5, ease: "power2.out" },
+        13.6
+      );
+      // Button click effect
+      tl.to("#btn-save", { scale: 0.94, duration: 0.1, ease: "power1.in" }, 14.1);
+      tl.to("#btn-save", { scale: 1.05, duration: 0.2, ease: "back.out(2)" }, 14.2);
+      // Fade button and cursor, reveal final brand box
+      tl.to(["#btn-save", "#cursor"], { opacity: 0, scale: 0.8, duration: 0.35 }, 14.6);
+      tl.fromTo("#brand-box",
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
+        15.0
+      );
+
+      // Register timeline for Hyperframes
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
