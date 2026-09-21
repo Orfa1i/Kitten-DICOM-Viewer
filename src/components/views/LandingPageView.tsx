@@ -23,7 +23,7 @@ import {
 export const LandingPageView: React.FC = () => {
   const { 
     setCurrentScreen, 
-    setIsLlmSettingsOpen, 
+    setIsSettingsOpen, 
     llmConfig 
   } = useMedicalApp();
 
@@ -210,6 +210,57 @@ export const LandingPageView: React.FC = () => {
             </button>
           </div>
 
+        </div>
+      </section>
+
+      {/* LAUNCH VIDEO SHOWCASE SECTION */}
+      <section id="launch-video" className="py-16 px-4 md:px-8 max-w-[1280px] mx-auto w-full">
+        <div className="relative rounded-3xl p-6 md:p-10 bg-gradient-to-b from-[#14161E] to-[#0A0B0E] border border-[#8D321F]/40 shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(141,50,31,0.15)] overflow-hidden">
+          {/* Subtle top glow */}
+          <div className="absolute top-0 left-1/4 right-1/4 h-[2px] bg-gradient-to-r from-transparent via-[#E1998C] to-transparent" />
+          
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8D321F]/20 border border-[#8D321F]/40 text-[#E1998C] text-[12px] font-bold uppercase tracking-wider mb-2">
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Launch Video</span>
+              </div>
+              <h2 className="text-[28px] md:text-[36px] font-spartan font-bold text-white tracking-tight">
+                Watch Kitten in Action
+              </h2>
+              <p className="text-[15px] text-zinc-400 max-w-[580px]">
+                Turn any raw DICOM from your hospital PACS into a clinically structured, AI-verified PDF report in under 5 seconds.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-zinc-300 text-[12.5px] font-mono font-medium">
+                PACS Live Ingest
+              </span>
+              <span className="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[12.5px] font-mono font-medium">
+                YOLO11n Detection
+              </span>
+              <span className="px-3 py-1 rounded-lg bg-[#8D321F]/20 border border-[#8D321F]/40 text-[#E1998C] text-[12.5px] font-mono font-medium">
+                MedGemma 27B
+              </span>
+              <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-zinc-300 text-[12.5px] font-mono font-medium">
+                1-Click Clinical PDF
+              </span>
+            </div>
+          </div>
+
+          {/* Video Player Container */}
+          <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black aspect-video max-w-[1100px] mx-auto">
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster="/assets/videos/brag.jpg"
+              src="/assets/videos/brag.mp4"
+              className="w-full h-full object-cover"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
         </div>
       </section>
 
@@ -404,7 +455,7 @@ export const LandingPageView: React.FC = () => {
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
-                onClick={() => setIsLlmSettingsOpen(true)}
+                onClick={() => setIsSettingsOpen(true)}
                 className="bg-white hover:bg-zinc-100 text-[#8D321F] font-bold px-7 py-3 rounded-full text-[15px] transition active:scale-95 shadow-md flex items-center gap-2 font-spartan"
               >
                 <Sliders className="w-4.5 h-4.5 text-[#8D321F]" />
