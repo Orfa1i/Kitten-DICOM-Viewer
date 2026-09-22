@@ -1,0 +1,27 @@
+# ==============================================================================
+# Kitten Medical Imaging AI Platform - Backend Dependencies
+# ==============================================================================
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.10.0
+python-multipart>=0.0.18
+httpx>=0.28.0
+requests>=2.32.0
+
+pydicom>=3.0.0
+opencv-python-headless>=4.10.0
+pillow>=11.0.0
+numpy>=1.26.0
+reportlab>=4.2.0
+
+ultralytics>=8.3.0
+torch>=2.4.0
+torchvision>=0.19.0
+
+transformers>=4.48.0
+accelerate>=1.2.0
+bitsandbytes>=0.45.0
+
+google-genai>=1.0.0
+chromadb>=0.5.0

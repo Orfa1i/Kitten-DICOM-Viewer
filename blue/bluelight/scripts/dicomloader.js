@@ -1,0 +1,374 @@
+
+function loadSopFromDataSet(dataSet, type) {
+    try {
+        var ErrorStudy = dataSet.string(Tag.StudyInstanceUID);
+        var ErrorSeries = dataSet.string(Tag.SeriesInstanceUID);
+        var ErrorSop = dataSet.string(Tag.SOPInstanceUID);
+        if (!ErrorSop || !ErrorSeries || !ErrorStudy) {
+            ErrorMessage.pushErrorMessage(410);
+            throw "!ErrorSop || !ErrorSeries || !ErrorStudy";
+        }
+    } catch (ex) {
+        ErrorMessage.pushErrorMessage(411)
+    }
+    try {
+        var imageObj = getDefaultImageObj(dataSet, type);
+        if (type == 'pdf') setPDF(imageObj);
+        if (type == 'ecg') setECG(imageObj);
+        if (type == 'sr') imageObj.sr = {/*setSR*/ };
+
+        var Sop = ImageManager.pushStudy(imageObj); //註冊此Image至Viewer
+        if (!Sop) return;
+        Sop.type = type;
+        readDicomOverlay(dataSet, PatientMark);
+        return Sop;
+    } catch (ex) {
+        if (!imageObj) ErrorMessage.pushErrorMessage(420, sop = ErrorSop, series = ErrorSeries, study = ErrorStudy);
+        else ErrorMessage.pushErrorMessage(450, sop, series, study);
+    }
+}
+
+function setPDF(imageObj) {
+    var fileTag = imageObj.data.elements.x00420011;
+    var pdfByteArray = imageObj.data.byteArray.slice(fileTag.dataOffset, fileTag.dataOffset + fileTag.length);
+    var pdfObj = new Blob([pdfByteArray], { type: 'application/pdf' });
+    var pdf = URL.createObjectURL(pdfObj);
+    imageObj.pdf = pdf;
+}
+
+function getDefaultImageObj(dataSet, type) {
+    var imageObj = {};
+    imageObj.windowCenter = dataSet.intString(Tag.WindowCenter);
+    imageObj.windowWidth = dataSet.intString(Tag.WindowWidth);
+    imageObj.accessionNumber = dataSet.string(Tag.AccessionNumber);
+    imageObj.acquisitionTime = dataSet.string(Tag.AcquisitionTime);
+    imageObj.bitsAllocation = dataSet.int16(Tag.BitsAllocated);
+    imageObj.highBit = dataSet.int16(Tag.HighBit);
+    imageObj.InstanceNumber = dataSet.string(Tag.InstanceNumber);
+    imageObj.institutionName = dataSet.string(Tag.InstitutionName);
+    imageObj.PatientAge = dataSet.string(Tag.PatientAge);
+    imageObj.PatientID = dataSet.string(Tag.PatientID);
+
+
+    imageObj.PatientName = dataSet.string(Tag.PatientName);
+    imageObj.SpecificCharacterSet = dataSet.string(Tag.SpecificCharacterSet);
+    // 不再使用此方法處理亂碼問題，改在顯示時處理
+    // if (dataSet.elements[Tag.PatientName]) imageObj.PatientName = (new TextDecoder('utf-8')).decode(new Uint8Array(dataSet.byteArray.buffer, dataSet.elements[Tag.PatientName].dataOffset, dataSet.elements[Tag.PatientName].length));
+
+    imageObj.patientSex = dataSet.string(Tag.PatientSex);
+    imageObj.pixelRepresentation = dataSet.int16(Tag.PixelRepresentation);
+    imageObj.bitsStored = dataSet.int16(Tag.BitsStored);
+    imageObj.seriesDescription = dataSet.string(Tag.SeriesDescription);
+    imageObj.seriesNumber = dataSet.string(Tag.SeriesNumber);
+    imageObj.sliceLocation = dataSet.string(Tag.SliceLocation);
+    imageObj.sliceThickness = dataSet.string(Tag.SliceThickness);
+    imageObj.stationName = dataSet.string(Tag.StationName);
+    imageObj.invert = dataSet.string(Tag.PhotometricInterpretation) == "MONOCHROME1" ? true : false;
+    imageObj.color = dataSet.int16(Tag.SamplesPerPixel) === 3;
+    imageObj.NumberOfFrames = dataSet.intString(Tag.NumberOfFrames);
+    imageObj.photometricInterpretation = dataSet.string(Tag.PhotometricInterpretation);
+    imageObj.width = imageObj.columns = dataSet.int16(Tag.Columns);
+    imageObj.height = imageObj.rows = dataSet.int16(Tag.Rows);
+    imageObj.StudyInstanceUID = dataSet.string(Tag.StudyInstanceUID);
+    imageObj.SeriesInstanceUID = dataSet.string(Tag.SeriesInstanceUID);
+    imageObj.SOPInstanceUID = dataSet.string(Tag.SOPInstanceUID);
+    imageObj.PhotometricInterpretation = dataSet.string(Tag.PhotometricInterpretation);
+
+    if (dataSet.elements[Tag.GridFrameOffsetVector]) {
+        imageObj.GridFrameOffsetVector = dataSet.string(Tag.GridFrameOffsetVector).split("\\");
+        for (var i in imageObj.GridFrameOffsetVector) imageObj.GridFrameOffsetVector[i] = parseInt(imageObj.GridFrameOffsetVector[i]);
+    }
+
+    ////////////////////////////
+    if (dataSet.elements[Tag.ImageOrientationPatient]) {
+        imageObj.Orientation = dataSet.string(Tag.ImageOrientationPatient).split("\\");
+        for (var o in imageObj.Orientation) imageObj.Orientation[o] = parseFloat(imageObj.Orientation[o]);
+
+        var orien = dataSet.string(Tag.ImageOrientationPatient).split("\\");
+        for (var o in orien) orien[o] = Math.round(orien[o]);
+        if (orien[0] == 1 && orien[1] == 0 && orien[2] == 0 && orien[3] == 0 && orien[4] == 0 && orien[5] == -1)
+            imageObj.AnatomicalPlane = "Coronal"; //['1', '0', '0', '0', '0', '-1']
+        else if (orien[0] == 0 && orien[1] == 1 && orien[2] == 0 && orien[3] == 0 && orien[4] == 0 && orien[5] == -1)
+            imageObj.AnatomicalPlane = "Sagittal"; //['0', '1', '0', '0', '0', '-1']
+        else if (orien[0] == 1 && orien[1] == 0 && orien[2] == 0 && orien[3] == 0 && orien[4] == 1 && orien[5] == 0)
+            imageObj.AnatomicalPlane = "Axial"; //['1', '0', '0', '0', '1', '0']
+        else imageObj.AnatomicalPlane = null;
+    } else imageObj.AnatomicalPlane = null;
+
+    if (dataSet.elements[Tag.ImagePositionPatient]) {
+        imageObj.imagePosition = dataSet.string(Tag.ImagePositionPatient).split("\\");
+        for (var i in imageObj.imagePosition) imageObj.imagePosition[i] = parseFloat(imageObj.imagePosition[i]) / (imageObj.rowPixelSpacing ? imageObj.rowPixelSpacing : 1);
+    } else imageObj.imagePosition = [0, 0, 0];
+
+    ////////////////////////////
+
+    imageObj.intercept = dataSet.intString(Tag.RescaleIntercept);
+    imageObj.slope = dataSet.floatString(Tag.RescaleSlope);
+    imageObj.bitsAllocated = dataSet.int16(Tag.BitsAllocated);
+    if (dataSet.string(Tag.PixelSpacing)) {
+        imageObj.rowPixelSpacing = parseFloat(dataSet.string(Tag.PixelSpacing).split("\\")[0]);
+        imageObj.columnPixelSpacing = parseFloat(dataSet.string(Tag.PixelSpacing).split("\\")[1]);
+        imageObj.PixelSpacing = [imageObj.rowPixelSpacing, imageObj.columnPixelSpacing];
+    }
+    else if (dataSet.string(Tag.ImagerPixelSpacing)) {
+        imageObj.rowPixelSpacing = parseFloat(dataSet.string(Tag.ImagerPixelSpacing).split("\\")[0]);
+        imageObj.columnPixelSpacing = parseFloat(dataSet.string(Tag.ImagerPixelSpacing).split("\\")[1]);
+        imageObj.PixelSpacing = [imageObj.rowPixelSpacing, imageObj.columnPixelSpacing];
+    }
+
+    imageObj.samplesPerPixel = (dataSet.string(Tag.PhotometricInterpretation) === 'YBR_FULL_422' || dataSet.string(Tag.PhotometricInterpretation) === 'YBR_FULL') ? 2 : dataSet.uint16(Tag.SamplesPerPixel);
+    imageObj.data = dataSet;
+
+    //////////
+
+    imageObj.isBigEndian = dataSet.string(Tag.TransferSyntaxUID) == "1.2.840.10008.1.2.2";
+
+    imageObj.imageDataLoaded = false;
+    if (type == "sop") {
+        imageObj.pixelData = null;
+        imageObj.loadImageData = function () {
+            this.imageDataLoaded = true;
+            this.pixelData = getPixelDataFromDataSet(this, this.data);
+        }
+    }
+    if (type == "sop") imageObj.getPixelData = function () { return this.pixelData; }
+    else if (type == "frame") imageObj.getPixelData = function (framesNumber = 0) {
+        return getPixelDataFromDataSet(this, this.data, isNaN(framesNumber) ? 0 : framesNumber);
+    }
+    else imageObj.getPixelData = function () { return; }
+    if (imageObj.PhotometricInterpretation == "PALETTE COLOR") getPixelDataFromColorLookupTable(imageObj, imageObj.data);
+
+    //////////
+    if (imageObj.Orientation) {
+        imageObj.RCS = new Matrix4x4();
+        imageObj.RCS.matrix = [
+            [imageObj.Orientation[0] / parseFloat(imageObj.rowPixelSpacing), imageObj.Orientation[3] / parseFloat(imageObj.rowPixelSpacing), 0, imageObj.imagePosition[0] / parseFloat(imageObj.rowPixelSpacing)],
+            [imageObj.Orientation[1] / parseFloat(imageObj.rowPixelSpacing), imageObj.Orientation[4] / parseFloat(imageObj.rowPixelSpacing), 0, imageObj.imagePosition[1] / parseFloat(imageObj.rowPixelSpacing)],
+            [imageObj.Orientation[2] / parseFloat(imageObj.rowPixelSpacing), imageObj.Orientation[5] / parseFloat(imageObj.rowPixelSpacing), 0, imageObj.imagePosition[2] / parseFloat(imageObj.rowPixelSpacing)],
+            [0, 0, 0, 1]
+        ]
+        imageObj.RCS.invertmatrix = [
+            [-imageObj.Orientation[0] / parseFloat(imageObj.rowPixelSpacing), -imageObj.Orientation[3] / parseFloat(imageObj.rowPixelSpacing), 0, -imageObj.imagePosition[0] / parseFloat(imageObj.rowPixelSpacing)],
+            [-imageObj.Orientation[1] / parseFloat(imageObj.rowPixelSpacing), -imageObj.Orientation[4] / parseFloat(imageObj.rowPixelSpacing), 0, -imageObj.imagePosition[1] / parseFloat(imageObj.rowPixelSpacing)],
+            [-imageObj.Orientation[2] / parseFloat(imageObj.rowPixelSpacing), -imageObj.Orientation[5] / parseFloat(imageObj.rowPixelSpacing), 0, -imageObj.imagePosition[2] / parseFloat(imageObj.rowPixelSpacing)],
+            [0, 0, 0, 1]
+        ]
+    }
+
+    return imageObj;
+}
+
+function setPixelDataToImageObj(Sop) {
+    Sop.Image.imageDataLoaded = true;
+    if (Sop.type == "sop") Sop.Image.pixelData = getPixelDataFromDataSet(Sop.Image, Sop.Image.data);
+}
+
+function getPixelDataFromColorLookupTable(imageObj, dataSet) {
+    //RedPaletteColorLookupTableDescriptor
+    var numberOfEntries = dataSet.uint16(Tag.RedPaletteColorLookupTableDescriptor, 0) == 0 ? 65536 : dataSet.uint16(Tag.RedPaletteColorLookupTableDescriptor, 0); //LUT 有幾筆資料（通常是 256、1024 等）
+    var firstMappedIndex = dataSet.uint16(Tag.RedPaletteColorLookupTableDescriptor, 1); //對應的第一個索引值（常為 0）
+    var bitsPerEntry = dataSet.uint16(Tag.RedPaletteColorLookupTableDescriptor, 2); //每筆資料的 bit 數（通常是 8 或 16）
+    if (bitsPerEntry <= 8) {
+        imageObj.RedLutArray = new Uint8Array(dataSet.byteArray.buffer, dataSet.elements.x00281201.dataOffset, numberOfEntries);
+    } else {
+        imageObj.RedLutArray = new Uint16Array(new Uint16Array(dataSet.byteArray.buffer, dataSet.elements.x00281201.dataOffset, numberOfEntries));
+        for (var i in imageObj.RedLutArray) imageObj.RedLutArray[i] = imageObj.RedLutArray[i] / 256;
+    }
+
+    //GreenPaletteColorLookupTableDescriptor
+    var numberOfEntries = dataSet.uint16(Tag.GreenPaletteColorLookupTableDescriptor, 0); //LUT 有幾筆資料（通常是 256、1024 等）
+    var firstMappedIndex = dataSet.uint16(Tag.GreenPaletteColorLookupTableDescriptor, 1); //對應的第一個索引值（常為 0）
+    var bitsPerEntry = dataSet.uint16(Tag.GreenPaletteColorLookupTableDescriptor, 2); //每筆資料的 bit 數（通常是 8 或 16）
+    if (bitsPerEntry <= 8) {
+        imageObj.GreenLutArray = new Uint8Array(dataSet.byteArray.buffer, dataSet.elements.x00281202.dataOffset, numberOfEntries);
+    } else {
+        imageObj.GreenLutArray = new Uint16Array(new Uint16Array(dataSet.byteArray.buffer, dataSet.elements.x00281202.dataOffset, numberOfEntries));
+        for (var i in imageObj.GreenLutArray) imageObj.GreenLutArray[i] = imageObj.GreenLutArray[i] / 256;
+    }
+    //BluePaletteColorLookupTableDescriptor
+    var numberOfEntries = dataSet.uint16(Tag.BluePaletteColorLookupTableDescriptor, 0); //LUT 有幾筆資料（通常是 256、1024 等）
+    var firstMappedIndex = dataSet.uint16(Tag.BluePaletteColorLookupTableDescriptor, 1); //對應的第一個索引值（常為 0）
+    var bitsPerEntry = dataSet.uint16(Tag.BluePaletteColorLookupTableDescriptor, 2); //每筆資料的 bit 數（通常是 8 或 16）
+
+    if (bitsPerEntry <= 8) {
+        imageObj.BlueLutArray = new Uint8Array(dataSet.byteArray.buffer, dataSet.elements.x00281203.dataOffset, numberOfEntries);
+    } else {
+        imageObj.BlueLutArray = new Uint16Array(new Uint16Array(dataSet.byteArray.buffer, dataSet.elements.x00281203.dataOffset, numberOfEntries));
+        for (var i in imageObj.BlueLutArray) imageObj.BlueLutArray[i] = imageObj.BlueLutArray[i] / 256;
+    }
+}
+
+function getPixelDataFromDataSet(imageObj, dataSet, frameIndex = 0) {
+    function IfNoWL(imageObj, dataSet, pixelData) {
+        if (isNaN(imageObj.windowCenter) || isNaN(imageObj.windowWidth)) {
+            var max = Number.MIN_VALUE, min = Number.MAX_VALUE;
+            for (var i = 0; i < pixelData.length; i++) {
+                if (pixelData[i] > max) max = pixelData[i];
+                if (pixelData[i] < min) min = pixelData[i];
+            }
+
+            var slope = isNaN(imageObj.slope) ? 1 : imageObj.slope;
+            var intercept = isNaN(imageObj.intercept) ? 0 : imageObj.intercept;
+            imageObj.windowCenter = ((max + min) / 2 * slope) + intercept; //(max + min) / 2
+            imageObj.windowWidth = (max - min) * slope; //(max - min)
+        }
+    }
+    function YBR(imageObj, dataSet, pixelData) {
+        var photometric = dataSet.string(Tag.PhotometricInterpretation);
+        // PhotometricInterpretation=RGB 時，即使 JPEG 解碼器標記了 isYCbCr，也不應再做轉換
+        // 因為 JPEG codec 解碼時已將 YCbCr 轉回 RGB，isYCbCr 此時為誤判
+        if ((imageObj.isYCbCr && photometric !== 'RGB') || photometric === 'YBR_FULL_422' || photometric === 'YBR_FULL') {
+            if (!imageObj.color) return pixelData;
+            for (var i = 0; i < pixelData.length; i += 3) {
+                var R = pixelData[i] + 1.402 * (pixelData[i + 2] - 128);
+                var G = pixelData[i] - 0.344136 * (pixelData[i + 1] - 128) - 0.714136 * (pixelData[i + 2] - 128);
+                var B = pixelData[i] + 1.772 * (pixelData[i + 1] - 128);
+                pixelData[i] = Math.max(0, Math.min(255, Math.round(R))); // R = Y + 1.402 * (Cr - 128);
+                pixelData[i + 1] = Math.max(0, Math.min(255, Math.round(G))); // G = Y - 0.344136 * (Cb - 128) - 0.714136 * (Cr - 128);
+                pixelData[i + 2] = Math.max(0, Math.min(255, Math.round(B))); // B = Y + 1.772 * (Cb - 128);
+            }
+        }
+        return pixelData;
+    }
+    function dealAssumingRGB(imageObj, dataSet, pixelData) {
+        if (!imageObj.AssumingRGB) return pixelData;
+        var width = imageObj.width, height = imageObj.height;
+        // JPEG SOF 元件 ID 為 0/1/2 時會被標成 AssumingRGB
+        // 若解碼後長度已等於 W×H×3，表示影像本身正常，不應再做行交錯修正
+        if (pixelData && pixelData.length === width * height * 3) return pixelData;
+        function discardOddLines(pixelData, width, height) {
+            const rowSize = width * 3;
+            const output = new Uint8ClampedArray(Math.ceil(height / 2) * rowSize);
+            for (let y = 0; y < height; y += 2) {
+                const srcIndex = y * rowSize;
+                const dstIndex = (y / 2) * rowSize;
+                output.set(pixelData.subarray(srcIndex, srcIndex + rowSize), dstIndex);
+            }
+            return output;
+        }
+        pixelData = discardOddLines(pixelData, width, height);
+
+        var outputArray = new Uint8ClampedArray(width * height * 3);
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width * 3 - 3; x++) {
+                outputArray[y * 2 * width * 3 + x] = pixelData[parseInt(y * width * 3 + x)];
+                outputArray[y * 2 * width * 3 + x + 1] = pixelData[parseInt(y * width * 3 + x) + 1];
+                outputArray[y * 2 * width * 3 + x + 2] = pixelData[parseInt(y * width * 3 + x) + 2];
+                outputArray[(y * 2 - 1) * width * 3 + x] = pixelData[parseInt(y * width * 3 + x)];
+                outputArray[(y * 2 - 1) * width * 3 + x + 1] = pixelData[parseInt(y * width * 3 + x) + 1];
+                outputArray[(y * 2 - 1) * width * 3 + x + 2] = pixelData[parseInt(y * width * 3 + x) + 2];
+            }
+        }
+
+        pixelData = outputArray;
+        return pixelData;
+    }
+    function parsePixelData(buffer, pixelRepresentation, bitsStored, bitsAllocated, isBigEndian) {
+        const length = buffer.byteLength;
+        const srcBytes = new Uint8Array(buffer);
+
+        // 8-bit 資料不受 Endian 影響 (因為只有一個 byte)，直接回傳
+        if (bitsAllocated === 8) return pixelRepresentation === 1 ? new Int8Array(buffer) : new Uint8Array(buffer);
+
+        // 16 Bits Allocated (最常見)
+        if (bitsAllocated === 16) {
+            const numPixels = length / 2;
+            const destArray = pixelRepresentation === 1 ? new Int16Array(numPixels) : new Uint16Array(numPixels);
+
+            // 計算出遮罩: 例如 10 bits -> 0000 0011 1111 1111 (0x03FF)
+            const mask = (1 << bitsStored) - 1; // 如果 bitsStored 等於 16，mask 就是 0xFFFF，相當於不做遮罩
+            const signBit = 1 << (bitsStored - 1); // 計算符號位: 例如 10 bits -> 第 10 位 (index 9) 是 1
+
+            // 預先計算符號擴充用的補碼遮罩 (避免在迴圈中重複計算)
+            // ~mask 在 16-bit 下的結果。例如 mask=0x03FF, antiMask=0xFC00
+            const signExtensionMask = ~mask;
+
+            for (let i = 0; i < numPixels; i++) {
+                const byteA = srcBytes[i * 2]; const byteB = srcBytes[i * 2 + 1];
+                let rawValue;
+
+                // 1. 處理 Endian (Byte Swapping)
+                if (isBigEndian) rawValue = (byteA << 8) | byteB; // Big Endian: 高位在前 (byteA), 低位在後 (byteB)
+                else rawValue = byteA | (byteB << 8); // Little Endian: 低位在前 (byteA), 高位在後 (byteB)
+
+                // 2. 套用遮罩 (Masking)，如果 bitsStored 是 16，這步其實是多餘的但沒差；如果不是便會影響
+                let maskedValue = rawValue & mask;
+
+                // 3. 處理有號數的符號擴充 (Sign Extension)
+                // 只有當是有號數 且 該數值在 bitsStored 定義的符號位上是 1 時才執行， 將高位補滿 1，使其成為正確的負數
+                if (pixelRepresentation === 1 && (maskedValue & signBit)) maskedValue = maskedValue | signExtensionMask;
+                destArray[i] = maskedValue;
+            }
+
+            return destArray;
+        }
+    }
+    function PixelProcessing(imageObj, dataSet, pixelData) {
+        pixelData = dealAssumingRGB(imageObj, dataSet, pixelData);
+        pixelData = YBR(imageObj, dataSet, pixelData);
+        IfNoWL(imageObj, dataSet, pixelData);
+        return pixelData;
+    }
+    const PXL_Elem = dataSet.elements.x7fe00010 || dataSet.elements.x7fe00008;
+    if (!PXL_Elem) return null;
+    else if (PXL_Elem.encapsulatedPixelData) {
+        var PXL = dataSet.elements.x7fe00010;
+        //Basic Offset Table is not empty
+        if (PXL && PXL.basicOffsetTable.length)
+            return PixelProcessing(imageObj, dataSet, decodeImage(imageObj, dataSet.string(Tag.TransferSyntaxUID),
+                dicomParser.readEncapsulatedImageFrame(dataSet, PXL, frameIndex), {
+                usePDFJS: false
+            }).pixelData);
+        //Empty basic offset table              && (!(dataSet.intString('x00280008') == undefined && PXL.fragments.length == 1))
+        if (dataSet.intString(Tag.NumberOfFrames) !== PXL.fragments.length) {
+            return PixelProcessing(imageObj, dataSet, decodeImage(imageObj, dataSet.string(Tag.TransferSyntaxUID),
+                dicomParser.readEncapsulatedImageFrame(dataSet, PXL, frameIndex, dicomParser.createJPEGBasicOffsetTable(dataSet, PXL)), {
+                usePDFJS: false
+            }).pixelData);
+        }
+        return PixelProcessing(imageObj, dataSet, decodeImage(imageObj, dataSet.string(Tag.TransferSyntaxUID),
+            dicomParser.readEncapsulatedPixelDataFromFragments(dataSet, PXL, frameIndex), {
+            usePDFJS: false
+        }).pixelData);
+        //return PixelProcessing(imageObj, dataSet, dicomParser.readEncapsulatedPixelDataFromFragments(dataSet, PXL, frameIndex));
+    } else {
+        function unpackBinaryFrame(byteArray, frameOffset, pixelData) {
+            if (frameOffset >= byteArray.length) throw new Error('frame exceeds size of pixelData');
+            for (let i = 0; i < pixelsPerFrame; i++) {
+                const bytePos = Math.floor(i / 8);
+                const byte = byteArray[bytePos + frameOffset];
+                const bitPos = i % 8;
+                pixelData[i] = (byte & (1 << bitPos)) ? 1 : 0;
+            }
+            return PixelProcessing(imageObj, dataSet, pixelData);
+        }
+        const samplesPerPixel = (dataSet.string(Tag.PhotometricInterpretation) === 'YBR_FULL_422' || dataSet.string(Tag.PhotometricInterpretation) === 'YBR_FULL') ? 2 : dataSet.uint16(Tag.SamplesPerPixel);
+        const pixelsPerFrame = dataSet.uint16(Tag.Rows) * dataSet.uint16(Tag.Columns) * samplesPerPixel;
+
+        let frameOffset = PXL_Elem.dataOffset;
+        switch (dataSet.uint16(Tag.BitsAllocated)) {
+            case 8: frameOffset += frameIndex * pixelsPerFrame; break;
+            case 16: frameOffset += frameIndex * pixelsPerFrame * 2; break;
+            case 32: frameOffset += frameIndex * pixelsPerFrame * 4; break;
+            case 1: frameOffset += frameIndex * pixelsPerFrame * 0.125; break;
+        }
+        //if (imageObj.GridFrameOffsetVector && imageObj.GridFrameOffsetVector.length > frameIndex)
+        //   frameOffset += imageObj.GridFrameOffsetVector[frameIndex];
+
+        if (frameOffset >= dataSet.byteArray.length) throw new Error('frame exceeds size of pixelData');
+
+        //PixelRepresentation = 0 -> unsigned, PixelRepresentation = 1 -> signed
+        if (dataSet.uint16(Tag.BitsAllocated) == 8) return PixelProcessing(imageObj, dataSet, parsePixelData(dataSet.byteArray.buffer.slice(frameOffset, frameOffset + pixelsPerFrame), dataSet.uint16(Tag.PixelRepresentation), imageObj.bitsStored, imageObj.bitsAllocated, imageObj.isBigEndian));
+        if (dataSet.uint16(Tag.BitsAllocated) == 16) return PixelProcessing(imageObj, dataSet, parsePixelData(dataSet.byteArray.buffer.slice(frameOffset, frameOffset + pixelsPerFrame * 2), dataSet.uint16(Tag.PixelRepresentation), imageObj.bitsStored, imageObj.bitsAllocated, imageObj.isBigEndian));
+        if (dataSet.uint16(Tag.BitsAllocated) == 32) {
+            if (dataSet.uint16(Tag.PixelRepresentation) == 1) return PixelProcessing(imageObj, dataSet, new Int32Array(dataSet.byteArray.buffer.slice(frameOffset, frameOffset + pixelsPerFrame * 4)));
+            else return PixelProcessing(imageObj, dataSet, new Uint32Array(dataSet.byteArray.buffer.slice(frameOffset, frameOffset + pixelsPerFrame * 4)));
+        }
+        if (dataSet.uint16(Tag.BitsAllocated) == 1) {
+            if (dataSet.uint16(Tag.PixelRepresentation) == 1) return PixelProcessing(imageObj, dataSet, unpackBinaryFrame(dataSet.byteArray, frameOffset * 0.125, new Int8Array(pixelsPerFrame)));
+            else return PixelProcessing(imageObj, dataSet, unpackBinaryFrame(dataSet.byteArray, frameOffset * 0.125, new Uint8Array(pixelsPerFrame)));
+        }
+        /*see 364*/
+        throw new Error('unsupported pixel format');
+    }
+}

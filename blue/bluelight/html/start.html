@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>BlueLight Viewer</title>
+  <meta charset="UTF-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="cache-control">
+  <meta content="no-cache" http-equiv="pragma">
+  <meta content="0" http-equiv="expires">
+  <meta name="google" content="notranslate" />
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+  <link rel="stylesheet" type="text/css" href="../css/gui.css">
+  <link rel="stylesheet" type="text/css" href="../css/vr.css">
+  <link rel="icon" href="../image/icon/title/bluelight.png" type="image/x-icon" />
+
+  <script src="../scripts/external/cornerstone/dicomParser.js"></script>
+  <script src="../scripts/external/cornerstone/dataDictionary.js"></script>
+  <script src="../scripts/external/dicom-character-set/dicom-character-set.min.js"></script>
+
+  <!--<script src="../scripts/external/cornerstone/decode/decodeImageFrame2.js"></script>-->
+  <script type="module">
+    import { decodeImageFrame } from "../scripts/external/cornerstone/decode/decodeImageFrame.js";
+    window.decodeImage = decodeImageFrame;
+  </script>
+
+  <script src="../scripts/onload.js"></script>
+  <script src="../scripts/patient.js"></script>
+  <script src="../scripts/viewport.js"></script>
+  <script src="../scripts/dicomloader.js"></script>
+
+  <script src="../scripts/toolfunction.js"></script>
+  <script src="../scripts/gui.js"></script>
+  <script src="../scripts/eventmanager.js"></script>
+  <script src="../scripts/mark.js"></script>
+
+  <script src="../scripts/viewer.js"></script>
+  <script src="../scripts/common.js"></script>
+
+  <script src="../scripts/readmark.js"></script>
+  <!--onload-->
+  <!--<script src="../scripts/mtss.js"></script>-->
+  <script src="../scripts/html.js"></script>
+  <script src="../scripts/tools/mousetool.js"></script>
+  <script src="../scripts/plugin/plugin.js"></script>
+  <script src="../scripts/tools/zoom.js" async></script>
+  <script src="../scripts/tools/cine.js" async></script>
+  <script src="../scripts/tools/scroll.js" async></script>
+  <script src="../scripts/tools/windowlevel.js" async></script>
+  <script src="../scripts/tools/rotate.js" async></script>
+
+  <script src="../scripts/tools/measure.js" async></script>
+  <script src="../scripts/tools/angle.js" async></script>
+  <script src="../scripts/tools/shape.js" async></script>
+  <script src="../scripts/tools/irregular.js" async></script>
+  <script src="../scripts/tools/calibration.js" async></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style> body, div, span, label, select, input { font-family: 'Outfit', sans-serif !important; }   /* Custom Scrollbar for BlueLight */
+  .outterScrollBar {
+    background-color: #18181b !important;
+    border-left: 1px solid #3f3f46 !important;
+    width: 12px !important;
+    border-radius: 0 16px 16px 0 !important;
+  }
+  
+  .innerScrollBar {
+    background-color: #8D321F !important;
+    width: 8px !important;
+    border-radius: 4px !important;
+    margin: 0 2px !important;
+    transition: background-color 0.2s !important;
+  }
+  
+  .innerScrollBar:hover {
+    background-color: #a13d28 !important;
+  }
+  /* Style Dropdown Drawers */
+  .drawer {
+    background: #18181b !important;
+    border: 1px solid #3f3f46 !important;
+    border-radius: 12px !important;
+    padding: 8px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+    margin-top: 12px !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Fix drawer items spacing */
+  .drawer .WindowSelect, .drawer .AnnotationSelect, .drawer span {
+    margin-bottom: 4px;
+    border-radius: 8px !important;
+  }
+  /* Fix parent spans forcing wrap */
+  #WindowRevisionParent, #SplitParent, #TransformationsImgParent {
+    width: auto !important;
+    overflow: visible !important;
+  }
+  /* Fix Dropdown Chevrons (Split Buttons) */
+  #WindowRevisionOption, #openTransformationsImg ~ div, #SplitWindow ~ div {
+    /* We don't want the chevrons to be full 36px buttons */
+  }
+  
+  #WindowRevisionOption_span .cropimg {
+    width: 26px !important; min-width: 26px !important; padding-left: 6px !important; padding-right: 6px !important;
+    padding: 8px 4px !important;
+    margin-left: -8px !important;
+    border-radius: 0 10px 10px 0 !important;
+    border-left: 1px solid #18181b !important;
+  }
+  
+  #WindowRevision_span .cropimg {
+    border-radius: 10px 0 0 10px !important;
+  }
+  
+  .page-header > span {
+    gap: 0px !important;
+  }
+  
+  /* Reset gap for elements that aren't split buttons */
+  .page-header > span > .img {
+    margin-right: 8px;
+  }
+  /* Make the whole app a robust Flex column */
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .page-header {
+    flex-shrink: 0 !important;
+  }
+  
+  #form-group {
+    flex: 1 1 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+  
+  .container {
+    position: relative !important;
+    flex: 1 1 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: 24px !important;
+    height: auto !important;
+    width: auto !important;
+  }
+</style>
+<style>
+  /* Gemini Target Design Overrides - Refined */
+  body {
+    background-color: #111111 !important;
+    overflow: hidden;
+    font-family: 'Outfit', sans-serif !important;
+  }
+  
+  /* Reset old BlueLight positioning */
+  :root {
+    --bordersize: 0px !important;
+  }
+
+  * {
+    border-color: transparent;
+  }
+  
+  .page-header {
+    background: #18181b !important;
+    border: 1px solid #3f3f46 !important;
+    border-radius: 0 !important; border-top: none !important; border-left: none !important; border-right: none !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: 76px !important; height: auto !important;
+    padding: 0 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    position: relative !important;
+    z-index: 50 !important;
+    overflow: visible !important; flex-wrap: wrap !important;
+  }
+
+  .page-header > span, .page-header > img {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .page-header .img, .page-header .cropimg {
+    background: #27272a !important;
+    border-radius: 10px !important;
+    padding: 8px !important;
+    transition: all 0.2s !important;
+    width: 46px !important; height: 46px !important; min-width: 46px !important; max-width: 46px !important;
+    border: 1px solid #3f3f46 !important;
+    box-sizing: border-box !important;
+  }
+
+  .page-header .img:hover, .page-header .cropimg:hover {
+    background: #3f3f46 !important;
+    transform: translateY(-1px) !important;
+  }
+
+  /* Main Container */
+  .container { position: absolute !important; top: 96px !important; left: 24px !important; right: 24px !important; bottom: 24px !important; /* replaced */
+    display: flex !important;
+    gap: 24px !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* Floating Left Sidebar */
+  #LeftPicture {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100% !important;
+    background: #18181b !important;
+    border: 1px solid #3f3f46 !important;
+    border-radius: 0 !important; border-top: none !important; border-left: none !important; border-right: none !important;
+    padding: 12px !important;
+    width: 100px !important;
+    min-width: 100px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+    /* Style thumbnails inside sidebar */
+  #LeftPicture .LeftCanvas {
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 8px !important;
+    background: #000 !important;
+    border: 2px solid transparent !important;
+    transition: all 0.2s !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+  
+  #LeftPicture .LeftCanvas:hover {
+    border-color: #52525b !important;
+  }
+  
+  #LeftPicture .OutLeftImg {
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 8px !important;
+    width: 100% !important;
+  }
+
+  /* Main Viewer Area */
+  #pages {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    flex: 1 1 auto !important; width: auto !important; height: 100% !important; border-radius: 20px !important;
+    background: #000000 !important;
+    border: 2px solid #8D321F !important;
+    overflow: hidden !important;
+    box-shadow: 0 0 30px rgba(141, 50, 31, 0.1) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .page {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+  }
+
+  canvas {
+    border: none !important;
+    outline: none !important;
+  }
+
+  /* Labels like "Patient ID", "Slice" */
+  .labelLT, .labelRT, .labelLB, .labelRB {
+    color: #a1a1aa !important;
+    font-size: 14px !important;
+    font-family: 'Outfit', sans-serif !important;
+    z-index: 20 !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
+  }
+  /* Custom Scrollbar for BlueLight */
+  .outterScrollBar {
+    background-color: #18181b !important;
+    border-left: 1px solid #3f3f46 !important;
+    width: 12px !important;
+    border-radius: 0 16px 16px 0 !important;
+  }
+  
+  .innerScrollBar {
+    background-color: #8D321F !important;
+    width: 8px !important;
+    border-radius: 4px !important;
+    margin: 0 2px !important;
+    transition: background-color 0.2s !important;
+  }
+  
+  .innerScrollBar:hover {
+    background-color: #a13d28 !important;
+  }
+  /* Style Dropdown Drawers */
+  .drawer {
+    background: #18181b !important;
+    border: 1px solid #3f3f46 !important;
+    border-radius: 12px !important;
+    padding: 8px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+    margin-top: 12px !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Fix drawer items spacing */
+  .drawer .WindowSelect, .drawer .AnnotationSelect, .drawer span {
+    margin-bottom: 4px;
+    border-radius: 8px !important;
+  }
+  /* Fix parent spans forcing wrap */
+  #WindowRevisionParent, #SplitParent, #TransformationsImgParent {
+    width: auto !important;
+    overflow: visible !important;
+  }
+  /* Fix Dropdown Chevrons (Split Buttons) */
+  #WindowRevisionOption, #openTransformationsImg ~ div, #SplitWindow ~ div {
+    /* We don't want the chevrons to be full 36px buttons */
+  }
+  
+  #WindowRevisionOption_span .cropimg {
+    width: 26px !important; min-width: 26px !important; padding-left: 6px !important; padding-right: 6px !important;
+    padding: 8px 4px !important;
+    margin-left: -8px !important;
+    border-radius: 0 10px 10px 0 !important;
+    border-left: 1px solid #18181b !important;
+  }
+  
+  #WindowRevision_span .cropimg {
+    border-radius: 10px 0 0 10px !important;
+  }
+  
+  .page-header > span {
+    gap: 0px !important;
+  }
+  
+  /* Reset gap for elements that aren't split buttons */
+  .page-header > span > .img {
+    margin-right: 8px;
+  }
+  /* Make the whole app a robust Flex column */
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  
+  .page-header {
+    flex-shrink: 0 !important;
+  }
+  
+  #form-group {
+    flex: 1 1 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+  
+  .container {
+    position: relative !important;
+    flex: 1 1 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: 24px !important;
+    height: auto !important;
+    width: auto !important;
+  }
+</style>
+</head>
+
+<body style="background-color:#111111;" onmousewheel="/*return false;*/">
+  <header class="page-header" id="page-header">
+    <button onclick="window.parent.postMessage({type: 'GO_BACK'}, '*')" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 42px; height: 42px; min-width: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 12px; transition: all 0.2s; backdrop-filter: blur(10px);" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </button>
+    <span id="icon-list">
+      <span id="openFile_span"><img class="img pdf ecg sr" type="file" alt="Open File" altzhtw="開啟檔案" id="openFile"
+          src="../image/icon/black/openfile.png" width="50" height="50"></span>
+      <span id="MouseOperation_span"><img class="img VR MPR SEG" alt="Move & Zoom" altzhtw="平移與縮放" id="MouseOperation"
+          src="../image/icon/black/b_Pan.png" width="50" height="50"></span>
+      <span id="b_Scroll_span"><img class="img MPR" alt="Scroll" altzhtw="捲動" id="b_Scroll"
+          src="../image/icon/black/b_Scroll.png" width="50" height="50"></span>
+
+      <span id="SplitParent">
+        <img class="img" alt="Split Screen" altzhtw="分隔" id="SplitWindow"
+          src="../image/icon/black/b_LayoutWithinViewport.png" width="50" height="50">
+        <div id="openSplitWindowDiv" class="drawer"></div>
+      </span>
+      <span id="TransformationsImgParent">
+        <img class="img" id="openTransformationsImg" altzhtw="Transformations" alt="Transformations"
+          src="../image/icon/black/b_Transformations.png" width="50" height="50">
+        <div id="openTransformationsDiv" class="drawer">
+          <span id="horizontal_flip_span"><img alt="Horizontal Flip" class="innerimg" loading="lazy" altzhtw="水平翻轉"
+              id="horizontal_flip" src="../image/icon/black/b_FlipHorizontally.png" width="50" height="50"></span>
+          <span id="vertical_flip_span"><img altzhtw="垂直翻轉" class="innerimg" loading="lazy" alt="Vertical Flip"
+              id="vertical_flip" src="../image/icon/black/b_FlipVertically.png" width="50" height="50"></span>
+          <span id="MouseRotate_span"><img class="innerimg" loading="lazy" alt="rotate" altzhtw="旋轉" id="MouseRotate"
+              src="../image/icon/black/b_Rotate 90 degrees clockwise.png" width="50" height="50"></span>
+          <br>
+          <span id="rotate0_span"><img class="innerimg" loading="lazy" altzhtw="旋轉0度" alt="rotate 0" id="Rotate_0"
+              src="../image/icon/black/b_Rotate_0.png" width="50" height="50"></span>
+          <span id="rotatei90_span"><img class="innerimg" loading="lazy" altzhtw="旋轉-90度" alt="rotate 90"
+              id="Rotate_i90" src="../image/icon/black/b_Rotate_90.png" width="50" height="50"></span>
+          <span id="rotate90_span"><img class="innerimg" loading="lazy" altzhtw="旋轉90度" alt="rotate 90" id="Rotate_90"
+              class="filpx" src="../image/icon/black/b_Rotate_i90.png" width="50" height="50"></span>
+        </div>
+      </span>
+      <span id="WindowRevisionParent">
+        <span id="WindowRevision_span"><img class="cropimg VR MPR SEG" alt="Window Level" altzhtw="Window Level"
+            id="WindowRevision" src="../image/icon/black/b_Window_Presets_left.png" width="38" height="50"></span>
+        <span id="WindowLevelDiv_span">
+          <div id="WindowLevelDiv" class="drawer">
+            <font color="white" id="labelWC">WC：</font><input type="number" id="textWC" value="520" />
+            <font color="white" id="labelWW">WW：</font><input type="number" id="textWW" value="50" />
+          </div>
+        </span>
+
+        <span id="WindowRevisionOption_span">
+          <img class="cropimg VR MPR SEG" alt="Window Level" altzhtw="Window Level" id="WindowRevisionOption"
+            src="../image/icon/black/b_Window_Presets_right.png" width="12" height="50"></span>
+        <div id="openWindowRevisionDiv" class="drawer">
+          <div class="WindowSelect" id="WindowDefault">Default</div>
+          <div class="WindowSelect" id="WindowCustom">Custom</div>
+          <div class="WindowSelect" id="WindowAbdomen" wc="60" ww="400">Abdomen(60,400)</div>
+          <div class="WindowSelect" id="WindowAngio" wc="300" ww="600">Angio(300,600)</div>
+          <div class="WindowSelect" id="WindowBone" wc="300" ww="1500">Bone(300,1500)</div>
+          <div class="WindowSelect" id="WindowBrain" wc="40" ww="80">Brain(40,80)</div>
+          <div class="WindowSelect" id="WindowChest" wc="40" ww="400">Chest(40,400)</div>
+          <div class="WindowSelect" id="WindowLungs" wc="-400" ww="1500">Lungs(-400,1500)</div>
+        </div>
+      </span>
+      <span id="zoom_span"><img class="img" altzhtw="放大鏡" alt="Zoom" id="zoom" src="../image/icon/black/b_Zoom.png"
+          width="50" height="50"></span>
+      <span id="zoomParent">
+        <div id="zoomDiv" class="drawer">
+          <font color="white" id="labelZoom">ratio：</font><input type="number" id="textZoom" value="200" /><br>
+          <font color="white" id="labelZoomSize">&nbsp;size：</font><input type="number" id="textZoomSize" value="200" /> <br>
+          <font color="white" id="labelZoomAntiAliasing">Anti-aliasing：</font><input type="checkbox"  checked="true" id="checkZoomAntiAliasing"/>
+        </div>
+      </span>
+
+      <span id="color_invert_span"><img class="img" altzhtw="色彩反轉" alt="Color Invert" id="color_invert"
+          src="../image/icon/black/b_InvertGrayscale.png" width="50" height="50"></span>
+      <span id="unlink_span"><img class="img" altzhtw="同步操作" alt="Synchronous Operation" id="unlink"
+          src="../image/icon/black/b_unlink translation synchronization.png" width="50" height="50"></span>
+      <span id="reset_span"><img class="img" altzhtw="恢復原狀" alt="Restore Img" id="resetImg"
+          src="../image/icon/black/b_DisplayReset.png" width="50" height="50"></span>
+      <span id="MeasureImgParent">
+        <img class="img" id="openMeasureImg" altzhtw="測量" alt="Measure" src="../image/icon/black/M.png" width="50"
+          height="50">
+        <div id="openMeasureDIv" class="drawer">
+          <span id="removeAllRuler_span">
+            <img alt="remove all" altzhtw="清除所有測量" class="innerimg" loading="lazy" id="removeAllRuler"
+              src="../image/icon/black/b_trashcan.png" width="50" height="50">
+          </span>
+          <span id="removeRuler_span">
+            <img alt="remove" altzhtw="清除測量" class="innerimg" loading="lazy" id="removeRuler"
+              src="../image/icon/black/X.png" width="50" height="50">
+          </span>
+          <span id="eraseRuler_span">
+            <img alt="eraser" altzhtw="橡皮擦" class="innerimg" loading="lazy" id="eraseRuler"
+              src="../image/icon/black/b_Eraser.png" width="50" height="50">
+          </span>
+          <span id="MeasureRuler_span">
+            <img alt="measure" altzhtw="測量" class="innerimg" loading="lazy" id="MeasureRuler"
+              src="../image/icon/black/b_DistanceMeasurement.png" width="50" height="50">
+          </span>
+          <span id="AngleRuler_span">
+            <img alt="angle" altzhtw="角度" class="innerimg" loading="lazy" id="AngleRuler"
+              src="../image/icon/black/b_AngleMeasurement.png" width="50" height="50">
+          </span>
+          <br>
+          <span id="AngleRuler_span2">
+            <img alt="angle" altzhtw="角度" class="innerimg" loading="lazy" id="AngleRuler2"
+              src="../image/icon/black/b_AngleMeasurement2.png" width="50" height="50">
+          </span>
+          <span id="RectRuler_span">
+            <img alt="Rect shape" altzhtw="矩形" class="innerimg" loading="lazy" id="RectRuler"
+              src="../image/icon/black/b_RectMeasurement.png" width="50" height="50">
+          </span>
+          <span id="CircleRuler_span">
+            <img alt="Circle shape" altzhtw="圓形" class="innerimg" loading="lazy" id="CircleRuler"
+              src="../image/icon/black/b_CircleMeasurement.png" width="50" height="50">
+          </span>
+          <span id="IrregularRuler_span">
+            <img alt="irregular shape" altzhtw="不規則形狀" class="innerimg" loading="lazy" id="IrregularRuler"
+              src="../image/icon/black/irregular.png" width="50" height="50">
+          </span>
+          <br>
+          <span id="arrowRuler_span">
+            <img alt="arrow" altzhtw="箭頭" class="innerimg" loading="lazy" id="ArrowRuler"
+              src="../image/icon/black/b_arrow.png" width="50" height="50">
+          </span>
+          <span id="TextAnnotation_span">
+            <img alt="text annotation" altzhtw="文字註解" class="innerimg" loading="lazy" id="TextAnnotation"
+              src="../image/icon/black/T.png" width="50" height="50">
+          </span>
+        </div>
+      </span>
+
+      <span id="playvideoParent">
+        <span id="playvideo_span"><img class="img" loading="lazy" altzhtw="播放" alt="Cine" id="playvideo"
+            src="../image/icon/black/b_CinePlay.png" width="50" height="50"></span>
+        <span id="playvideoDiv_span">
+          <div id="playvideolDiv" class="drawer">
+            <font color="white" id="labelPlay">fps：</font>
+            <input type="number" id="textPlay" value="15" />
+          </div>
+        </span>
+      </span>
+
+      <span id="MarkButton_span"><img class="img VR MPR" loading="lazy" altzhtw="標記" alt="Display Mark" id="MarkButton"
+          src="../image/icon/black/fist0.png" width="50" height="50"></span>
+
+      <span id="AnnotationParent">
+        <span id="annotation_span">
+          <img class="cropimg" loading="lazy" alt="Annotation" id="annotation" src="../image/icon/black/b_Annotation.png"
+            width="50" height="50">
+        </span>
+        <span id="annotationOption_span">
+          <img class="cropimg" alt="annotation options" id="annotationOption"
+            src="../image/icon/black/b_Window_Presets_right.png" width="12" height="50">
+          <div id="annotationDiv" class="drawer">
+            <div class="AnnotationSelect" id="ShowDicomTag">Show Dicom Tag</div>
+            <div class="AnnotationSelect" id="ShowScrollBar">Show/Hide ScrollBar</div>
+          </div>
+        </span>
+      </span>
+      <span id="KOImgParent">
+          <img class="img" altzhtw="Key Object" alt="KOimg" id="KOimg" src="../image/icon/black/b_ko.png"
+          width="50" height="50">
+          <div id="KoDrawerDIv" class="drawer">
+            <span id="OnlyShowKO_span">
+              <img altzhtw="僅顯示KO" alt="only show KO" class="innerimg" loading="lazy" id="OnlyShowKOImg"
+                src="../image/icon/black/b_ko_show.png" width="50" height="50">
+              </span> <br>
+            <span id="LockKO_span">
+              <img altzhtw="鎖定指定KO" alt="select target KO" class="innerimg" loading="lazy" id="LockKOImg"
+                src="../image/icon/black/b_ko_lock.png" width="50" height="50">
+            </span> <br>
+          </div>
+      </span>
+      <span id="OtherImgParent">
+        <img class="img" loading="lazy" altzhtw="其他" alt="other" id="OtherImg" src="../image/icon/black/b_CineTools.png"
+          width="50" height="50">
+        <div id="othereDIv" class="drawer">
+          <span id="clearViewport_span">
+            <img altzhtw="清除視窗" alt="clear viewport" class="innerimg" loading="lazy" id="clearviewportImg"
+              src="../image/icon/black/b_trashcan.png" width="50" height="50">
+          </span> <br>
+          <span id="TrueSize_span">
+            <img altzhtw="真實大小" alt="true size" class="innerimg" loading="lazy" id="TrueSizeImg"
+              src="../image/icon/black/b_TrueSize.png" width="50" height="50">
+          </span> <br>
+             <span id="About_span">
+            <img altzhtw="關於" alt="about" class="innerimg" loading="lazy" id="AboutImg"
+              src="../image/icon/black/b_Help.png" width="50" height="50">
+          </span> <br>
+          <!--<span id="Setting_span">
+            <img altzhtw="設定" alt="setting" class="innerimg" loading="lazy" id="settingImg"
+              src="../image/icon/black/b_Setting.png" width="50" height="50">
+          </span>-->
+      </span>
+      </div>
+    </span>
+    </span>
+    <!--<span id="rwdImgTag_span"> <img class="img VR MPR XML PEN" alt="RWD" loading="lazy" id="rwdImgTag"
+        src="../image/icon/black/b_CineTools.png" style="display:none;" width="50" height="50"></span>-->
+    <br>
+
+    <div id="MarkStyleDiv" style="background-color:#00306044;" class="drawer">
+      <label style="color: #ffffff;" id="markColorLabel">Color：</label>
+      <select id="MarkcolorSelect">
+        <option id="AutoColorSelect" selected="selected">Auto</option>
+        <option id="WhiteSelect">White</option>
+        <option id="RedSelect">Red</option>
+        <option id="BlueSelect">Blue</option>
+        <option id="GreenSelect">Green</option>
+        <option id="YellowSelect">Yellow</option>
+        <option id="BrownSelect">Brown</option>
+        <option id="OrangeSelect">Orange</option>
+        <option id="PurpleSelect">Purple</option>
+      </select>
+      <label style="color: #ffffff;" id="markAlphaLabel">Alpha<input type="text" id="markAlphaText"
+          value="35" /></label>
+      <label style="color: #ffffff;" id="markSizeLabel">Size<input type="text" id="markSizeText" value="0.45" /></label>
+      <label style="color: #ffffff;" id="markFillLabel">Fill<input type="checkbox" checked="true" name="markFillLabel"
+          id="markFillCheck"></label>
+      <label style="color: #ffffff;" id="TableLabel">Table：</label>
+      <select id="TableSelect">
+        <option id="TableSelectNone" selected="selected">None</option>
+        <option id="DICOMTagsSelect">DICOMTags</option>
+      </select>
+      <label style="color: #ffffff;" id="ScrollBarLabel">Show ScrollBar：</label>
+      <select id="ScrollBarSelect">
+        <option id="ScrollBarSelectShow" selected="selected">Show</option>
+        <option id="ScrollBarSelectHide">Hide</option>
+      </select>
+    </div>
+
+    <span id="span_TextAnnotation" style="display: none;">
+      <font color="white" id="label_TextAnnotation">Text：</font><input type="text" id="text_TextAnnotation"
+        value="text" />
+    </span>
+      <div id="dicom-header-profile" style="margin-left: auto; display: flex; align-items: center; gap: 12px; padding-right: 8px;">
+        <!-- Filled by script -->
+      </div>
+    </header>
+
+  <div class="form-group" id="form-group">
+    <label class="control-label col-sm-1" for="wadoURL"><!--URL-->&nbsp;</label>
+    <div id="container" class="container">
+      <div id="LeftPicture" style="overflow-y: auto;display: flex;flex-direction: column;position: absolute;z-index: 9;"
+        width="100">
+      </div>
+      <div id="dicomStatusIndicator"
+        style="position: fixed; left: 0px; bottom: 10px; min-width: 143px; max-width: 143px; height: auto; min-height: 30px; background-color: rgba(0,0,0,0.85); color: white; padding: 8px; text-align: left; font-size: 14px; z-index: 1000; display: none; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.5); pointer-events: none;">
+        Loading images...
+      </div>
+      <div id="pages">
+        <div class="page" id="DicomPage"></div>
+        <div class="page" id="PdfPage" style='display:none'></div>
+        <div class="page" id="SrPage" style='display:none'></div>
+        <div class="page" id="EcgPage" style='display:none'>
+          <div id="ECGOptionsDIV">
+            <span>
+              <label>Zoom：</label>
+              <select id="ECGSpeedSelect">
+                <option>12.5 mm/s</option><option>25 mm/s</option><option>50 mm/s</option><option>100 mm/s</option>
+              </select>
+              <select id="ECGVoltageSelect">
+                <option>3 mm/mV</option><option>5 mm/mV</option><option >10 mm/mV</option>
+                <option>15 mm/mV</option><option>20 mm/mV</option><option>30 mm/mV</option>
+              </select>
+              <label>Zoom：</label><input type="range" value="100" min="50" max="200" id="ECGZoomSlider">
+              Display Annotation：&nbsp;<img src="../image/icon/black/b_Window_Presets_right.png" id="ECGAnnotationImg">
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+<script>
+  window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // 1. Setup Profile
+    const userName = urlParams.get('userName') || "Dr.Mohammad";
+    const userAvatar = urlParams.get('userAvatar') || "http://localhost:5173/assets/images/doctor_avatar.jpg";
+    const profileContainer = document.getElementById('dicom-header-profile');
+    if (profileContainer) {
+      profileContainer.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <span style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: #a1a1aa;">Radiologist</span>
+            <span style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: #f4f4f5;">${userName}</span>
+          </div>
+          <img src="${userAvatar}" alt="${userName}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #52525b; background: #3f3f46;" />
+        </div>
+      `;
+    }
+
+    // 2. Load DICOM Case
+    const caseId = urlParams.get('loadCaseId');
+    if (caseId) {
+      console.log("Loading DICOM file from API for case: ", caseId);
+      ImageManager.NumOfPreLoadSops += 1;
+      fetch(`http://127.0.0.1:8000/api/cases/${caseId}/file`)
+        .then(response => {
+          if (!response.ok) throw new Error("DICOM file not found");
+          return response.arrayBuffer();
+        })
+        .then(arrayBuffer => {
+          var url = `case_${caseId}.dcm`;
+          var Sop = loadDicomDataSet(arrayBuffer, false, url, true);
+          if (Sop) {
+            Sop.Image.url = url;
+            setAllSeriesCount();
+            ImageManager.preLoadSops.push({
+              dataSet: Sop.dataSet, 
+              image: Sop.Image, 
+              Sop: Sop, 
+              SeriesInstanceUID: Sop.Image.SeriesInstanceUID,
+              Index: Sop.Image.NumberOfFrames | Sop.Image.InstanceNumber
+            });
+          }
+          ImageManager.NumOfPreLoadSops -= 1;
+          if (ImageManager.NumOfPreLoadSops == 0) {
+            ImageManager.loadPreLoadSops();
+            setTimeout(loadRestImageData, 1000);
+          }
+        })
+        .catch(err => {
+          console.error("Error loading case DICOM:", err);
+          if (ImageManager.NumOfPreLoadSops >= 1) ImageManager.NumOfPreLoadSops -= 1;
+        });
+    }
+  });
+</script>
+</body>

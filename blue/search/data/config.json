@@ -1,0 +1,50 @@
+{
+    "DICOMWebServersConfig": [
+        {
+            "AETitle": "YMOrthanc",
+            "enableHTTPS": true,
+            "hostname": "raccoon.dicom.org.tw",
+            "PORT": 443,
+            "contentType": "application/json",
+            "timeout": 80000,
+            "charset": "UTF=8",
+            "QIDO": "dicom-web",
+            "WADO": "wado",
+            "STOW": "stow",
+            "enableRetrieveURI": true,
+            "includefield": false,
+            "target": "../../bluelight/html/start.html",
+            "target-SM": "https://ditto-wsiviewer.dicom.tw/viewer",
+            "server-SM": "RACCOONORG",
+            "token": {
+                "apikey":"",
+                "bearer":""
+            }
+        },
+        {
+            "AETitle": "ldcmPACS",
+            "enableHTTPS": true,
+            "hostname": "raccoon.dicom.org.tw",
+            "PORT": 443,
+            "contentType": "application/json",
+            "timeout": 80000,
+            "charset": "UTF=8",
+            "QIDO": "dicom-web",
+            "WADO": "wado",
+            "STOW": "stow",
+            "enableRetrieveURI": true,
+            "includefield": false,
+            "target": "../../bluelight/html/start.html",
+            "target-SM": "https://ditto-wsiviewer.dicom.tw/viewer",
+            "server-SM": "RACCOONORG",
+            "token": {
+                "apikey":"",
+                "bearer":""
+            }
+        }
+    ],
+    "//_thumnail_witdth": "縮圖寬度",
+    "thumnail_witdth": 70,
+    "//_study_comparison": "進片模式",
+    "study_comparison": false
+}

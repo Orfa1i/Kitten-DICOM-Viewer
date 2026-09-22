@@ -1,0 +1,16 @@
+{
+    "enabled":false,
+    "hostname":"localhost",
+    "port":"8080",
+    "http":"http",
+    "client_id":"testclient",
+    "client_secret":"",
+    "endpoints":
+    {
+        "auth":"realms/testRealm/protocol/openid-connect/auth",
+        "validation":"realms/testRealm/protocol/openid-connect/userinfo", 
+        "token":"realms/testRealm/protocol/openid-connect/token" 
+    },
+    "scope":"openid profile email",
+    "tokenInRequest":true
+}

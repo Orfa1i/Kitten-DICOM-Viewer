@@ -124,6 +124,34 @@ export const apiService = {
     }
   },
 
+  async runDiagnosticFullReport(
+    fileBlobOrUrl: Blob | string,
+    patient: { id: string; name: string; age: number | string; sex: string },
+    isMri: boolean = false
+  ): Promise<any> {
+    try {
+      const formData = new FormData();
+      if (typeof fileBlobOrUrl === 'string') {
+        const imageRes = await fetch(fileBlobOrUrl);
+        const blob = await imageRes.blob();
+        formData.append('file', blob, 'study_scan.png');
+      } else {
+        formData.append('file', fileBlobOrUrl, 'study_scan.png');
+      }
+      formData.append('is_mri', String(isMri));
+      const res = await fetch(`${API_BASE_URL}/api/diagnostics/full-report`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.error('API runDiagnosticFullReport error:', e);
+    }
+    return null;
+  },
+
   async runKneeOADetection(
     fileBlobOrUrl: Blob | string,
     patient: { id: string; name: string; age: number | string; sex: string }

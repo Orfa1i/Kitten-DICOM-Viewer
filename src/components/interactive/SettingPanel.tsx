@@ -1,92 +1,130 @@
 import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
-import { LottieIcon } from '../ui/LottieIcon';
+import { Eye, Layers, List, Lock, Palette, UserCircle, Settings, BookOpen, Bot, FileText } from 'lucide-react';
 
 export const SettingPanel: React.FC = () => {
-  const { setIsLlmSettingsOpen, llmConfig } = useMedicalApp();
+  const { setIsProfileModalOpen, setCurrentScreen, setIsWorklistOpen, cases } = useMedicalApp();
 
   return (
-    <aside className="w-[315px] flex-shrink-0 relative flex flex-col select-none h-full z-10">
+    <aside className="w-[280px] flex-shrink-0 relative flex flex-col select-none h-full py-4 z-10">
       {/* Outer Card Container */}
-      <div className="bg-white/80 backdrop-blur-3xl rounded-[32px] border-[3px] border-[#8D321F]/80 p-3.5 shadow-sm h-full flex flex-col justify-between relative overflow-hidden">
-        {/* Inner Dashed Border Guide */}
-        <div className="border border-dashed border-[#B8B5B5] rounded-[24px] p-4 flex flex-col justify-between h-full bg-white/60">
-          {/* Top Section */}
-          <div className="space-y-3.5">
-            {/* Header: Setting + Gear Scaled Up to 36px */}
-            <div className="flex items-center gap-3 px-1">
-              <h2 className="text-[25px] font-display font-semibold text-[#1F1F1F] tracking-tight">
-                Setting
-              </h2>
-              <div className="w-9 h-9 text-[#1F1F1F] flex items-center justify-center">
-                <LottieIcon name="setting" size={36} />
-              </div>
-            </div>
+      <div className="bg-white rounded-[32px] border border-[#a25446] p-5 shadow-sm h-full flex flex-col relative overflow-hidden">
+        {/* Inner subtle dotted outline border in the image? Actually it's just a clean box. The image shows a very clean white card with a red-brown border. Inside there's a dotted bounding box around the inner content in the mockup? No, the dotted line is just a Figma selection/layout grid artifact! I will ignore it. */}
+        
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 px-2">
+          <h2 className="text-[26px] font-bold text-[#8D321F] tracking-tight">Setting</h2>
+          <Settings className="w-5 h-5 text-zinc-600 stroke-[2]" />
+        </div>
 
-            {/* Profile Capsule */}
-            <div className="border border-dashed border-[#8E8280] rounded-full px-3 py-2 flex items-center justify-between bg-white hover:bg-zinc-50 transition-colors group cursor-pointer">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/assets/images/avatar_hassan.png"
-                  alt="Dr. Hassan"
-                  className="w-10 h-10 rounded-full object-cover border border-[#8D321F]/30"
-                />
-                <span className="font-semibold text-[18px] text-[#1F1F1F] tracking-tight">
-                  Hassan
-                </span>
-              </div>
-              <div className="w-8 h-8 text-zinc-700 pr-1 flex items-center justify-center group-hover:scale-115 transition-transform">
-                <LottieIcon name="brush" size={30} />
-              </div>
-            </div>
-
-            {/* Menu Pills */}
-            <div className="flex flex-col gap-2.5 pt-0.5">
-              <button
-                onClick={() => alert("Security Protocol: 256-bit AES DICOM encryption enabled. HIPAA & GDPR Compliant.")}
-                className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-medium text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow"
-              >
-                Security
-              </button>
-
-              {/* Models Pill -> Opens LLM Settings Modal */}
-              <button
-                onClick={() => setIsLlmSettingsOpen(true)}
-                className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-semibold text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow flex items-center justify-center gap-2 group"
-                title="Configure LLM Model Name, API Key, and Model Version"
-              >
-                <span>Models</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200 group-hover:scale-125 transition-transform" />
-              </button>
-
-              <button
-                onClick={() => alert("Appearance Settings: System calibrated for high-contrast radiology monitors.")}
-                className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-medium text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow"
-              >
-                Apperance
-              </button>
-
-              <button
-                onClick={() => alert("Kitten Medical Diagnostics: Lead Radiologist Profile - Dr. Hassan")}
-                className="w-full py-2.5 px-4 rounded-full border border-zinc-400 text-[14px] font-medium text-zinc-800 hover:border-[#8D321F] hover:text-[#8D321F] hover:bg-[#8D321F]/5 transition active:scale-98 bg-white shadow-2xs hover:shadow"
-              >
-                Who am i ?
-              </button>
-            </div>
-          </div>
-
-          {/* Bottom Watermark with League Spartan */}
-          <div className="pt-6 pb-2 text-center flex flex-col items-center select-none">
-            <h1 className="font-spartan font-bold text-[48px] leading-none text-[#8D321F] tracking-tight">
-              Kitten
-            </h1>
-            <span className="font-spartan font-bold text-[24px] text-[#8D321F] tracking-tight mt-1">
-              2026
+        {/* Menu Items */}
+        <div className="flex flex-col gap-3">
+                    {/* Cases List */}
+          <button
+            onClick={() => setCurrentScreen('dashboard')}
+            className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-[15px] font-medium text-zinc-800 hover:text-[#8D321F] hover:border-zinc-300 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.02),inset_0_2px_4px_rgba(255,255,255,1)] flex items-center gap-2.5 group"
+          >
+            <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white to-transparent pointer-events-none rounded-t-full opacity-90" />
+            <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+              <FileText className="w-[18px] h-[18px] text-zinc-600 group-hover:text-[#8D321F]" />
+              Cases
             </span>
-          </div>
+          </button>
+          
+          {/* DICOM Viewer */}
+          <button
+            onClick={() => setCurrentScreen('iframe-viewer')}
+            className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-blue-600 bg-gradient-to-b from-[#3b82f6] to-[#2563eb] text-[15px] font-semibold text-white transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(37,99,235,0.3),inset_0_2px_4px_rgba(255,255,255,0.4)] flex items-center justify-between group"
+          >
+            <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white/40 to-transparent pointer-events-none rounded-t-full opacity-90" />
+            <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+              <Eye className="w-[18px] h-[18px]" />
+              DICOM Viewer
+            </span>
+            <Layers className="w-[18px] h-[18px] relative z-10 opacity-90" />
+          </button>
+
+          {/* Worklist */}
+          <button
+            onClick={() => setIsWorklistOpen(true)}
+            className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-[15px] font-medium text-zinc-800 hover:text-[#8D321F] hover:border-zinc-300 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.02),inset_0_2px_4px_rgba(255,255,255,1)] flex items-center justify-between group"
+          >
+            <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white to-transparent pointer-events-none rounded-t-full opacity-90" />
+            <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+              <List className="w-[18px] h-[18px] text-zinc-600 group-hover:text-[#8D321F]" />
+              Worklist
+            </span>
+            <span className="relative z-10 bg-zinc-100 text-zinc-600 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide border border-zinc-200">{cases.length} Files</span>
+          </button>
+
+          {/* Security & Access */}
+          <button
+            onClick={() => {}}
+            className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-[15px] font-medium text-zinc-800 hover:text-[#8D321F] hover:border-zinc-300 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.02),inset_0_2px_4px_rgba(255,255,255,1)] flex items-center gap-2.5 group"
+          >
+            <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white to-transparent pointer-events-none rounded-t-full opacity-90" />
+            <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+              <Lock className="w-[18px] h-[18px] text-zinc-600 group-hover:text-[#8D321F]" />
+              Security & Access
+            </span>
+          </button>
+
+
+
+          
+          
+          {/* Knowledge Sources */}
+          <button
+            onClick={() => setCurrentScreen('knowledge-sources')}
+            className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-[15px] font-medium text-zinc-800 hover:text-[#8D321F] hover:border-zinc-300 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.02),inset_0_2px_4px_rgba(255,255,255,1)] flex items-center gap-2.5 group"
+          >
+            <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white to-transparent pointer-events-none rounded-t-full opacity-90" />
+            <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+              <BookOpen className="w-[18px] h-[18px] text-zinc-600 group-hover:text-[#8D321F]" />
+              Knowledge Sources
+            </span>
+          </button>
+
+
+                      {/* MedGemma Chatbot */}
+            <button
+              onClick={() => setCurrentScreen('medgemma-chat')}
+              className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-[15px] font-medium text-zinc-800 hover:text-[#8D321F] hover:border-zinc-300 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.02),inset_0_2px_4px_rgba(255,255,255,1)] flex items-center gap-2.5 group"
+            >
+              <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white to-transparent pointer-events-none rounded-t-full opacity-90" />
+              <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+                <Bot className="w-[18px] h-[18px] text-zinc-600 group-hover:text-[#8D321F]" />
+                MedGemma Chatbot
+              </span>
+            </button>
+
+            {/* Configuration */}
+          <button
+            onClick={() => setCurrentScreen('configuration')}
+            className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-[15px] font-medium text-zinc-800 hover:text-[#8D321F] hover:border-zinc-300 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.02),inset_0_2px_4px_rgba(255,255,255,1)] flex items-center gap-2.5 group"
+          >
+            <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white to-transparent pointer-events-none rounded-t-full opacity-90" />
+            <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+              <Settings className="w-[18px] h-[18px] text-zinc-600 group-hover:text-[#8D321F]" />
+              Configuration
+            </span>
+          </button>
+
+          {/* Profile Settings */}
+          <button
+            onClick={() => setIsProfileModalOpen(true)}
+            className="relative overflow-hidden w-full py-3 px-4 rounded-full border border-zinc-200 bg-gradient-to-b from-white to-zinc-50 text-[15px] font-medium text-zinc-800 hover:text-[#8D321F] hover:border-zinc-300 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.02),inset_0_2px_4px_rgba(255,255,255,1)] flex items-center gap-2.5 group"
+          >
+            <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white to-transparent pointer-events-none rounded-t-full opacity-90" />
+            <span className="relative z-10 drop-shadow-sm flex items-center gap-2.5">
+              <UserCircle className="w-[18px] h-[18px] text-zinc-600 group-hover:text-[#8D321F]" />
+              Profile Settings
+            </span>
+          </button>
         </div>
       </div>
-
     </aside>
   );
 };
+
+

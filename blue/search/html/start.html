@@ -1,0 +1,207 @@
+﻿<!DOCTYPE HTML>
+<html>
+
+<head>
+  <title>BlueLight DICOMWeb Search</title>
+  <meta charset="UTF-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="cache-control">
+  <meta content="no-cache" http-equiv="pragma">
+  <meta content="0" http-equiv="expires">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+  <script src="../scripts/toolfunction.js"></script>
+  <script src="../scripts/readsome.js"></script>
+  <script src="../scripts/onload.js"></script>
+  <script src="../scripts/oauth.js"></script>
+
+  <link rel="stylesheet" href="../css/bootstrap.min.css" crossorigin="anonymous">
+</head>
+<style>
+  .PatientRow:hover {
+    background-color: #DFE7F2 !important;
+    color: #000000
+  }
+
+  .SecondRow:hover {
+    background-color: #fff282 !important;
+    color: #000000
+  }
+
+  .SecondRow2:hover {
+    background-color: #8ad4ff !important;
+    color: #000000
+  }
+
+  /*
+  background: linear-gradient(rgba(32, 56, 82, 0.1), rgba(64, 102, 164, 0.1), rgba(32, 56, 82, 0.1));
+  .PatientRow td{
+    border-bottom-width:2px;
+    border-style: rgba(9,12,41);
+  }*/
+  .size14 {
+    font-size: 14px;
+  }
+
+  .SecondRow2 td,
+  .SecondRow2 th {
+    border-color: black;
+  }
+
+  .SecondRow td,
+  .SecondRow th {
+    border-color: black;
+  }
+
+  .center {
+    line-height: 40px;
+    text-align: center;
+  }
+</style>
+<script>
+  function kerypressT(e) {
+    if (e.keyCode == 13) {
+      getByid('searchButton').onclick()
+    }
+  }
+
+</script>
+
+<body style="background-color:#000000;color:#FFFFFF" onkeypress="kerypressT(event);">
+  <div style="margin-top: 7px;">
+    <!--&nbsp;&nbsp;Password:<input type="password" name="lname" value="123" id="PasswordText" class="btn btn-dark text-left">-->
+
+    <button type="button" id="searchButton" style="margin-top: 3px;" class="w-100 btn btn-secondary" onclick="
+    setTimeout(function(){
+    getByid('LimitInput2').value=getByid('LimitInput').value;
+    getByid('OffsetInput2').value=getByid('OffsetInput').value;
+  //if(!PasswordCheck())return;
+  getByid('loadingSpan').style.display='';
+  if(getByid('floatTable'))getByid('floatTable').style.display='none';
+  if(getByid('floatTable2'))getByid('floatTable2').style.display='none';
+  SerchState++;
+  Patient.patientName = '';
+  Patient.StudyAmount = 0;
+  Patient.Study = [];
+  LoacationSercher='?';
+  if(getByid('PatientIDText').value!='')
+  LoacationSercher+='&PatientID='+ encodeURI(encodeURI(''+getByid('PatientIDText').value));
+  if(getByid('StudyDateText').value!='')
+  LoacationSercher+='&StudyDate='+ encodeURI(encodeURI(''+getByid('StudyDateText').value));
+  if(getByid('PatientNameText').value!='')
+  LoacationSercher+='&PatientName='+ encodeURI(encodeURI(''+getByid('PatientNameText').value));
+  if(getByid('ModalitiesInStudyText').value!='')
+  LoacationSercher+='&ModalitiesInStudy='+ encodeURI(encodeURI(''+getByid('ModalitiesInStudyText').value));
+  if(getByid('AccessionNumberText').value!='')
+  LoacationSercher+='&AccessionNumber='+ encodeURI(encodeURI(''+getByid('AccessionNumberText').value));
+  if(getByid('StudyInstanceUIDText').value!='')
+  LoacationSercher+='&StudyInstanceUID='+ encodeURI(encodeURI(''+getByid('StudyInstanceUIDText').value));
+
+
+  if(getByid('LimitInput').value!='') LoacationSercher+='&limit='+ encodeURI(encodeURI(''+getByid('LimitInput').value));
+  if(getByid('OffsetInput').value!='') LoacationSercher+='&offset='+ encodeURI(encodeURI(''+getByid('OffsetInput').value));
+  //LoacationSercher+='&limit=2&offset=4';
+  if (getByid('myTable1')) {
+    var elem = getByid('myTable1');
+    elem.parentElement.removeChild(elem);
+  }
+  readAllJson();
+}, 120);
+  ">search</button>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="row">
+        <div class="col-xs-4 col-sm-4">
+          PatientID:<input type="text" name="lname" id="PatientIDText" value="*"
+            class="form-control size14 btn btn-dark text-left">
+
+        </div>
+        <div class="col-xs-4 col-sm-4">
+          PatientName:<input type="text" name="lname" id="PatientNameText"
+            class="form-control size14 btn btn-dark text-left">
+        </div>
+        <div class="col-xs-4 col-sm-4">
+          StudyUID:&nbsp;<input type="text" name="lname" id="StudyInstanceUIDText"
+            class="form-control size14 btn btn-dark text-left">
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 ">
+      <div class="row">
+        <div class="col-xs-4 col-sm-4">
+          Accession Number:<input type="text" name="lname" id="AccessionNumberText"
+            class="form-control size14 btn btn-dark text-left">
+        </div>
+        <div class="col-xs-4 col-sm-4">
+          Modality:&nbsp;<input type="text" name="lname" id="ModalitiesInStudyText"
+            class="form-control size14 btn btn-dark text-left">
+        </div>
+        <div class="col-xs-4 col-sm-4">
+          StudyDate:<span onfocusout="
+  setTimeout(function(){ 
+    var obj1=document.activeElement;
+  if(!(obj1===getByid('StudyDateText')||obj1===getByid('StudyDatedate1')||obj1===getByid('StudyDatedate2')||obj1===getByid('dateDiv')))
+  {getByid('dateDiv').style.display='none';getByid('dateBr').style.display='none';}
+  setStudyDateByKeyPress();
+    }, 200);   "> <input type="text" name="lname" id="StudyDateText" class="form-control size14 btn btn-dark text-left"
+              onkeydown="setStudyDateByKeyPress()" onfocus="
+    getByid('dateDiv').style.display='';
+        getByid('dateBr').style.display='';
+        getByid('dateDiv').style.zIndex = '100';
+      ">
+            <div id="dateDiv" style="position:absolute;display:none;">
+              <input type="date" class="size14 btn btn-secondary text-right" id="StudyDatedate1" name="date"
+                style="width: 150px;height:25px;" value="" onchange="setStudyDate()"> -
+              <input type="date" class="size14 btn btn-secondary text-right" id="StudyDatedate2" name="date"
+                style="width: 150px;height:25px;" value="" onchange="setStudyDate()">
+            </div>
+          </span>
+
+        </div>
+        <br> <br id="dateBr" style="display:none;">
+      </div>
+    </div>
+  </div>
+  <div class="center">
+    <button class="previous btn btn-dark" onclick="
+  getByid('OffsetInput').value= parseInt(getByid('OffsetInput').value)- parseInt(getByid('LimitInput').value);
+  getByid('searchButton').click();
+  ">&#8249;</button>
+    &nbsp;&nbsp;Limit:&nbsp;<input type="number" name="lname" style="margin-top: 3px;width: 80px;height:28px;"
+      value="10" id="LimitInput" data-decimals="2" class="size14 btn btn-dark text-left"
+      onchange="getByid('LimitInput2').value=this.value">
+    &nbsp;&nbsp;&nbsp;&nbsp;Offset:&nbsp;<input type="number" name="lname"
+      style="margin-top: 3px;width: 80px;height:28px;" value="0" id="OffsetInput" data-decimals="2"
+      class="size14 btn btn-dark text-left" onchange="getByid('OffsetInput2').value=this.value">&nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="next btn btn-dark" onclick="
+  getByid('OffsetInput').value= parseInt(getByid('OffsetInput').value)+ parseInt(getByid('LimitInput').value);
+  getByid('searchButton').click();
+  ">&#8250;</button>
+  </div>
+  <div class="center"><span id="loadingSpan" class="center"> Loading...</span></div>
+  <div id="body"></div>
+  <div class="center">
+    <button class="previous btn btn-dark" onclick="
+  getByid('OffsetInput').value= parseInt(getByid('OffsetInput').value)- parseInt(getByid('LimitInput').value);
+  getByid('searchButton').click();
+  ">&#8249;</button>
+    &nbsp;&nbsp;Limit:&nbsp;<input type="number" name="lname" style="margin-top: 3px;width: 80px;height:28px;"
+      value="10" id="LimitInput2" data-decimals="2" class="size14 btn btn-dark text-left"
+      onchange="getByid('LimitInput').value=this.value">
+    &nbsp;&nbsp;&nbsp;&nbsp;Offset:&nbsp;<input type="number" name="lname"
+      style="margin-top: 3px;width: 80px;height:28px;" value="0" id="OffsetInput2" data-decimals="2"
+      class="size14 btn btn-dark text-left" onchange="getByid('OffsetInput').value=this.value">&nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="next btn btn-dark" onclick="
+  getByid('OffsetInput').value= parseInt(getByid('OffsetInput').value)+ parseInt(getByid('LimitInput').value);
+  getByid('searchButton').click();
+  ">&#8250;</button>
+  </div>
+  <!--<header class="page-header" style="display:none">
+  </header>-->
+</body>
+
+</html>

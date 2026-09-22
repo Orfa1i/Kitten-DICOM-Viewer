@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0D11" />
+      <stop offset="50%" stop-color="#14171F" />
+      <stop offset="100%" stop-color="#08090C" />
+    </linearGradient>
+
+    <!-- Burgundy Brand Glow -->
+    <radialGradient id="burgundy-glow" cx="20%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#8D321F" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#8D321F" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Emerald AI Pulse Glow -->
+    <radialGradient id="emerald-glow" cx="80%" cy="70%" r="50%">
+      <stop offset="0%" stop-color="#00BF63" stop-opacity="0.25" />
+      <stop offset="60%" stop-color="#00BF63" stop-opacity="0.03" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- ECG Line Gradient -->
+    <linearGradient id="ecg-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8D321F" stop-opacity="0.1" />
+      <stop offset="25%" stop-color="#8D321F" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#00BF63" stop-opacity="0.9" />
+      <stop offset="75%" stop-color="#E1998C" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#8D321F" stop-opacity="0.1" />
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Card Background -->
+    <linearGradient id="card-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.07" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.02" />
+    </linearGradient>
+
+    <!-- Grid Pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1200" height="420" fill="url(#bg-grad)" rx="16" />
+  <rect width="1200" height="420" fill="url(#grid)" rx="16" />
+
+  <!-- Ambient Glow Orbs -->
+  <circle cx="250" cy="140" r="300" fill="url(#burgundy-glow)" />
+  <circle cx="950" cy="280" r="280" fill="url(#emerald-glow)" />
+
+  <!-- Outer Border Frame -->
+  <rect x="1" y="1" width="1198" height="418" rx="15" fill="none" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1.5" />
+
+  <!-- Medical Cross Decorator Top Left -->
+  <g transform="translate(60, 48)" opacity="0.6">
+    <rect x="10" y="0" width="6" height="26" rx="3" fill="#8D321F" />
+    <rect x="0" y="10" width="26" height="6" rx="3" fill="#8D321F" />
+  </g>
+
+  <!-- ECG Waveform Running Across Center -->
+  <path d="M 0,260 L 140,260 L 160,250 L 175,270 L 190,260 L 230,260 L 245,215 L 260,310 L 275,185 L 295,295 L 310,260 L 350,260 L 365,248 L 380,260 L 520,260 L 535,220 L 550,305 L 565,190 L 585,290 L 600,260 L 740,260 L 755,250 L 770,270 L 785,260 L 825,260 L 840,215 L 855,310 L 870,185 L 890,295 L 905,260 L 960,260 L 975,248 L 990,260 L 1200,260"
+        fill="none" stroke="url(#ecg-grad)" stroke-width="2.5" filter="url(#glow)" />
+
+  <!-- Header Category Pill -->
+  <g transform="translate(60, 85)">
+    <rect x="0" y="0" width="230" height="30" rx="15" fill="url(#card-grad)" stroke="#8D321F" stroke-width="1.2" />
+    <circle cx="15" cy="15" r="4" fill="#00BF63" filter="url(#glow)" />
+    <text x="28" y="19" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="700" fill="#E1998C" letter-spacing="1.5">CLINICAL AI PACS WORKSTATION</text>
+  </g>
+
+  <!-- Main Hero Titles -->
+  <text x="60" y="170" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" font-size="52" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">
+    KITTEN <tspan fill="#E1998C">DICOM</tspan> VIEWER
+  </text>
+  <text x="60" y="212" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" font-size="19" font-weight="400" fill="#A1A1AA" letter-spacing="0.2">
+    Next-Gen Web PACS, Sub-Second Fracture Detection &amp; MedGemma 27B Clinical Reporting
+  </text>
+
+  <!-- Feature Capsule Badges (Bottom Left) -->
+  <g transform="translate(60, 320)">
+    <!-- Badge 1: MedGemma -->
+    <rect x="0" y="0" width="165" height="42" rx="10" fill="url(#card-grad)" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1" />
+    <text x="16" y="19" font-family="sans-serif" font-size="10" font-weight="600" fill="#71717A" letter-spacing="1">REASONING ENGINE</text>
+    <text x="16" y="33" font-family="sans-serif" font-size="12.5" font-weight="800" fill="#FAF6F6">MedGemma 27B</text>
+
+    <!-- Badge 2: YOLO11n -->
+    <rect x="180" y="0" width="165" height="42" rx="10" fill="url(#card-grad)" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1" />
+    <text x="196" y="19" font-family="sans-serif" font-size="10" font-weight="600" fill="#71717A" letter-spacing="1">OBJECT DETECTION</text>
+    <text x="196" y="33" font-family="sans-serif" font-size="12.5" font-weight="800" fill="#00BF63">YOLO11n-BoneAI</text>
+
+    <!-- Badge 3: Cornerstone3D -->
+    <rect x="360" y="0" width="165" height="42" rx="10" fill="url(#card-grad)" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1" />
+    <text x="376" y="19" font-family="sans-serif" font-size="10" font-weight="600" fill="#71717A" letter-spacing="1">VIEWPORT CORE</text>
+    <text x="376" y="33" font-family="sans-serif" font-size="12.5" font-weight="800" fill="#3B82F6">Cornerstone3D 2.0</text>
+
+    <!-- Badge 4: Standards -->
+    <rect x="540" y="0" width="165" height="42" rx="10" fill="url(#card-grad)" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1" />
+    <text x="556" y="19" font-family="sans-serif" font-size="10" font-weight="600" fill="#71717A" letter-spacing="1">PROTOCOL</text>
+    <text x="556" y="33" font-family="sans-serif" font-size="12.5" font-weight="800" fill="#E1998C">DICOM &amp; HL7 / PACS</text>
+  </g>
+
+  <!-- Right Visual Widget: Telemetry HUD Card -->
+  <g transform="translate(820, 65)">
+    <!-- Glass Card Container -->
+    <rect x="0" y="0" width="320" height="295" rx="16" fill="#111319" fill-opacity="0.85" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1" />
+    <rect x="0" y="0" width="320" height="295" rx="16" fill="url(#card-grad)" />
+
+    <!-- Card Header -->
+    <circle cx="26" cy="30" r="5" fill="#00BF63" filter="url(#glow)" />
+    <text x="42" y="34" font-family="sans-serif" font-size="12" font-weight="700" fill="#FAF6F6">TELEMETRY &amp; AI STATUS</text>
+    <rect x="235" y="20" width="65" height="20" rx="10" fill="#00BF63" fill-opacity="0.15" stroke="#00BF63" stroke-width="0.8" />
+    <text x="249" y="34" font-family="sans-serif" font-size="10" font-weight="700" fill="#00BF63">LIVE</text>
+
+    <!-- Divider Line -->
+    <line x1="20" y1="52" x2="300" y2="52" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1" />
+
+    <!-- Metric 1: Detection Latency -->
+    <text x="24" y="80" font-family="sans-serif" font-size="11" font-weight="500" fill="#A1A1AA">Inference Latency</text>
+    <text x="296" y="80" text-anchor="end" font-family="sans-serif" font-size="12" font-weight="800" fill="#00BF63">&lt; 350 ms</text>
+
+    <!-- Metric 2: Resolution -->
+    <text x="24" y="110" font-family="sans-serif" font-size="11" font-weight="500" fill="#A1A1AA">DICOM Depth</text>
+    <text x="296" y="110" text-anchor="end" font-family="sans-serif" font-size="12" font-weight="700" fill="#FAF6F6">16-bit Monochromatic</text>
+
+    <!-- Metric 3: MedGemma Reasoning -->
+    <text x="24" y="140" font-family="sans-serif" font-size="11" font-weight="500" fill="#A1A1AA">Medical Reasoning</text>
+    <text x="296" y="140" text-anchor="end" font-family="sans-serif" font-size="12" font-weight="700" fill="#E1998C">NF4 Quantized / 27B</text>
+
+    <!-- Metric 4: Report Export -->
+    <text x="24" y="170" font-family="sans-serif" font-size="11" font-weight="500" fill="#A1A1AA">1-Click Clinical PDF</text>
+    <text x="296" y="170" text-anchor="end" font-family="sans-serif" font-size="12" font-weight="700" fill="#FAF6F6">Integrated / Standard</text>
+
+    <!-- Mini Progress / Quality Bar -->
+    <text x="24" y="206" font-family="sans-serif" font-size="10" font-weight="600" fill="#71717A">DIAGNOSTIC ACCURACY INDEX</text>
+    <rect x="24" y="216" width="272" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.08" />
+    <rect x="24" y="216" width="254" height="6" rx="3" fill="url(#ecg-grad)" />
+
+    <!-- Subtitle / Footer -->
+    <rect x="20" y="240" width="280" height="38" rx="8" fill="#8D321F" fill-opacity="0.15" stroke="#8D321F" stroke-width="0.8" />
+    <text x="32" y="263" font-family="sans-serif" font-size="10.5" font-weight="600" fill="#E1998C">⚡ HIPAA Ready • Zero Cloud Leakage</text>
+  </g>
+</svg>

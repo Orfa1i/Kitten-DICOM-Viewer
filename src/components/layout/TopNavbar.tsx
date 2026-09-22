@@ -9,7 +9,10 @@ export const TopNavbar: React.FC = () => {
     setCurrentScreen, 
     searchQuery, 
     setSearchQuery, 
-    openNewCaseModal 
+    openNewCaseModal,
+    userProfile,
+    setIsProfileModalOpen,
+    setIsMedGemmaTestOpen
   } = useMedicalApp();
 
   return (
@@ -21,64 +24,67 @@ export const TopNavbar: React.FC = () => {
           className="flex items-center gap-2 group focus:outline-none"
           title="Return to Kitten Landing Page"
         >
-          <span className="font-spartan font-bold text-[35px] tracking-tight text-white hover:opacity-95 transition-opacity">
+          <span className="font-spartan font-bold text-[35px] tracking-tight text-white hover:opacity-95 transition-opacity drop-shadow-sm">
             Kitten
           </span>
         </button>
 
-        {/* Landing Page Link */}
+        {/* MedGemma Test Button */}
         <button
-          onClick={() => setCurrentScreen('landing')}
-          className="flex items-center gap-2 text-white/80 hover:text-white px-3.5 py-2 rounded-full hover:bg-white/10 text-[14px] font-medium transition"
-          title="View Landing Page"
+          onClick={() => setIsMedGemmaTestOpen(true)}
+          className="relative overflow-hidden bg-gradient-to-b from-amber-400/20 to-amber-500/10 text-amber-100 hover:text-white px-4 py-2 rounded-full text-[14px] font-medium transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.1),inset_0_1.5px_1px_rgba(255,255,255,0.2)] border border-amber-400/30 hover:bg-amber-400/20 group"
+          title="MedGemma Integration Test"
         >
-          <Globe className="w-4 h-4 text-white/90" />
-          <span className="hidden lg:inline">Landing</span>
-        </button>
-
-        {/* Workflow Pill Button with Larger Icon */}
-        <button
-          onClick={() => setCurrentScreen('dashboard')}
-          className={`flex items-center gap-3 px-6 py-2.5 rounded-full font-medium transition-all duration-200 shadow-sm ${
-            currentScreen === 'dashboard'
-              ? 'bg-white text-[#8D321F] font-semibold ring-2 ring-white/40 shadow-md scale-[1.01]'
-              : 'bg-white text-[#2C2B2B] hover:bg-white hover:shadow'
-          }`}
-        >
-          <div className="w-8 h-8 flex items-center justify-center">
-            <LottieIcon name="home" size={34} />
-          </div>
-          <span className="font-semibold text-zinc-900 text-[16px]">Workflow</span>
-        </button>
-      </div>
-
-      {/* Right Search Input & New Case Action */}
-      <div className="flex items-center gap-6">
-        {/* Case ID Search Pill */}
-        <div className="relative flex items-center bg-white rounded-full px-4 py-2 shadow-inner w-64 md:w-84 transition-all focus-within:ring-2 focus-within:ring-white/80">
-          <Search className="w-5 h-5 text-[#8D321F] mr-2.5 flex-shrink-0" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Case ID"
-            className="w-full bg-transparent text-[15px] text-zinc-800 placeholder-zinc-400 focus:outline-none font-medium"
-          />
-        </div>
-
-        {/* New Case Button with Larger Icon */}
-        <button
-          onClick={openNewCaseModal}
-          className="flex items-center gap-3 text-white hover:bg-white/10 active:scale-95 px-5 py-2.5 rounded-full font-medium text-[16.5px] transition-all duration-150 group border border-transparent hover:border-white/20"
-        >
-          <div className="w-9 h-9 flex items-center justify-center filter brightness-0 invert group-hover:scale-115 transition-transform">
-            <LottieIcon name="file-add" size={38} />
-          </div>
-          <span className="font-semibold text-white tracking-wide text-[17px]">
-            New case
+          <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white/20 to-transparent pointer-events-none rounded-t-full" />
+          <span className="relative z-10 flex items-center gap-2 drop-shadow-sm">
+            <Globe className="w-4 h-4 text-amber-200 drop-shadow-md" />
+            <span className="hidden lg:inline">MedGemma</span>
           </span>
         </button>
+
+        {/* Landing Page Link - White Glass Jelly */}
+        <button
+          onClick={() => setCurrentScreen('landing')}
+          className="relative overflow-hidden bg-gradient-to-b from-white/20 to-white/10 text-white/90 hover:text-white px-4 py-2 rounded-full text-[14px] font-medium transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.1),inset_0_1.5px_1px_rgba(255,255,255,0.2)] border border-white/20 hover:bg-white/20 group"
+          title="View Landing Page"
+        >
+          <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-t-full" />
+          <span className="relative z-10 flex items-center gap-2 drop-shadow-sm">
+            <Globe className="w-4 h-4 text-white/90 drop-shadow-md" />
+            <span className="hidden lg:inline">Landing</span>
+          </span>
+        </button>
+
+
+      </div>
+
+      {/* Right Search Input & Profile Action */}
+      <div className="flex items-center gap-6">
+        {/* Case ID Search Pill */}
+
+        {/* Profile Capsule moved from Settings */}
+        <div 
+          onClick={() => setIsProfileModalOpen(true)}
+          className="border border-white/20 rounded-full px-2 py-1.5 flex items-center gap-3 bg-white hover:bg-zinc-50 transition-all duration-300 active:scale-95 shadow-[0_4px_10px_rgba(0,0,0,0.2)] group cursor-pointer pr-3"
+        >
+          <div className="flex items-center gap-3">
+            <img
+              src={userProfile?.avatar || "/assets/images/doctor_avatar.jpg"}
+              alt={userProfile?.name || "Dr.Mohammad"}
+              className="w-10 h-10 rounded-full object-cover border border-zinc-200"
+            />
+            <span className="font-semibold text-[16px] text-zinc-900 tracking-tight hidden md:inline-block">
+              {userProfile?.name || "Dr.Mohammad"}
+            </span>
+          </div>
+          <div 
+            className="w-6 h-6 text-zinc-400 flex items-center justify-center group-hover:scale-110 transition-transform hover:text-[#8D321F]"
+          >
+            <LottieIcon name="brush" size={24} />
+          </div>
+        </div>
       </div>
     </header>
   );
 };
+

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
-import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Sun, Box, Flame, MousePointer2 } from 'lucide-react';
-import { CornerstoneViewport } from './CornerstoneViewport';
+import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Sun, Box, Flame } from 'lucide-react';
+
 
 export const DicomViewport: React.FC = () => {
   const { 
@@ -121,35 +121,19 @@ export const DicomViewport: React.FC = () => {
             <Flame className="w-3.5 h-3.5" />
             <span>Heatmap</span>
           </button>
-          
-          <button
-            type="button"
-            onClick={() => setVisualizationMode('dicom')}
-            className={`px-3 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 transition-all ${
-              visualizationMode === 'dicom'
-                ? 'bg-[#4A90E2] text-white shadow-xs font-bold'
-                : 'text-zinc-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <MousePointer2 className="w-3.5 h-3.5" />
-            <span>Cornerstone</span>
-          </button>
         </div>
       </div>
 
       {/* Main Viewport Container */}
-      <div 
-        className={`w-full h-full flex items-center justify-center relative overflow-hidden rounded-[24px] flex-1 ${visualizationMode === 'dicom' ? '' : 'cursor-grab active:cursor-grabbing'}`}
-        onMouseDown={visualizationMode === 'dicom' ? undefined : handleMouseDown}
-        onMouseMove={visualizationMode === 'dicom' ? undefined : handleMouseMove}
-        onMouseUp={visualizationMode === 'dicom' ? undefined : handleMouseUp}
-        onMouseLeave={visualizationMode === 'dicom' ? undefined : handleMouseUp}
+      <div
+        className="w-full h-full flex items-center justify-center relative overflow-hidden rounded-[24px] flex-1 cursor-grab active:cursor-grabbing"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
-        {visualizationMode === 'dicom' ? (
-          <CornerstoneViewport imageIds={['wadouri:/assets/images/sample.dcm']} />
-        ) : (
-          <div
-            className="relative transition-transform duration-75 flex items-center justify-center h-full max-w-full"
+        <div
+          className="relative transition-transform duration-75 flex items-center justify-center h-full max-w-full"
             style={{
               transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomLevel})`,
               filter: `brightness(${brightness}%) contrast(${contrast}%)`,
@@ -261,8 +245,7 @@ export const DicomViewport: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Bottom Floating PACS Tools Pill Scaled */}
@@ -306,7 +289,7 @@ export const DicomViewport: React.FC = () => {
 
       {/* Expandable Windowing Controls Popup */}
       {showTools && (
-        <div className="absolute bottom-18 left-1/2 -translate-x-1/2 bg-[#25272B] border border-white/15 rounded-2xl p-4 z-30 shadow-2xl w-68 space-y-3 text-white text-xs">
+        <div className="absolute bottom-[72px] left-1/2 -translate-x-1/2 bg-[#25272B] border border-white/15 rounded-2xl p-4 z-30 shadow-2xl w-64 space-y-3 text-white text-xs">
           <div>
             <div className="flex justify-between mb-1.5 text-[12px]">
               <span>Brightness</span>
@@ -340,3 +323,4 @@ export const DicomViewport: React.FC = () => {
     </div>
   );
 };
+

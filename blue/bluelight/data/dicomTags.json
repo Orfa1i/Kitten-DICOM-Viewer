@@ -1,0 +1,181 @@
+{
+  "default": {
+    "labelPadding": 5,
+    "leftLabelPadding": 5,
+    "rightLabelPadding": 5,
+    "topLabelPadding": 5,
+    "bottomLabelPadding": 5,
+    "LT": [
+      {
+        "value": "Number of Frames: {tag:00280008}"
+      },
+      {
+        "value": "Instance Number: {tag:00200013}"
+      }
+    ],
+    "RT": [
+      {
+        "value": "{val:PatientName}"
+      },
+      {
+        "value": "{tag:00100020}"
+      },
+      {
+        "value": "{tag:00100040}"
+      },
+      {
+        "value": "{tag:00101010}"
+      },
+      {
+        "value": "{tag:00081030}"
+      }
+    ],
+    "LB": [
+      {
+        "value": "Pixel: {val:PixelValue}"
+      },
+      {
+        "value": "Zoom: {val:scale}"
+      },
+      {
+        "value": "WC: {val:WindowCenter} WW: {val:WindowWidth}"
+      },
+      {
+        "value": "{tag:00080060} ({tag:00280011}×{tag:00280010}) - {val:AnatomicalPlane}"
+      },
+      {
+        "value": "T: {val:SliceThickness} mm  L:{val:imagePositionZ} mm"
+      }
+    ],
+    "RB": [
+      {
+        "value": "Im: {val:Im}"
+      },
+      {
+        "value": "{tag:00080020}"
+      }
+    ],
+    "MT": [
+      {
+        "value": "{val:PostionTop}"
+      }
+    ],
+    "MB": [
+      {
+        "value": "{val:PostionBottom}"
+      }
+    ],
+    "LM": [
+      {
+        "value": "{val:PostionLeft}"
+      }
+    ],
+    "RM": [
+      {
+        "value": "{val:PostionRight}"
+      }
+    ]
+  },
+  "CR": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "CT": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "DX": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "ES": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "FS": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "MG": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "MR": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "NM": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "OT": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "Print": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "PX": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "RF": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "RG": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "RT": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "SC": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "US": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  },
+  "XA": {
+    "LT": [],
+    "RT": [],
+    "LB": [],
+    "RB": []
+  }
+}
