@@ -1,12 +1,6 @@
 <div align="center">
 
-  <img src="assets/hero-banner.svg" alt="Kitten DICOM Viewer Hero Banner" width="100%" />
-
-  <br/><br/>
-
-  <a href="https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer">
-    <img src="assets/kitten-ecg-loading.gif" alt="Kitten Telemetry Pulse" height="42" />
-  </a>
+  <img src="assets/kitten-brand-motion.gif" alt="Kitten Clinical AI PACS Workstation" width="100%" />
 
   <br/>
 
@@ -153,20 +147,39 @@ flowchart TD
 ## 📸 Visual Showcase
 
 <div align="center">
-  <h3>Diagnostic Workstation with AI Overlays</h3>
-  <img src="assets/preview-workstation.png" alt="Diagnostic Workstation" width="92%" />
-  <p><i>Figure 1: Full-screen diagnostic workstation featuring 16-bit DICOM viewport, Window/Level adjustments, and MedGemma 27B structured findings.</i></p>
+  <h3>Hospital PACS Worklist &amp; Real-Time Case Ingestion</h3>
+  <img src="assets/screen-dashboard.png" alt="Executive Clinical Worklist" width="94%" />
+  <p><i>Figure 1: Executive clinical worklist showcasing modality filtering (CT/DX/MRI), case status tracking, and 1-click "Save PDF" report generation directly from the worklist row.</i></p>
+  <br/>
+
+  <h3>MedGemma 27B Structured Clinical Findings &amp; PDF Sign-Off</h3>
+  <img src="assets/screen-report.png" alt="Structured Clinical Findings Report" width="94%" />
+  <p><i>Figure 2: Final approved diagnostic report interface featuring structured clinical sections (Overall Impression, Key Observations, Pertinent Negatives), patient demographics, and automated PDF export.</i></p>
   <br/>
   
   <table width="100%">
     <tr>
       <td width="50%" align="center">
-        <b>Hospital PACS Worklist &amp; Fresh Ingest</b><br/>
-        <img src="assets/preview-dashboard.png" alt="Executive Dashboard" width="100%" />
+        <b>Precision Radiograph AI Landing &amp; Modality Routing</b><br/>
+        <img src="assets/screen-landing.png" alt="Precision Radiograph AI Landing" width="100%" />
+        <p><sub><i>Figure 3: Interactive landing interface featuring real-time WebGL dither shader and direct Diagnostic Studio routing.</i></sub></p>
       </td>
       <td width="50%" align="center">
-        <b>Multi-Model AI Selection Hub</b><br/>
-        <img src="assets/preview-models.png" alt="AI Model Hub" width="100%" />
+        <b>Specialized Vision Models Showcase</b><br/>
+        <img src="assets/screen-models.png" alt="Specialized Medical Vision Models" width="100%" />
+        <p><sub><i>Figure 4: Multi-ensemble vision models calibrated for bilateral Knee Osteoarthritis (97.8% verified) and Bone Fracture Detection (99.1% verified).</i></sub></p>
+      </td>
+    </tr>
+    <tr>
+      <td width="50%" align="center">
+        <b>Hospital Mock PACS Node &amp; Modality Ingest</b><br/>
+        <img src="assets/screen-mock-pacs.png" alt="Mock PACS Node Intake" width="100%" />
+        <p><sub><i>Figure 5: Local PACS node simulation environment supporting direct DICOM study ingestion over port 104 with online node telemetry.</i></sub></p>
+      </td>
+      <td width="50%" align="center">
+        <b>Clinical Diagnostic Intelligence Portal</b><br/>
+        <img src="assets/screen-login.png" alt="Clinical Radiologist Login Portal" width="100%" />
+        <p><sub><i>Figure 6: Secure attending radiologist authentication portal engineered with zero cloud leakage and strict HIPAA compliance.</i></sub></p>
       </td>
     </tr>
   </table>

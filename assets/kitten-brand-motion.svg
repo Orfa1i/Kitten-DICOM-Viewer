@@ -1,0 +1,214 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 280" width="100%" height="100%">
+  <defs>
+    <!-- Background Canvas Gradient -->
+    <linearGradient id="bg-canvas" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A0C10" />
+      <stop offset="50%" stop-color="#12151D" />
+      <stop offset="100%" stop-color="#08090C" />
+    </linearGradient>
+
+    <!-- Burgundy Ambient Core Glow -->
+    <radialGradient id="burgundy-radial" cx="28%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#8D321F" stop-opacity="0.45" />
+      <stop offset="55%" stop-color="#8D321F" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Emerald Telemetry Glow -->
+    <radialGradient id="emerald-radial" cx="85%" cy="65%" r="50%">
+      <stop offset="0%" stop-color="#00BF63" stop-opacity="0.25" />
+      <stop offset="60%" stop-color="#00BF63" stop-opacity="0.03" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- High-Luminance Light Sweep Gradient -->
+    <linearGradient id="sheen-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="35%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="48%" stop-color="#FFE0DA" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="1" />
+      <stop offset="52%" stop-color="#E1998C" stop-opacity="0.9" />
+      <stop offset="65%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- ECG Gradient -->
+    <linearGradient id="ecg-line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8D321F" stop-opacity="0.2" />
+      <stop offset="25%" stop-color="#8D321F" stop-opacity="0.85" />
+      <stop offset="55%" stop-color="#00BF63" stop-opacity="1" />
+      <stop offset="75%" stop-color="#E1998C" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#8D321F" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Glow Filter for Waveform & Pulse -->
+    <filter id="ecg-glow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Subtle Technical Grid -->
+    <pattern id="telemetry-grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#FFFFFF" stroke-opacity="0.025" stroke-width="1" />
+    </pattern>
+
+    <!-- Mask of Kitten Wordmark for Specular Shimmer -->
+    <mask id="kitten-mask">
+      <g transform="translate(68, 160) scale(2.65)" fill="#FFFFFF">
+        <path d="M 37.0625 0 L 25.234375 0 L 11.328125 -16 L 11.328125 0 L 2.75 0 L 2.75 -37.703125 L 11.328125 -37.703125 L 11.328125 -22.296875 L 24.265625 -37.703125 L 34.6875 -37.703125 L 19.515625 -19.828125 Z M 37.0625 0 " />
+        <g transform="translate(35.962734, 0)">
+          <path d="M 3.515625 -36.515625 C 4.460938 -37.460938 5.585938 -37.9375 6.890625 -37.9375 C 8.203125 -37.9375 9.332031 -37.460938 10.28125 -36.515625 C 11.226562 -35.566406 11.703125 -34.4375 11.703125 -33.125 C 11.703125 -31.820312 11.226562 -30.695312 10.28125 -29.75 C 9.332031 -28.8125 8.203125 -28.34375 6.890625 -28.34375 C 5.585938 -28.34375 4.460938 -28.8125 3.515625 -29.75 C 2.578125 -30.695312 2.109375 -31.820312 2.109375 -33.125 C 2.109375 -34.4375 2.578125 -35.566406 3.515625 -36.515625 Z M 2.75 -23.453125 L 2.75 0 L 10.828125 0 L 10.828125 -23.453125 Z M 2.75 -23.453125 " />
+        </g>
+        <g transform="translate(49.76292, 0)">
+          <path d="M 4.109375 -23.453125 L 4.109375 -32.171875 L 12.203125 -32.171875 L 12.203125 -23.453125 L 17.140625 -23.453125 L 17.140625 -17.28125 L 12.203125 -17.28125 L 12.203125 -9.828125 C 12.203125 -7.660156 12.8125 -6.578125 14.03125 -6.578125 C 14.332031 -6.578125 14.648438 -6.640625 14.984375 -6.765625 C 15.328125 -6.890625 15.585938 -7.007812 15.765625 -7.125 L 16.046875 -7.3125 L 18.046875 -0.78125 C 16.316406 0.195312 14.335938 0.6875 12.109375 0.6875 C 10.585938 0.6875 9.273438 0.417969 8.171875 -0.109375 C 7.078125 -0.648438 6.25 -1.367188 5.6875 -2.265625 C 5.125 -3.160156 4.71875 -4.101562 4.46875 -5.09375 C 4.226562 -6.082031 4.109375 -7.140625 4.109375 -8.265625 L 4.109375 -17.28125 L 0.734375 -17.28125 L 0.734375 -23.453125 Z M 4.109375 -23.453125 " />
+        </g>
+        <g transform="translate(67.538652, 0)">
+          <path d="M 4.109375 -23.453125 L 4.109375 -32.171875 L 12.203125 -32.171875 L 12.203125 -23.453125 L 17.140625 -23.453125 L 17.140625 -17.28125 L 12.203125 -17.28125 L 12.203125 -9.828125 C 12.203125 -7.660156 12.8125 -6.578125 14.03125 -6.578125 C 14.332031 -6.578125 14.648438 -6.640625 14.984375 -6.765625 C 15.328125 -6.890625 15.585938 -7.007812 15.765625 -7.125 L 16.046875 -7.3125 L 18.046875 -0.78125 C 16.316406 0.195312 14.335938 0.6875 12.109375 0.6875 C 10.585938 0.6875 9.273438 0.417969 8.171875 -0.109375 C 7.078125 -0.648438 6.25 -1.367188 5.6875 -2.265625 C 5.125 -3.160156 4.71875 -4.101562 4.46875 -5.09375 C 4.226562 -6.082031 4.109375 -7.140625 4.109375 -8.265625 L 4.109375 -17.28125 L 0.734375 -17.28125 L 0.734375 -23.453125 Z M 4.109375 -23.453125 " />
+        </g>
+        <g transform="translate(85.588559, 0)">
+          <path d="M 26.46875 -10.609375 L 9.453125 -10.609375 C 9.453125 -8.960938 9.984375 -7.742188 11.046875 -6.953125 C 12.117188 -6.160156 13.28125 -5.765625 14.53125 -5.765625 C 15.84375 -5.765625 16.878906 -5.9375 17.640625 -6.28125 C 18.398438 -6.632812 19.269531 -7.328125 20.25 -8.359375 L 26.09375 -5.4375 C 23.65625 -1.351562 19.601562 0.6875 13.9375 0.6875 C 10.40625 0.6875 7.375 -0.519531 4.84375 -2.9375 C 2.3125 -5.363281 1.046875 -8.28125 1.046875 -11.6875 C 1.046875 -15.101562 2.3125 -18.03125 4.84375 -20.46875 C 7.375 -22.90625 10.40625 -24.125 13.9375 -24.125 C 17.65625 -24.125 20.679688 -23.050781 23.015625 -20.90625 C 25.347656 -18.757812 26.515625 -15.691406 26.515625 -11.703125 C 26.515625 -11.148438 26.5 -10.785156 26.46875 -10.609375 Z M 9.6875 -15.078125 L 18.59375 -15.078125 C 18.414062 -16.296875 17.9375 -17.234375 17.15625 -17.890625 C 16.382812 -18.546875 15.390625 -18.875 14.171875 -18.875 C 12.828125 -18.875 11.757812 -18.519531 10.96875 -17.8125 C 10.175781 -17.113281 9.75 -16.203125 9.6875 -15.078125 Z M 9.6875 -15.078125 " />
+        </g>
+        <g transform="translate(113.051839, 0)">
+          <path d="M 2.75 0 L 2.75 -23.453125 L 10.828125 -23.453125 L 10.828125 -20.984375 L 10.921875 -20.984375 C 13.023438 -23.078125 15.265625 -24.125 17.640625 -24.125 C 18.796875 -24.125 19.945312 -23.972656 21.09375 -23.671875 C 22.238281 -23.367188 23.332031 -22.894531 24.375 -22.25 C 25.425781 -21.613281 26.28125 -20.707031 26.9375 -19.53125 C 27.59375 -18.363281 27.921875 -17.003906 27.921875 -15.453125 L 27.921875 0 L 19.828125 0 L 19.828125 -13.25 C 19.828125 -14.46875 19.4375 -15.535156 18.65625 -16.453125 C 17.882812 -17.367188 16.875 -17.828125 15.625 -17.828125 C 14.40625 -17.828125 13.300781 -17.351562 12.3125 -16.40625 C 11.320312 -15.457031 10.828125 -14.40625 10.828125 -13.25 L 10.828125 0 Z M 2.75 0 " />
+        </g>
+      </g>
+    </mask>
+  </defs>
+
+  <style>
+    @keyframes sheenSweep {
+      0% { transform: translateX(-350px); }
+      45%, 100% { transform: translateX(520px); }
+    }
+    @keyframes traceEcg {
+      0% { stroke-dashoffset: 1400; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes badgeFade {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 1; }
+    }
+    .ecg-path {
+      stroke-dasharray: 280 40;
+      animation: traceEcg 3.2s linear infinite;
+    }
+    .sheen-anim {
+      animation: sheenSweep 3.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+    }
+    .telemetry-pill {
+      animation: badgeFade 2.5s ease-in-out infinite;
+    }
+  </style>
+
+  <!-- Canvas Frame -->
+  <rect width="1100" height="280" rx="18" fill="url(#bg-canvas)" />
+  <rect width="1100" height="280" rx="18" fill="url(#telemetry-grid)" />
+
+  <!-- Ambient Illumination -->
+  <circle cx="300" cy="135" r="290" fill="url(#burgundy-radial)" />
+  <circle cx="920" cy="180" r="220" fill="url(#emerald-radial)" />
+
+  <!-- Border Outline -->
+  <rect x="1" y="1" width="1098" height="278" rx="17" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1.2" />
+
+  <!-- Top Category Pill: Matching Website Header -->
+  <g transform="translate(68, 42)" class="telemetry-pill">
+    <rect x="0" y="0" width="220" height="26" rx="13" fill="#FFFFFF" fill-opacity="0.06" stroke="#8D321F" stroke-opacity="0.4" stroke-width="1" />
+    <circle cx="14" cy="13" r="3.5" fill="#00BF63" filter="url(#ecg-glow)" />
+    <text x="26" y="17" font-family="'League Spartan', -apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#E1998C" letter-spacing="1.5">CLINICAL AI WORKSTATION</text>
+  </g>
+
+  <!-- 2026 Edition Badge -->
+  <g transform="translate(298, 42)">
+    <rect x="0" y="0" width="104" height="26" rx="13" fill="#8D321F" fill-opacity="0.2" stroke="#8D321F" stroke-opacity="0.4" stroke-width="1" />
+    <text x="12" y="17" font-family="'League Spartan', -apple-system, BlinkMacSystemFont, sans-serif" font-size="10.5" font-weight="700" fill="#FFFFFF" letter-spacing="1">2026 EDITION</text>
+  </g>
+
+  <!-- Online Telemetry Node on Right -->
+  <g transform="translate(910, 42)">
+    <rect x="0" y="0" width="122" height="26" rx="13" fill="#00BF63" fill-opacity="0.1" stroke="#00BF63" stroke-opacity="0.3" stroke-width="1" />
+    <circle cx="14" cy="13" r="3.5" fill="#00BF63" filter="url(#ecg-glow)" />
+    <text x="26" y="17" font-family="sans-serif" font-size="10" font-weight="700" fill="#00BF63" letter-spacing="1.2">ZERO LEAKAGE</text>
+  </g>
+
+  <!-- KITTEN WORDMARK: Crisp Base White -->
+  <g transform="translate(68, 160) scale(2.65)">
+    <path fill="#F4F4F5" d="M 37.0625 0 L 25.234375 0 L 11.328125 -16 L 11.328125 0 L 2.75 0 L 2.75 -37.703125 L 11.328125 -37.703125 L 11.328125 -22.296875 L 24.265625 -37.703125 L 34.6875 -37.703125 L 19.515625 -19.828125 Z M 37.0625 0 " />
+    <g transform="translate(35.962734, 0)">
+      <path fill="#F4F4F5" d="M 3.515625 -36.515625 C 4.460938 -37.460938 5.585938 -37.9375 6.890625 -37.9375 C 8.203125 -37.9375 9.332031 -37.460938 10.28125 -36.515625 C 11.226562 -35.566406 11.703125 -34.4375 11.703125 -33.125 C 11.703125 -31.820312 11.226562 -30.695312 10.28125 -29.75 C 9.332031 -28.8125 8.203125 -28.34375 6.890625 -28.34375 C 5.585938 -28.34375 4.460938 -28.8125 3.515625 -29.75 C 2.578125 -30.695312 2.109375 -31.820312 2.109375 -33.125 C 2.109375 -34.4375 2.578125 -35.566406 3.515625 -36.515625 Z M 2.75 -23.453125 L 2.75 0 L 10.828125 0 L 10.828125 -23.453125 Z M 2.75 -23.453125 " />
+      <circle cx="6.89" cy="-33.12" r="3.2" fill="#E1998C" opacity="0.85" />
+    </g>
+    <g transform="translate(49.76292, 0)">
+      <path fill="#F4F4F5" d="M 4.109375 -23.453125 L 4.109375 -32.171875 L 12.203125 -32.171875 L 12.203125 -23.453125 L 17.140625 -23.453125 L 17.140625 -17.28125 L 12.203125 -17.28125 L 12.203125 -9.828125 C 12.203125 -7.660156 12.8125 -6.578125 14.03125 -6.578125 C 14.332031 -6.578125 14.648438 -6.640625 14.984375 -6.765625 C 15.328125 -6.890625 15.585938 -7.007812 15.765625 -7.125 L 16.046875 -7.3125 L 18.046875 -0.78125 C 16.316406 0.195312 14.335938 0.6875 12.109375 0.6875 C 10.585938 0.6875 9.273438 0.417969 8.171875 -0.109375 C 7.078125 -0.648438 6.25 -1.367188 5.6875 -2.265625 C 5.125 -3.160156 4.71875 -4.101562 4.46875 -5.09375 C 4.226562 -6.082031 4.109375 -7.140625 4.109375 -8.265625 L 4.109375 -17.28125 L 0.734375 -17.28125 L 0.734375 -23.453125 Z M 4.109375 -23.453125 " />
+    </g>
+    <g transform="translate(67.538652, 0)">
+      <path fill="#F4F4F5" d="M 4.109375 -23.453125 L 4.109375 -32.171875 L 12.203125 -32.171875 L 12.203125 -23.453125 L 17.140625 -23.453125 L 17.140625 -17.28125 L 12.203125 -17.28125 L 12.203125 -9.828125 C 12.203125 -7.660156 12.8125 -6.578125 14.03125 -6.578125 C 14.332031 -6.578125 14.648438 -6.640625 14.984375 -6.765625 C 15.328125 -6.890625 15.585938 -7.007812 15.765625 -7.125 L 16.046875 -7.3125 L 18.046875 -0.78125 C 16.316406 0.195312 14.335938 0.6875 12.109375 0.6875 C 10.585938 0.6875 9.273438 0.417969 8.171875 -0.109375 C 7.078125 -0.648438 6.25 -1.367188 5.6875 -2.265625 C 5.125 -3.160156 4.71875 -4.101562 4.46875 -5.09375 C 4.226562 -6.082031 4.109375 -7.140625 4.109375 -8.265625 L 4.109375 -17.28125 L 0.734375 -17.28125 L 0.734375 -23.453125 Z M 4.109375 -23.453125 " />
+    </g>
+    <g transform="translate(85.588559, 0)">
+      <path fill="#F4F4F5" d="M 26.46875 -10.609375 L 9.453125 -10.609375 C 9.453125 -8.960938 9.984375 -7.742188 11.046875 -6.953125 C 12.117188 -6.160156 13.28125 -5.765625 14.53125 -5.765625 C 15.84375 -5.765625 16.878906 -5.9375 17.640625 -6.28125 C 18.398438 -6.632812 19.269531 -7.328125 20.25 -8.359375 L 26.09375 -5.4375 C 23.65625 -1.351562 19.601562 0.6875 13.9375 0.6875 C 10.40625 0.6875 7.375 -0.519531 4.84375 -2.9375 C 2.3125 -5.363281 1.046875 -8.28125 1.046875 -11.6875 C 1.046875 -15.101562 2.3125 -18.03125 4.84375 -20.46875 C 7.375 -22.90625 10.40625 -24.125 13.9375 -24.125 C 17.65625 -24.125 20.679688 -23.050781 23.015625 -20.90625 C 25.347656 -18.757812 26.515625 -15.691406 26.515625 -11.703125 C 26.515625 -11.148438 26.5 -10.785156 26.46875 -10.609375 Z M 9.6875 -15.078125 L 18.59375 -15.078125 C 18.414062 -16.296875 17.9375 -17.234375 17.15625 -17.890625 C 16.382812 -18.546875 15.390625 -18.875 14.171875 -18.875 C 12.828125 -18.875 11.757812 -18.519531 10.96875 -17.8125 C 10.175781 -17.113281 9.75 -16.203125 9.6875 -15.078125 Z M 9.6875 -15.078125 " />
+    </g>
+    <g transform="translate(113.051839, 0)">
+      <path fill="#F4F4F5" d="M 2.75 0 L 2.75 -23.453125 L 10.828125 -23.453125 L 10.828125 -20.984375 L 10.921875 -20.984375 C 13.023438 -23.078125 15.265625 -24.125 17.640625 -24.125 C 18.796875 -24.125 19.945312 -23.972656 21.09375 -23.671875 C 22.238281 -23.367188 23.332031 -22.894531 24.375 -22.25 C 25.425781 -21.613281 26.28125 -20.707031 26.9375 -19.53125 C 27.59375 -18.363281 27.921875 -17.003906 27.921875 -15.453125 L 27.921875 0 L 19.828125 0 L 19.828125 -13.25 C 19.828125 -14.46875 19.4375 -15.535156 18.65625 -16.453125 C 17.882812 -17.367188 16.875 -17.828125 15.625 -17.828125 C 14.40625 -17.828125 13.300781 -17.351562 12.3125 -16.40625 C 11.320312 -15.457031 10.828125 -14.40625 10.828125 -13.25 L 10.828125 0 Z M 2.75 0 " />
+    </g>
+  </g>
+
+  <!-- High-Precision Specular Shimmer Sweep through Mask -->
+  <g mask="url(#kitten-mask)">
+    <rect class="sheen-anim" x="0" y="50" width="160" height="130" fill="url(#sheen-grad)" transform="skewX(-28)" />
+  </g>
+
+  <!-- Animated Telemetry Waveform Linking 'Kitten' to Modalities -->
+  <g transform="translate(480, 80)">
+    <!-- Base Waveform Line -->
+    <path 
+      d="M 0,60 L 50,60 L 65,48 L 78,74 L 92,60 L 130,60 L 145,18 L 160,105 L 175,-12 L 192,92 L 208,60 L 250,60 L 265,48 L 278,74 L 292,60 L 330,60 L 345,18 L 360,105 L 375,-12 L 392,92 L 408,60 L 450,60 L 465,48 L 478,74 L 492,60 L 550,60" 
+      fill="none" 
+      stroke="#FFFFFF" 
+      stroke-opacity="0.12" 
+      stroke-width="2" 
+    />
+    
+    <!-- Animated Glowing Active Trace -->
+    <path 
+      class="ecg-path"
+      d="M 0,60 L 50,60 L 65,48 L 78,74 L 92,60 L 130,60 L 145,18 L 160,105 L 175,-12 L 192,92 L 208,60 L 250,60 L 265,48 L 278,74 L 292,60 L 330,60 L 345,18 L 360,105 L 375,-12 L 392,92 L 408,60 L 450,60 L 465,48 L 478,74 L 492,60 L 550,60" 
+      fill="none" 
+      stroke="url(#ecg-line-grad)" 
+      stroke-width="2.8" 
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      filter="url(#ecg-glow)" 
+    />
+  </g>
+
+  <!-- Subtitle: Clinical Purpose & Technology Highlights -->
+  <g transform="translate(70, 218)">
+    <text font-family="'League Spartan', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#E1998C" letter-spacing="1.8">
+      NEXT-GEN WEB PACS • FRACTURE DETECTION • MEDGEMMA 27B
+    </text>
+  </g>
+
+  <g transform="translate(70, 244)">
+    <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="400" fill="#A1A1AA" letter-spacing="0.4">
+      Instant DICOM Modality Ingest, Sub-Second YOLO11n Inference &amp; 1-Click Institutional PDF Synthesis
+    </text>
+  </g>
+
+  <!-- Right Side Diagnostic Spec Badges -->
+  <g transform="translate(740, 216)">
+    <!-- Pill 1: YOLO11n -->
+    <rect x="0" y="0" width="90" height="28" rx="8" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1" />
+    <text x="14" y="18" font-family="sans-serif" font-size="11.5" font-weight="700" fill="#00BF63">&lt; 25ms AI</text>
+
+    <!-- Pill 2: 16-Bit Depth -->
+    <rect x="100" y="0" width="105" height="28" rx="8" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.1" stroke-width="1" />
+    <text x="114" y="18" font-family="sans-serif" font-size="11.5" font-weight="700" fill="#FFFFFF">16-bit DICOM</text>
+
+    <!-- Pill 3: HIPAA Ready -->
+    <rect x="215" y="0" width="85" height="28" rx="8" fill="#8D321F" fill-opacity="0.25" stroke="#8D321F" stroke-opacity="0.4" stroke-width="1" />
+    <text x="226" y="18" font-family="sans-serif" font-size="11.5" font-weight="700" fill="#E1998C">HIPAA 🔒</text>
+  </g>
+</svg>
