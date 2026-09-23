@@ -66,7 +66,7 @@ export interface CaseRecord {
   type: string;
   typeSub?: string;
   date: string;
-  status: 'Completed' | 'Pending' | 'Review';
+  status: 'Fresh' | 'Pending' | 'Final' | 'Completed' | 'Review';
   confidence: number;
   image?: string;
   findings?: string[] | string;

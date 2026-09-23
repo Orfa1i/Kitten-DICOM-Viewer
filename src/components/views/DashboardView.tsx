@@ -32,11 +32,15 @@ export const DashboardView: React.FC = () => {
   const [modalityFilter, setModalityFilter] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: string | null, direction: 'asc' | 'desc' }>({ key: null, direction: 'desc' });
 
+  const freshCount = cases.filter(c => c.status === 'Fresh').length;
+  const pendingCount = cases.filter(c => c.status === 'Pending' || c.status === 'Review').length;
+  const approvedCount = cases.filter(c => c.status === 'Final' || c.status === 'Completed').length;
+
   let filteredCases = cases.filter(c => {
-    // 3-tier workflow filter
-    if (activeTab === 'Fresh' && c.status !== 'Pending') return false;
-    if (activeTab === 'Pending' && c.status !== 'Review') return false;
-    if (activeTab === 'Approved' && c.status !== 'Completed') return false;
+    // 3-tier workflow filter: Fresh -> Pending -> Final (Approved)
+    if (activeTab === 'Fresh' && c.status !== 'Fresh') return false;
+    if (activeTab === 'Pending' && c.status !== 'Pending' && c.status !== 'Review') return false;
+    if (activeTab === 'Approved' && c.status !== 'Final' && c.status !== 'Completed') return false;
 
     const matchesSearch = c.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           c.patientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -135,9 +139,9 @@ export const DashboardView: React.FC = () => {
         uploadedImageUrl: `http://127.0.0.1:8000/api/cases/${caseRecord.id}/thumbnail`
       });
 
-      // Update case to Completed in DB & state
+      // Update case to Final in DB & state
       await updateCase(caseRecord.id, {
-        status: 'Completed',
+        status: 'Final',
         findings: findingsText,
         diagnosisTitle: diagTitle,
         recommendation: recommendation
@@ -280,25 +284,34 @@ export const DashboardView: React.FC = () => {
         {/* Inner White Card */}
         <div className="bg-[#fcfcfc] rounded-[24px] flex-1 flex flex-col overflow-hidden relative shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)]">
           
-                    {/* 3-Tier Workflow Tabs */}
+            {/* 3-Tier Workflow Tabs */}
             <div className="flex items-center gap-2 px-6 pt-4 pb-0 bg-white border-b border-zinc-100 flex-shrink-0">
               <button
                 onClick={() => { setActiveTab('Fresh'); setCurrentPage(1); }}
-                className={`px-5 py-3 text-[14px] font-bold border-b-[3px] transition-colors ${activeTab === 'Fresh' ? 'border-[#8D321F] text-[#8D321F]' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+                className={`px-5 py-3 text-[14px] font-bold border-b-[3px] transition-colors flex items-center gap-2 ${activeTab === 'Fresh' ? 'border-[#8D321F] text-[#8D321F]' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
               >
-                Fresh from PACS
+                <span>Fresh from PACS</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${activeTab === 'Fresh' ? 'bg-[#8D321F]/10 text-[#8D321F]' : 'bg-zinc-100 text-zinc-500'}`}>
+                  {freshCount}
+                </span>
               </button>
               <button
                 onClick={() => { setActiveTab('Pending'); setCurrentPage(1); }}
-                className={`px-5 py-3 text-[14px] font-bold border-b-[3px] transition-colors ${activeTab === 'Pending' ? 'border-amber-500 text-amber-600' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+                className={`px-5 py-3 text-[14px] font-bold border-b-[3px] transition-colors flex items-center gap-2 ${activeTab === 'Pending' ? 'border-amber-500 text-amber-600' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
               >
-                Pending Approval
+                <span>Pending Approval</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${activeTab === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-zinc-100 text-zinc-500'}`}>
+                  {pendingCount}
+                </span>
               </button>
               <button
                 onClick={() => { setActiveTab('Approved'); setCurrentPage(1); }}
-                className={`px-5 py-3 text-[14px] font-bold border-b-[3px] transition-colors ${activeTab === 'Approved' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
+                className={`px-5 py-3 text-[14px] font-bold border-b-[3px] transition-colors flex items-center gap-2 ${activeTab === 'Approved' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}
               >
-                Final Approved
+                <span>Final Approved</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${activeTab === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-100 text-zinc-500'}`}>
+                  {approvedCount}
+                </span>
               </button>
             </div>
 
@@ -388,92 +401,112 @@ export const DashboardView: React.FC = () => {
             <div className="overflow-y-auto flex-1 custom-scrollbar pb-2">
               <table className="w-full">
                 <tbody className="divide-y divide-zinc-50/80">
-                  {paginatedCases.map((c, i) => (
-                    <tr 
-                      key={c.id} 
-                      onClick={() => loadCase(c.id)}
-                      className="group hover:bg-[#8D321F]/[0.02] cursor-pointer transition-colors"
-                    >
-                      <td className="py-4 px-6 w-[18%]">
-                        <div className="flex items-center gap-3">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#8D321F] opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <span className="font-mono text-[13px] font-semibold text-zinc-700">{c.id}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-2 text-center w-[8%]">
-                        <span className="text-[14px] font-medium text-zinc-600 capitalize">{c.sex}</span>
-                      </td>
-                      <td className="py-4 px-2 text-center w-[8%]">
-                        <span className="text-[14px] font-medium text-zinc-600">{c.age}</span>
-                      </td>
-                      <td className="py-4 px-2 text-center w-[22%]">
-                        <span className="text-[14px] font-semibold text-zinc-800">{c.patientName}</span>
-                      </td>
-                      <td className="py-4 px-2 text-center w-[16%]">
-                        <div className="inline-flex items-center justify-center border border-zinc-200 bg-white rounded-lg px-2.5 py-1 shadow-[0_2px_4px_rgba(0,0,0,0.02)] group-hover:border-[#8D321F]/20 group-hover:shadow-[0_2px_6px_rgba(141,50,31,0.08)] transition-all">
-                          <span className="text-[11px] font-bold tracking-wide text-zinc-700 uppercase">{c.type || 'DICOM'}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-right w-[28%]">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* Edit / Save as PDF Primary Action */}
-                          <button 
-                            onClick={(e) => handleEditSavePdf(e, c)}
-                            disabled={generatingPdfId === c.id}
-                            title="Click to trigger Save as PDF process"
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
-                              downloadSuccessId === c.id
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-[#8D321F]/10 hover:bg-[#8D321F] text-[#8D321F] hover:text-white border border-[#8D321F]/20 active:scale-95'
-                            } disabled:opacity-60 disabled:cursor-not-allowed`}
-                          >
-                            {generatingPdfId === c.id ? (
-                              <>
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                <span>Generating...</span>
-                              </>
-                            ) : downloadSuccessId === c.id ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                <span>PDF Saved!</span>
-                              </>
-                            ) : (
-                              <>
-                                <FileDown className="w-3.5 h-3.5" />
-                                <span>Save PDF</span>
-                              </>
-                            )}
-                          </button>
-
-                          {/* Quick Edit Findings Modal Opener */}
-                          <button
-                            onClick={(e) => handleOpenEditModal(e, c)}
-                            title="Edit findings & customize report"
-                            className="p-1.5 text-zinc-400 hover:text-[#8D321F] hover:bg-[#8D321F]/10 rounded-lg transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-
-                          {/* Delete Case */}
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (window.confirm(`Are you sure you want to delete case ${c.id}?`)) {
-                                deleteCase(c.id);
-                              }
-                            }}
-                            title="Delete case"
-                            className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                  {filteredCases.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-16 text-center text-zinc-400">
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400">
+                            <FolderSearch className="w-6 h-6" />
+                          </div>
+                          <p className="text-base font-semibold text-zinc-700">No {activeTab.toLowerCase()} cases found</p>
+                          <p className="text-xs text-zinc-400 max-w-sm">
+                            {activeTab === 'Fresh' 
+                              ? 'Uploaded DICOM files from the PACS Simulator will appear here automatically.' 
+                              : activeTab === 'Pending'
+                              ? 'Open a fresh study from PACS to review and draft findings.'
+                              : 'Approved diagnostic studies will be cataloged here once finalized.'}
+                          </p>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    paginatedCases.map((c, i) => (
+                      <tr 
+                        key={c.id} 
+                        onClick={() => loadCase(c.id)}
+                        className="group hover:bg-[#8D321F]/[0.02] cursor-pointer transition-colors"
+                      >
+                        <td className="py-4 px-6 w-[18%]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#8D321F] opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <span className="font-mono text-[13px] font-semibold text-zinc-700">{c.id}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-2 text-center w-[8%]">
+                          <span className="text-[14px] font-medium text-zinc-600 capitalize">{c.sex}</span>
+                        </td>
+                        <td className="py-4 px-2 text-center w-[8%]">
+                          <span className="text-[14px] font-medium text-zinc-600">{c.age}</span>
+                        </td>
+                        <td className="py-4 px-2 text-center w-[22%]">
+                          <span className="text-[14px] font-semibold text-zinc-800">{c.patientName}</span>
+                        </td>
+                        <td className="py-4 px-2 text-center w-[16%]">
+                          <div className="inline-flex items-center justify-center border border-zinc-200 bg-white rounded-lg px-2.5 py-1 shadow-[0_2px_4px_rgba(0,0,0,0.02)] group-hover:border-[#8D321F]/20 group-hover:shadow-[0_2px_6px_rgba(141,50,31,0.08)] transition-all">
+                            <span className="text-[11px] font-bold tracking-wide text-zinc-700 uppercase">{c.type || 'DICOM'}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 text-right w-[28%]">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Edit / Save as PDF Primary Action */}
+                            <button 
+                              onClick={(e) => handleEditSavePdf(e, c)}
+                              disabled={generatingPdfId === c.id}
+                              title="Click to trigger Save as PDF process"
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
+                                downloadSuccessId === c.id
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-[#8D321F]/10 hover:bg-[#8D321F] text-[#8D321F] hover:text-white border border-[#8D321F]/20 active:scale-95'
+                              } disabled:opacity-60 disabled:cursor-not-allowed`}
+                            >
+                              {generatingPdfId === c.id ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  <span>Generating...</span>
+                                </>
+                              ) : downloadSuccessId === c.id ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>PDF Saved!</span>
+                                </>
+                              ) : (
+                                <>
+                                  <FileDown className="w-3.5 h-3.5" />
+                                  <span>Save PDF</span>
+                                </>
+                              )}
+                            </button>
+
+                            {/* Quick Edit Findings Modal Opener */}
+                            <button
+                              onClick={(e) => handleOpenEditModal(e, c)}
+                              title="Edit findings & customize report"
+                              className="p-1.5 text-zinc-400 hover:text-[#8D321F] hover:bg-[#8D321F]/10 rounded-lg transition-colors"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+
+                            {/* Delete Case */}
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (window.confirm(`Are you sure you want to delete case ${c.id}?`)) {
+                                  deleteCase(c.id);
+                                }
+                              }}
+                              title="Delete case"
+                              className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
 
                   {/* Empty State Fillers if fewer than rowsPerPage */}
-                  {paginatedCases.length < rowsPerPage && Array.from({ length: rowsPerPage - paginatedCases.length }).map((_, i) => (
+                  {filteredCases.length > 0 && paginatedCases.length < rowsPerPage && Array.from({ length: rowsPerPage - paginatedCases.length }).map((_, i) => (
                     <tr key={`empty-${i}`} className="border-b border-zinc-50/50">
                       <td className="py-5 px-2" colSpan={6}></td>
                     </tr>

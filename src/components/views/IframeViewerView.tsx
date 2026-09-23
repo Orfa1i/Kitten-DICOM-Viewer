@@ -65,7 +65,14 @@ export const IframeViewerView: React.FC = () => {
         body: formData
       });
       
-      if (!res.ok) throw new Error("Failed to generate report");
+      if (!res.ok) {
+        let errDetail = "Failed to generate report";
+        try {
+          const errData = await res.json();
+          if (errData.detail) errDetail = errData.detail;
+        } catch (_) {}
+        throw new Error(errDetail);
+      }
       
       const data = await res.json();
       setReport(data.report || "No significant findings reported.");
@@ -113,7 +120,7 @@ export const IframeViewerView: React.FC = () => {
     
     const updatedCase = {
       ...activeCase,
-      status: "Completed", 
+      status: "Final", 
       findings: report
     };
     
@@ -164,7 +171,7 @@ export const IframeViewerView: React.FC = () => {
     
     const updatedCase = {
       ...activeCase,
-      status: "Completed", 
+      status: "Final", 
       findings: report
     };
     

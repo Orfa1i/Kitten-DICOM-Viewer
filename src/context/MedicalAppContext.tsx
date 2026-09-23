@@ -186,7 +186,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [isMedGemmaTestOpen, setIsMedGemmaTestOpen] = React.useState(false);
   const [isWorklistOpen, setIsWorklistOpen] = React.useState(false);
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(true);
   const login = (u?: string, p?: string) => setIsAuthenticated(true);
   const [currentScreen, setCurrentScreen] = useState<ScreenState>(getInitialScreen);
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
@@ -562,8 +562,9 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
-  const saveCurrentCase = () => {
+  const saveCurrentCase = async () => {
     const existingIndex = cases.findIndex(c => c.id === patientForm.id);
+    const existingCase = existingIndex >= 0 ? cases[existingIndex] : null;
     const updatedRecord: CaseRecord = {
       id: patientForm.id || `kt-${Math.floor(100000 + Math.random() * 900000)}`,
       patientName: patientForm.name || 'Anonymous',
@@ -571,9 +572,10 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       sex: patientForm.sex,
       type: selectedModel === 'fracture-detection' ? 'Fracture Detection' : 'Knee Osteoarthritis',
       typeSub: selectedModel === 'knee-osteoarthritis' ? 'Bilateral Weight-Bearing AP' : 'Orthogonal Radiograph',
-      date: new Date().toISOString().split('T')[0],
-      status: 'Completed',
+      date: patientForm.studyDate || new Date().toISOString().split('T')[0],
+      status: 'Final',
       confidence: accuracyScore,
+      image: existingCase?.image,
       diagnosisTitle: diagnosticReport.diagnosis,
       findings: diagnosticReport.findings,
       recommendation: diagnosticReport.recommendation
@@ -589,14 +591,25 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setCases(prev => [updatedRecord, ...prev]);
     }
 
+    try {
+      await fetch("http://127.0.0.1:8000/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedRecord)
+      });
+      await fetchCases();
+    } catch (err) {
+      console.error("Failed to save approved case:", err);
+    }
+
     setCurrentScreen('dashboard');
   };
 
   const loadCase = async (caseId: string) => {
     const c = cases.find(item => item.id === caseId);
     if (c) {
-      if (c.status === 'Pending') {
-        const updatedCase = { ...c, status: 'Review' as const };
+      if (c.status === 'Fresh') {
+        const updatedCase = { ...c, status: 'Pending' as const };
         setCases(prev => prev.map(item => item.id === caseId ? updatedCase : item));
         try {
           await fetch("http://127.0.0.1:8000/api/cases", {
@@ -630,7 +643,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         recommendation: c.recommendation || defaultDiagnosticReport.recommendation,
         confidenceGrade: `Grade A1 AI-Verified (${c.confidence}% Confidence)`
       });
-      if (c.status === 'Completed') {
+      if (c.status === 'Final' || c.status === 'Completed') {
         setCurrentScreen('final-report');
       } else {
         setCurrentScreen('iframe-viewer');

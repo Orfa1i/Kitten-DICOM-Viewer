@@ -232,10 +232,8 @@ def seed_worklist_from_dicom_folder():
             except Exception:
                 pass
 
-    if added:
-        save_db()
-
-seed_worklist_from_dicom_folder()
+# Startup worklist auto-seeding removed per requirement (worklist starts empty)
+# seed_worklist_from_dicom_folder()
 
 # ============================================================================
 # 3. Detection Router (Contains both /knee-oa and /bone-fracture)
@@ -471,7 +469,7 @@ async def pacs_ingest(file: UploadFile = File(...)):
             "type": modality,
             "typeSub": getattr(ds, 'BodyPartExamined', 'Unknown'),
             "date": study_date,
-            "status": "Pending",
+            "status": "Fresh",
             "confidence": 0,
             "image": filepath
         }
@@ -584,10 +582,10 @@ async def upload_case_file(
             "type": modality,
             "typeSub": type_sub,
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "status": "Pending",
+            "status": "Fresh",
             "confidence": 0,
             "image": filepath,
-            "diagnosisTitle": "Pending AI Review"
+            "diagnosisTitle": "Fresh PACS Intake"
         }
 
         existing_idx = next((i for i, c in enumerate(cases_db) if c.get("id") == patient_id), -1)
@@ -615,7 +613,7 @@ def list_pacs_files():
 
 @cases_router.delete("/pacs/files/{case_id}", summary="Delete Mock PACS File")
 def delete_pacs_file(case_id: str):
-    global mock_pacs_db
+    global mock_pacs_db, cases_db
     case = next((c for c in mock_pacs_db if c.get("id") == case_id), None)
     if not case:
         raise HTTPException(status_code=404, detail="File not found")
@@ -639,15 +637,17 @@ def sync_pacs():
     for pacs_case in reversed(mock_pacs_db):
         existing = next((c for c in cases_db if c.get("id") == pacs_case.get("id")), None)
         if not existing:
-            cases_db.insert(0, pacs_case.copy())
+            new_c = pacs_case.copy()
+            if not new_c.get("status"):
+                new_c["status"] = "Fresh"
+            cases_db.insert(0, new_c)
             synced += 1
     save_db()
     return {"status": "success", "synced": synced}
 
 @cases_router.get("/cases", summary="List PACS Diagnostic Cases")
 def get_all_cases():
-    """Retrieve all diagnostic cases log"""
-    seed_worklist_from_dicom_folder()
+    """Retrieve all diagnostic cases log (persisted user cases only, no auto-mock seeding)"""
     return cases_db
 
 @cases_router.post("/cases", summary="Save Diagnostic Case")
@@ -740,9 +740,22 @@ async def generate_case_report(case_id: str, clinical_context: str = Form("")):
             resp = await client.post(f"{medgemma_url}/generate-draft-report", files=files, data=data)
             
             if resp.status_code == 200:
-                return {"status": "success", "report": resp.json().get("draft_report")}
+                report = resp.json().get("draft_report", "")
+                case["findings"] = report
+                save_db()
+                return {"status": "success", "report": report}
             else:
-                raise HTTPException(status_code=resp.status_code, detail="MedGemma Service Error")
+                detail = "MedGemma Service Error"
+                try:
+                    err_json = resp.json()
+                    detail = err_json.get("detail", detail)
+                except Exception:
+                    pass
+                raise HTTPException(status_code=resp.status_code, detail=f"MedGemma Service: {detail}")
+    except httpx.ConnectError:
+        raise HTTPException(status_code=503, detail="MedGemma AI Service is offline (http://127.0.0.1:8001 not reachable).")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to communicate with AI Service: {str(e)}")
 
@@ -870,6 +883,41 @@ async def detect_knee_oa_on_case(case_id: str):
         raise HTTPException(status_code=500, detail=f"Failed to process Knee OA: {str(e)}")
 
 
+def generate_fallback_clinical_card(case_id: str, patient_name: str = "", modality: str = "") -> io.BytesIO:
+    from PIL import Image, ImageDraw
+    img = Image.new("RGB", (512, 512), color=(15, 23, 42))  # Slate 900
+    draw = ImageDraw.Draw(img)
+    
+    # Draw dark subtle clinical grid
+    for x in range(0, 512, 32):
+        draw.line([(x, 0), (x, 512)], fill=(30, 41, 59), width=1)
+    for y in range(0, 512, 32):
+        draw.line([(0, y), (512, y)], fill=(30, 41, 59), width=1)
+        
+    # Draw central stylized radiograph frame
+    draw.rectangle([64, 64, 448, 448], outline=(141, 50, 31), width=2)
+    draw.rectangle([72, 72, 440, 440], fill=(24, 24, 27))
+    
+    # Subtle inner anatomy aperture
+    draw.ellipse([176, 176, 336, 336], outline=(55, 65, 81), width=2)
+    draw.line([256, 150, 256, 362], fill=(55, 65, 81), width=1)
+    draw.line([150, 256, 362, 256], fill=(55, 65, 81), width=1)
+    
+    # Text overlays
+    draw.text((88, 90), "KITTEN CLINICAL PACS", fill=(203, 213, 225))
+    draw.text((88, 120), f"ID: {case_id[:24]}", fill=(148, 163, 184))
+    if patient_name:
+        draw.text((88, 140), f"PATIENT: {patient_name[:24]}", fill=(148, 163, 184))
+    if modality:
+        draw.text((88, 160), f"MODALITY: {modality}", fill=(148, 163, 184))
+        
+    draw.text((88, 400), "DIAGNOSTIC VIEWPORT READY", fill=(141, 50, 31))
+    
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=85)
+    buf.seek(0)
+    return buf
+
 @cases_router.get("/cases/{case_id}/thumbnail", summary="Get DICOM Thumbnail")
 def get_case_thumbnail(case_id: str):
     import pydicom
@@ -880,11 +928,13 @@ def get_case_thumbnail(case_id: str):
     
     global cases_db
     case = next((c for c in cases_db if c.get("id") == case_id), None)
+    patient_name = case.get("patientName", "Unknown") if case else "Unknown"
+    modality = case.get("type", "DICOM") if case else "DICOM"
+    
     img_path = None
     if case and case.get("image") and os.path.exists(case["image"]):
         img_path = case["image"]
     else:
-        # Check dicom_folder by case_id prefix or full name
         dicom_dir = os.path.join(BASE_DIR, "dicom_folder")
         if os.path.exists(dicom_dir):
             for f in os.listdir(dicom_dir):
@@ -893,41 +943,64 @@ def get_case_thumbnail(case_id: str):
                     break
 
     if not img_path or not os.path.exists(img_path):
-        raise HTTPException(status_code=404, detail="Image or DICOM file not found for this case")
+        buf = generate_fallback_clinical_card(case_id, patient_name, modality)
+        return StreamingResponse(buf, media_type="image/jpeg")
     
     try:
         if img_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
             img = Image.open(img_path)
             img.thumbnail((512, 512))
             buf = io.BytesIO()
-            img.convert("RGB").save(buf, format="JPEG")
+            img.convert("RGB").save(buf, format="JPEG", quality=85)
             buf.seek(0)
             return StreamingResponse(buf, media_type="image/jpeg")
 
         ds = pydicom.dcmread(img_path)
         img_array = ds.pixel_array
         
+        # Multiframe 3D/4D handling
+        if len(img_array.shape) > 2:
+            if img_array.shape[-1] in (3, 4):
+                pass
+            elif len(img_array.shape) == 3:
+                img_array = img_array[img_array.shape[0] // 2]
+            elif len(img_array.shape) == 4:
+                img_array = img_array[img_array.shape[0] // 2, 0]
+
+        # Rescale slope and intercept if available
+        slope = float(getattr(ds, 'RescaleSlope', 1.0))
+        intercept = float(getattr(ds, 'RescaleIntercept', 0.0))
+        if slope != 1.0 or intercept != 0.0:
+            img_array = img_array * slope + intercept
+
+        # Normalize to uint8
+        img_array = img_array.astype(float)
+        img_min = np.min(img_array)
+        img_max = np.max(img_array)
+        if img_max > img_min:
+            img_array = (img_array - img_min) / (img_max - img_min) * 255.0
+        else:
+            img_array = np.zeros_like(img_array)
+            
+        img_array = img_array.astype(np.uint8)
+
         # Photometric Interpretation check
         if getattr(ds, "PhotometricInterpretation", "") == "MONOCHROME1":
-            img_array = np.max(img_array) - img_array
+            img_array = 255 - img_array
             
-        # Normalize
-        img_array = img_array.astype(float)
-        img_array = img_array - np.min(img_array)
-        if np.max(img_array) != 0:
-            img_array = img_array / np.max(img_array)
-        img_array = (img_array * 255).astype(np.uint8)
-        
-        # Convert to PIL and resize for thumbnail
         img = Image.fromarray(img_array)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
         img.thumbnail((512, 512))
         
         buf = io.BytesIO()
-        img.save(buf, format="JPEG")
+        img.save(buf, format="JPEG", quality=85)
         buf.seek(0)
         return StreamingResponse(buf, media_type="image/jpeg")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.warning(f"Thumbnail generation fallback for case {case_id}: {e}")
+        buf = generate_fallback_clinical_card(case_id, patient_name, modality)
+        return StreamingResponse(buf, media_type="image/jpeg")
 
 @cases_router.get("/cases/{case_id}/file", summary="Get Case DICOM File")
 def get_case_file(case_id: str):

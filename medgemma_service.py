@@ -179,18 +179,12 @@ async def chat(request: ChatRequest):
                     
             return StreamingResponse(generate_stream(), media_type="text/plain")
         else:
-            import asyncio
-            clinical_input = messages[-1].content if messages else ""
-            img_for_eval = pil_image or Image.new('RGB', (512, 512), color=(20, 20, 20))
-            report_text = generate_fallback_report(img_for_eval, clinical_input)
-            
-            async def generate_stream():
-                words = report_text.split(" ")
-                for i, w in enumerate(words):
-                    yield w + (" " if i < len(words) - 1 else "")
-                    await asyncio.sleep(0.015)
-                    
-            return StreamingResponse(generate_stream(), media_type="text/plain")
+            raise HTTPException(
+                status_code=503,
+                detail=f"Local MedGemma model weights ({model_id}) are not loaded. Real-time inference requires initializing weights."
+            )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(500, str(e))
 
@@ -222,25 +216,28 @@ async def generate_draft(file: UploadFile, clinical_context: str = ""):
                 output[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=False
             )
             final_report = clean_response(report_text)
-        except Exception:
-            final_report = generate_fallback_report(image, clinical_context)
+            return {
+                "draft_report": final_report,
+                "status": "unreviewed",
+                "requires_physician_review": True,
+                "disclaimer": "AI-generated draft. Not validated for clinical use. Must be reviewed and confirmed by a licensed physician before entering the patient record.",
+                "model": model_id
+            }
+        except Exception as e:
+            raise HTTPException(500, f"MedGemma inference error: {str(e)}")
     else:
-        final_report = generate_fallback_report(image, clinical_context)
-
-    return {
-        "draft_report": clean_response(final_report),
-        "status": "unreviewed",
-        "requires_physician_review": True,
-        "disclaimer": "AI-generated draft. Not validated for clinical use. Must be reviewed and confirmed by a licensed physician before entering the patient record.",
-        "model": model_id
-    }
+        raise HTTPException(
+            status_code=503,
+            detail=f"Local MedGemma model weights ({model_id}) are not loaded. Diagnostic reports require active model weights."
+        )
 
 @app.get("/health")
 async def health():
+    is_loaded = (model is not None and processor is not None)
     return {
         "status": "ok",
-        "model_loaded": True,
+        "model_loaded": is_loaded,
         "device": device,
         "model_id": model_id,
-        "engine": "active"
+        "engine": "active" if is_loaded else "uninitialized"
     }

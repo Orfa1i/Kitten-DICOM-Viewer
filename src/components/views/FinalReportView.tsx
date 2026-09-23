@@ -159,9 +159,15 @@ export const FinalReportView: React.FC = () => {
                 />
                 
                 {/* Fallback placeholder if image is delayed or fails */}
-                <div className="hidden absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 text-zinc-600 p-4">
-                  <Bone className="w-16 h-16 text-zinc-700 mb-2 animate-pulse" />
-                  <span className="text-xs font-mono text-zinc-500">Interactive DICOM Study</span>
+                <div className="hidden absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 text-zinc-400 p-6 border border-zinc-800/80">
+                  <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-3 text-[#8D321F]">
+                    <Layers className="w-8 h-8" />
+                  </div>
+                  <span className="text-sm font-bold text-zinc-200">{activeCase.patientName || activeCase.id}</span>
+                  <span className="text-xs font-mono text-zinc-500 mt-1">{activeCase.type || 'DICOM'} • {activeCase.id}</span>
+                  <span className="text-[11px] text-[#C27364] mt-3 font-semibold px-3 py-1 bg-[#8D321F]/10 rounded-full border border-[#8D321F]/20">
+                    Interactive DICOM Viewport
+                  </span>
                 </div>
 
                 {/* Center Hover Overlay */}

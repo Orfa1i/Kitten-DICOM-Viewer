@@ -31,7 +31,6 @@ export const WorklistModal: React.FC = () => {
   const handleOpenCase = (caseId: string) => {
     loadCase(caseId);
     setIsWorklistOpen(false);
-    setCurrentScreen('iframe-viewer'); // Direct them to the DICOM viewer studio
   };
 
   return (
