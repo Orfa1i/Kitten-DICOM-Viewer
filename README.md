@@ -13,6 +13,8 @@
 
   <!-- Badges -->
   <p align="center">
+    <a href="https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/"><img src="https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-8D321F?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Demo" /></a>
+    <a href="https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/mohamadorfali2006/Kitten-DICOM-Viewer/deploy.yml?branch=main&label=Deploy&style=for-the-badge&logo=githubactions&logoColor=white" alt="Deployment Status" /></a>
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-8D321F.svg?style=for-the-badge" alt="License: MIT" /></a>
     <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.13+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.13" /></a>
     <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19.0-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black" alt="React 19" /></a>
@@ -23,6 +25,10 @@
     <a href="https://ultralytics.com/"><img src="https://img.shields.io/badge/YOLO11n-Ultralytics-FF6B6B.svg?style=for-the-badge&logo=yolo&logoColor=white" alt="YOLO11n" /></a>
     <a href="https://www.cornerstonejs.org/"><img src="https://img.shields.io/badge/Cornerstone3D-2.0-3B82F6.svg?style=for-the-badge" alt="Cornerstone3D" /></a>
     <a href="#security--hipaa-compliance"><img src="https://img.shields.io/badge/HIPAA-Zero%20Cloud%20Leakage-00BF63.svg?style=for-the-badge" alt="HIPAA Compliance" /></a>
+  </p>
+
+  <p align="center">
+    <a href="https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/"><b>🌐 Launch Interactive Live Demo (GitHub Pages) ➔</b></a>
   </p>
 
 </div>

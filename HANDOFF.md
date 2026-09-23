@@ -22,26 +22,28 @@
     - `assets/screen-mock-pacs.png`: Hospital Mock PACS Node intake simulator on port 104 with online telemetry.
     - `assets/screen-login.png`: Secure attending radiologist authentication portal with zero cloud leakage badges.
   - Updated `README.md` with the new animated header and high-fidelity Visual Showcase gallery.
-- **Automated GitHub Pages CI/CD Pipeline**:
+- **Automated GitHub Pages CI/CD Pipeline & Live Badges**:
   - Configured `base: './'` in `vite.config.ts` to ensure universal asset resolution on GitHub Pages repository sub-paths (`/Kitten-DICOM-Viewer/`) without 404 errors.
   - Authored `.github/workflows/deploy.yml` with pnpm v11 setup, Node 22, dependency caching, production build, and GitHub Pages artifact publishing.
-  - Verified production compilation (`pnpm run build`, `✓ built in 23.55s`) and verified relative `./assets/` links in `dist/index.html`.
+  - Verified production compilation (`pnpm run build`) and verified relative `./assets/` links in `dist/index.html`.
+  - Added Live Demo badge, GitHub Pages deployment status badge, and one-click launch CTA directly to `README.md`.
 
 ## Key decisions
 - **Relative Base Path (`base: './'`)**: Enables the built bundle to run identically on GitHub Pages subpaths (`/Kitten-DICOM-Viewer/`), Vercel/Cloudflare root domains (`/`), or local preview without custom path mapping.
 - **Dedicated CI Deployment Workflow**: Used official GitHub Actions (`actions/upload-pages-artifact@v3` and `actions/deploy-pages@v4`) with `pnpm/action-setup@v4` for fast, reproducible caching and builds.
+- **Live Demo Badges**: Embedded live status and direct launch links in `README.md` so visitors can instantly test the workstation in their browser.
 - **Client-Side Medical Engine**: Designed the live demo so that Cornerstone3D 2.0, 16-bit windowing, measurement tools, and report preview run purely client-side in the browser.
 
 ## Current state
 - Remote GitHub Repository: [https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer](https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer)
+- Live Demo URL: [https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/](https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/)
 - Local Git Status: Clean, branch `main`.
-- Deployment Pipeline: `.github/workflows/deploy.yml` ready for automatic trigger on push.
 - Active Services:
   - Backend: `py -3.13 backend/server.py` on `http://127.0.0.1:8000` (docs at `/docs`)
   - Frontend: `pnpm dev` on `http://localhost:5173`
   - Cloudflare Tunnel: `https://shapes-beauty-remedy-voice.trycloudflare.com`
 
 ## Concrete next steps
-- Navigate to GitHub repository Settings -> Pages and set Source to "GitHub Actions".
-- Watch the GitHub Actions workflow complete and verify the live public demo at `https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/`.
+- Navigate to GitHub repository Settings -> Pages and set Source to "GitHub Actions" to initiate the first live build.
+- Test the live deployment at `https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/`.
 - Containerize the full-stack environment using Docker and docker-compose for on-premise hospital server hosting.
