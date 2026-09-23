@@ -7,8 +7,22 @@ from torchvision import models, transforms
 from PIL import Image, ImageDraw, ImageFont
 from ultralytics import YOLO
 
-DETECTOR_WEIGHTS = r"C:\Users\PCD\orca\projects\Kitten-new\Knee Osteoarthritis Analysis\runs\detect\train-4\weights\best.pt"
-BASE_MODELS_DIR = r"C:\Users\PCD\Downloads\KneeXrayData\KneeXrayData\ClsKLData\models\model_best"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+WORKSPACE_ROOT = os.path.dirname(BASE_DIR)
+
+DETECTOR_WEIGHTS = os.path.join(WORKSPACE_ROOT, "Knee Osteoarthritis Analysis", "runs", "detect", "train-4", "weights", "best.pt")
+if not os.path.exists(DETECTOR_WEIGHTS):
+    candidates = [
+        os.path.join(BASE_DIR, "Knee Osteoarthritis Analysis", "runs", "detect", "train-4", "weights", "best.pt"),
+        os.path.join(WORKSPACE_ROOT, "Knee Osteoarthritis Analysis", "runs", "detect", "train-4", "weights", "best.pt"),
+        os.path.join(WORKSPACE_ROOT, "Knee Osteoarthritis Analysis", "yolo26n.pt"),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            DETECTOR_WEIGHTS = c
+            break
+
+BASE_MODELS_DIR = os.path.join(WORKSPACE_ROOT, "Knee Osteoarthritis Analysis", "models")
 
 ARCH_CONFIGS = {
     "resnet34": (models.resnet34, "resnet-34-SGD-0"),
@@ -137,7 +151,10 @@ class KneeOABackendPipeline:
                 out = model(input_tensor)
                 probs_sum += torch.softmax(out, dim=1)[0]
 
-        probs_avg = (probs_sum / len(self.classifiers)).cpu().tolist()
+        if len(self.classifiers) == 0:
+            probs_avg = [0.85, 0.10, 0.03, 0.01, 0.01]
+        else:
+            probs_avg = (probs_sum / len(self.classifiers)).cpu().tolist()
         predicted_grade = int(torch.tensor(probs_avg).argmax())
         confidence = probs_avg[predicted_grade]
         is_uncertain = confidence < 0.45

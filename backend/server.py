@@ -991,8 +991,12 @@ if __name__ == "__main__":
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     ROOT_DIR = os.path.dirname(BASE_DIR)
     
+    python_exe = os.path.join(ROOT_DIR, "venv", "Scripts", "python.exe")
+    if not os.path.exists(python_exe):
+        python_exe = sys.executable
+
     medgemma_process = subprocess.Popen(
-        [os.path.join(ROOT_DIR, "venv", "Scripts", "python.exe"), "-m", "uvicorn", "medgemma_service:app", "--host", "127.0.0.1", "--port", "8001"],
+        [python_exe, "-m", "uvicorn", "medgemma_service:app", "--host", "127.0.0.1", "--port", "8001"],
         cwd=ROOT_DIR
     )
     
