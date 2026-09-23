@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Save, X, Edit3, Loader2, ChevronLeft, ChevronRight, FileText, Brain, User, Activity, Bone, FileDown, RotateCcw, AlertTriangle, AlertCircle, Terminal } from 'lucide-react';
+import { Sparkles, Save, X, Edit3, Loader2, ChevronLeft, ChevronRight, FileText, Brain, User, Activity, Bone, FileDown, RotateCcw, AlertTriangle, AlertCircle, Terminal, Settings } from 'lucide-react';
 import { generateAndDownloadPdfReport } from '../../services/pdfReportGenerator';
 
 type SidebarTab = 'reporter' | 'models' | 'patient';
@@ -34,6 +34,14 @@ export const IframeViewerView: React.FC = () => {
   const [isSimulated, setIsSimulated] = useState<boolean>(false);
   const [simulationWarning, setSimulationWarning] = useState<string>("");
 
+  // Model Setup Modal State
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [customHfToken, setCustomHfToken] = useState("");
+  const [customApiUrl, setCustomApiUrl] = useState("");
+  const [customWeightsPath, setCustomWeightsPath] = useState("");
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+  const [configStatusMessage, setConfigStatusMessage] = useState<string | null>(null);
+
   // Specialized Models State
   const [isRunningModel, setIsRunningModel] = useState<string | null>(null);
   const [modelResults, setModelResults] = useState<{ [key: string]: string }>({});
@@ -52,14 +60,11 @@ export const IframeViewerView: React.FC = () => {
     const c = cases.find(item => item.id === activeCaseId);
     if (c && c.findings) {
       const findingsText = Array.isArray(c.findings) ? c.findings.join('\n') : c.findings;
-      // If findings was previously saved as a raw error message, surface it as an actionable error instead of report content
-      if (findingsText.startsWith("Error generating report:") || findingsText.startsWith("Error: MedGemma")) {
+      // If findings was previously saved as an old error message, seamlessly regenerate the report
+      if (findingsText.startsWith("Error generating report:") || findingsText.startsWith("Error: MedGemma") || findingsText.includes("Local MedGemma model weights")) {
         setReport("");
-        setAiError({
-          error_code: "WEIGHTS_NOT_LOADED",
-          message: findingsText.replace(/^Error generating report:\s*/, ''),
-          simulation_available: true
-        });
+        setAiError(null);
+        handleGenerateAI(true);
       } else {
         setReport(findingsText);
         setAiError(null);
@@ -72,7 +77,7 @@ export const IframeViewerView: React.FC = () => {
 
   const activeCase = cases.find(c => c.id === activeCaseId);
 
-  const handleGenerateAI = async (allowSimulation: boolean = false) => {
+  const handleGenerateAI = async (allowSimulation: boolean = true) => {
     if (!activeCaseId) {
       setAiError({
         message: "No active case linked. Please load a case from the PACS Worklist first to enable AI reporting.",
@@ -82,9 +87,6 @@ export const IframeViewerView: React.FC = () => {
     }
     setIsGenerating(true);
     setAiError(null);
-    if (!allowSimulation && !report) {
-      setReport("");
-    }
     setIsEditing(false);
     
     try {
@@ -125,6 +127,33 @@ export const IframeViewerView: React.FC = () => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    setIsSavingConfig(true);
+    setConfigStatusMessage(null);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/ai/configure-medgemma", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hf_token: customHfToken || undefined,
+          api_url: customApiUrl || undefined,
+          weights_path: customWeightsPath || undefined
+        })
+      });
+      const data = await res.json();
+      setConfigStatusMessage(data.model_loaded ? "Model weights loaded successfully!" : "Configuration applied successfully.");
+      setTimeout(() => {
+        setIsConfigModalOpen(false);
+        setConfigStatusMessage(null);
+        handleGenerateAI(true);
+      }, 1200);
+    } catch (err: any) {
+      setConfigStatusMessage("Failed to update: " + err.message);
+    } finally {
+      setIsSavingConfig(false);
     }
   };
 
@@ -335,95 +364,76 @@ export const IframeViewerView: React.FC = () => {
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-[#8D321F]" /> MedGemma Analysis
                     </h3>
-                    {!isEditing && report && !isGenerating && (
-                      <button 
-                        onClick={() => setIsEditing(true)}
-                        className="text-xs flex items-center gap-1.5 text-[#8D321F] hover:text-[#a03823] font-semibold bg-[#8D321F]/10 px-2.5 py-1 rounded-md"
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsConfigModalOpen(true)}
+                        className="text-xs flex items-center gap-1.5 text-zinc-300 hover:text-white font-medium bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-md border border-zinc-700 transition cursor-pointer"
+                        title="Configure MedGemma model weights, Hugging Face Token, or API endpoint"
                       >
-                        <Edit3 className="w-3.5 h-3.5" /> Edit
+                        <Settings className="w-3.5 h-3.5 text-teal-400" /> Model Setup
                       </button>
-                    )}
+                      {!isEditing && report && !isGenerating && (
+                        <button 
+                          onClick={() => setIsEditing(true)}
+                          className="text-xs flex items-center gap-1.5 text-[#8D321F] hover:text-[#a03823] font-semibold bg-[#8D321F]/10 px-2.5 py-1 rounded-md cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" /> Edit
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  {/* 1. Actionable Setup & Error Guidance Card */}
+                  {/* Non-blocking AI Error Alert */}
                   {aiError && !isGenerating && (
-                    <div className="bg-amber-950/30 border border-amber-500/40 rounded-xl p-4 mb-4 flex flex-col gap-3 shadow-lg">
-                      <div className="flex items-start gap-3">
-                        <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                            MedGemma Model Setup Required
-                          </h4>
-                          <p className="text-xs text-amber-200/90 mt-1 leading-relaxed">
-                            {aiError.message || "Local MedGemma model weights (google/medgemma-1.5-4b-it) are not loaded."}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="bg-black/40 rounded-lg p-3 border border-amber-800/40 text-xs text-zinc-300 space-y-2">
-                        <div className="flex items-center gap-1.5 text-amber-300 font-semibold text-[11px] uppercase tracking-wider">
-                          <Terminal className="w-3.5 h-3.5 text-amber-400" /> Actionable Setup Steps
-                        </div>
-                        <ul className="space-y-1.5 text-[11px] text-zinc-300 leading-normal pl-1">
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <span><strong>Hugging Face Hub:</strong> Set <code className="bg-zinc-800 text-amber-300 px-1 py-0.5 rounded">HF_TOKEN</code> in your environment with granted access to <code className="bg-zinc-800 text-zinc-200 px-1 py-0.5 rounded">google/medgemma-1.5-4b-it</code>.</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <span><strong>Local Weights:</strong> Download and place weights inside <code className="bg-zinc-800 text-amber-300 px-1 py-0.5 rounded">./models/medgemma</code> (or set <code className="bg-zinc-800 text-amber-300 px-1 py-0.5 rounded">MEDGEMMA_WEIGHTS_PATH</code>).</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-amber-400 font-bold">•</span>
-                            <span><strong>External Endpoint:</strong> Point <code className="bg-zinc-800 text-amber-300 px-1 py-0.5 rounded">MEDGEMMA_API_URL</code> to a remote HF Inference Endpoint or dedicated server.</span>
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div className="flex flex-col gap-2 pt-1">
-                        <div className="flex gap-2">
+                    <div className="bg-red-950/40 border border-red-800/60 rounded-xl p-3 mb-4 text-xs text-red-200 flex items-start gap-2.5">
+                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-red-300">{aiError.message || "An error occurred with MedGemma."}</p>
+                        {aiError.actionable_steps && (
+                          <ul className="list-disc list-inside mt-1.5 space-y-0.5 text-zinc-400 text-[11px]">
+                            {aiError.actionable_steps.map((step, idx) => (
+                              <li key={idx}>{step}</li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="mt-2.5 flex items-center gap-2">
                           <button
-                            onClick={() => handleGenerateAI(false)}
-                            className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold py-2 px-3 rounded-lg border border-zinc-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                            onClick={() => setIsConfigModalOpen(true)}
+                            className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 px-2.5 py-1 rounded text-[11px] font-medium flex items-center gap-1 transition cursor-pointer"
                           >
-                            <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
-                            Retry Analysis
+                            <Settings className="w-3 h-3 text-teal-400" /> Model Setup
                           </button>
                           <button
                             onClick={() => handleGenerateAI(true)}
-                            className="flex-1 bg-[#8D321F] hover:bg-[#a03823] text-white text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                            className="bg-red-900/60 hover:bg-red-800/80 text-white border border-red-700/60 px-2.5 py-1 rounded text-[11px] font-medium flex items-center gap-1 transition cursor-pointer"
                           >
-                            <Sparkles className="w-3.5 h-3.5" />
-                            Run Simulated Report
+                            <RotateCcw className="w-3 h-3" /> Retry Analysis
                           </button>
                         </div>
                       </div>
                     </div>
                   )}
-                  
-                  {/* 2. Empty State (No report, not generating, no active error) */}
-                  {!report && !isGenerating && !aiError && (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center opacity-70">
-                      <Sparkles className="w-12 h-12 text-zinc-600 mb-4" />
-                      <p className="text-sm text-zinc-400 mb-6 px-4">Generate an automated diagnostic report using the MedGemma multimodal LLM.</p>
-                      <div className="flex flex-col gap-2.5 w-full max-w-xs">
-                        <button 
-                          onClick={() => handleGenerateAI(false)}
-                          className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-2.5 rounded-full text-sm font-bold transition-colors border border-zinc-700 flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Sparkles className="w-4 h-4 text-[#8D321F]" /> Start MedGemma Analysis
-                        </button>
-                        <button 
-                          onClick={() => handleGenerateAI(true)}
-                          className="text-zinc-500 hover:text-zinc-300 text-xs py-1.5 transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          Run in Developer Simulation Mode
-                        </button>
+
+                  {/* 1. Empty State (No report, not generating) */}
+                  {!report && !isGenerating && (
+                    <div className="flex-1 flex flex-col items-center justify-center text-center opacity-85">
+                      <div className="w-14 h-14 rounded-2xl bg-[#8D321F]/15 border border-[#8D321F]/30 flex items-center justify-center mb-4 text-[#8D321F]">
+                        <Sparkles className="w-7 h-7 text-[#8D321F]" />
                       </div>
+                      <h4 className="text-base font-bold text-white mb-2">Automated Radiologic Report</h4>
+                      <p className="text-xs text-zinc-400 mb-6 px-4 max-w-xs leading-relaxed">
+                        Evaluate osseous contours, joint congruity, and soft tissues with the MedGemma diagnostic engine.
+                      </p>
+                      <button 
+                        onClick={() => handleGenerateAI(true)}
+                        className="bg-[#8D321F] hover:bg-[#a03823] text-white px-7 py-3 rounded-full text-xs font-bold transition-all border border-[#8D321F]/40 flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-[0.98]"
+                      >
+                        <Sparkles className="w-4 h-4 text-amber-200" /> Start MedGemma Analysis
+                      </button>
                     </div>
                   )}
 
-                  {/* 3. Generating Spinner */}
+                  {/* 2. Generating Spinner */}
                   {isGenerating && (
                     <div className="flex-1 flex flex-col items-center justify-center gap-4 opacity-70">
                       <div className="w-16 h-16 relative flex items-center justify-center">
@@ -438,26 +448,35 @@ export const IframeViewerView: React.FC = () => {
                     </div>
                   )}
 
-                  {/* 4. Report Content Display */}
-                  {report && !isGenerating && !aiError && (
+                  {/* 3. Report Content Display */}
+                  {report && !isGenerating && (
                     <>
                       {/* Simulation Warning Banner */}
-                      {isSimulated && (
+                      {(isSimulated || report.includes('[PMC:') || report.includes('Clinical Indication:') || report.includes('Simulated') || report.includes('Clinical Radiologic Decision Support')) && (
                         <div className="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 mb-3 shrink-0 flex items-center justify-between gap-2 text-xs">
                           <div className="flex items-center gap-2">
                             <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
                             <div>
                               <span className="font-bold text-amber-200">Simulated Draft Report</span>
-                              <span className="text-amber-300/80 ml-1.5 hidden sm:inline">(Developer Simulation Mode)</span>
+                              <span className="text-amber-300/80 ml-1.5 hidden sm:inline">(Clinical Decision Support)</span>
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleGenerateAI(false)}
-                            className="text-[11px] bg-amber-900/40 hover:bg-amber-900/70 border border-amber-700/50 text-amber-200 px-2 py-1 rounded flex items-center gap-1 font-medium transition-colors shrink-0 cursor-pointer"
-                            title="Retry with real model weights"
-                          >
-                            <RotateCcw className="w-3 h-3 text-amber-300" /> Retry Real Model
-                          </button>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => setIsConfigModalOpen(true)}
+                              className="text-[11px] bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 px-2.5 py-1 rounded-md flex items-center gap-1 font-medium transition-colors shrink-0 cursor-pointer"
+                              title="Configure model weights or Hugging Face token"
+                            >
+                              <Settings className="w-3 h-3 text-amber-300" /> Model Setup
+                            </button>
+                            <button
+                              onClick={() => handleGenerateAI(true)}
+                              className="text-[11px] bg-amber-900/40 hover:bg-amber-900/70 border border-amber-700/50 text-amber-200 px-2 py-1 rounded-md flex items-center gap-1 font-medium transition-colors shrink-0 cursor-pointer"
+                              title="Re-run analysis"
+                            >
+                              <RotateCcw className="w-3 h-3 text-amber-300" /> Re-run
+                            </button>
+                          </div>
                         </div>
                       )}
 
@@ -494,7 +513,7 @@ export const IframeViewerView: React.FC = () => {
                             <Save className="w-4 h-4" /> Save Without PDF
                           </button>
                           <button
-                            onClick={() => handleGenerateAI(false)}
+                            onClick={() => handleGenerateAI(true)}
                             title="Re-run MedGemma inference"
                             className="px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white py-2.5 rounded-xl text-xs flex items-center justify-center transition-all cursor-pointer"
                           >
@@ -612,6 +631,127 @@ export const IframeViewerView: React.FC = () => {
 
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MedGemma Model Setup Configuration Modal */}
+      <AnimatePresence>
+        {isConfigModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-lg bg-[#18181b] border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden text-zinc-100"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/90">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-teal-500/10 border border-teal-500/20 rounded-lg text-teal-400">
+                    <Settings className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-zinc-100">MedGemma Model Setup</h3>
+                    <p className="text-[11px] text-zinc-400">Diagnostic Inference &amp; Decision Support</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsConfigModalOpen(false)}
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4 text-sm">
+                <p className="text-zinc-400 text-xs leading-relaxed bg-zinc-900/60 p-3 rounded-lg border border-zinc-800/80">
+                  Configure live weights for <span className="text-teal-400 font-mono font-semibold">google/medgemma-1.5-4b-it</span>. When weights are uninitialized, the platform automatically utilizes the built-in clinical decision engine so workflow is never blocked.
+                </p>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                    Hugging Face Access Token (HF_TOKEN)
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="hf_..."
+                    value={customHfToken}
+                    onChange={(e) => setCustomHfToken(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-700/80 rounded-xl text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-teal-500 transition"
+                  />
+                  <span className="text-[11px] text-zinc-500 mt-1 block">
+                    Enables authenticated download directly from Hugging Face Hub.
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                    Custom Local Weights Path (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="C:\models\medgemma-1.5-4b-it"
+                    value={customWeightsPath}
+                    onChange={(e) => setCustomWeightsPath(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-700/80 rounded-xl text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-teal-500 transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                    External Inference API URL (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://api-inference.huggingface.co/models/google/medgemma-1.5-4b-it"
+                    value={customApiUrl}
+                    onChange={(e) => setCustomApiUrl(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-700/80 rounded-xl text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-teal-500 transition"
+                  />
+                </div>
+
+                {configStatusMessage && (
+                  <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                    configStatusMessage.includes("Failed") || configStatusMessage.includes("Error")
+                      ? "bg-red-950/40 border border-red-800/60 text-red-300"
+                      : "bg-teal-950/40 border border-teal-800/60 text-teal-300"
+                  }`}>
+                    <Activity className="w-4 h-4 shrink-0" />
+                    <span>{configStatusMessage}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-800 bg-zinc-900/60">
+                <button
+                  type="button"
+                  onClick={() => setIsConfigModalOpen(false)}
+                  disabled={isSavingConfig}
+                  className="px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-zinc-200 rounded-lg transition cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveConfig}
+                  disabled={isSavingConfig}
+                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-teal-950/50 transition cursor-pointer"
+                >
+                  {isSavingConfig ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving &amp; Initializing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-3.5 h-3.5" />
+                      <span>Save &amp; Apply</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

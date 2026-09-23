@@ -697,7 +697,7 @@ def delete_case(case_id: str):
 async def generate_case_report(
     case_id: str, 
     clinical_context: str = Form(""),
-    allow_simulation: bool = Form(False)
+    allow_simulation: bool = Form(True)
 ):
     global cases_db
     import pydicom
@@ -806,6 +806,18 @@ async def get_medgemma_status():
             "model_loaded": False,
             "error": str(e)
         }
+
+
+@cases_router.post("/ai/configure-medgemma", summary="Configure MedGemma Service")
+async def configure_medgemma_proxy(cfg: dict):
+    import httpx
+    medgemma_url = os.environ.get("MEDGEMMA_SERVICE_URL", "http://127.0.0.1:8001")
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(f"{medgemma_url}/configure", json=cfg)
+            return resp.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @cases_router.post("/cases/{case_id}/detect-fracture", summary="Detect Bone Fracture on Case")

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 (async () => {
-  console.log("=== STARTING MEDGEMMA END-TO-END UI VERIFICATION ===");
+  console.log("=== STARTING MEDGEMMA SEAMLESS WORKFLOW E2E VERIFICATION ===");
   const browser = await puppeteer.launch({
     headless: "new",
     executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -62,102 +62,87 @@ const path = require('path');
     });
     await new Promise(r => setTimeout(r, 1000));
 
-    console.log("3. Triggering MedGemma Analysis without weights loaded via Re-run/Retry button...");
-    const reRunClicked = await page.evaluate(() => {
+    console.log("3. Checking report state or triggering MedGemma Analysis...");
+    await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll('button'));
-      const btn = btns.find(b => 
-        (b.getAttribute('title') && b.getAttribute('title').includes('Re-run')) ||
-        (b.textContent && (b.textContent.includes('Start Analysis') || b.textContent.includes('Start MedGemma Analysis') || b.textContent.includes('Retry Analysis')))
+      const startBtn = btns.find(b => 
+        b.textContent && (b.textContent.includes('Start MedGemma Analysis') || b.textContent.includes('Start Analysis'))
       );
-      if (btn) {
-        btn.click();
-        return true;
-      }
-      return false;
+      if (startBtn) startBtn.click();
     });
-    console.log("Re-run / Start button clicked:", reRunClicked);
 
-    // Wait for the backend 503 response
-    await new Promise(r => setTimeout(r, 3500));
+    // Wait for the report generation to complete
+    console.log("Waiting for MedGemma report generation to settle...");
+    await new Promise(r => setTimeout(r, 5000));
 
-    // Verify Actionable Setup Alert Card appears
-    const setupCardState = await page.evaluate(() => {
+    // Check if report rendered
+    const reportState = await page.evaluate(() => {
       const text = document.body.innerText;
       return {
-        hasSetupRequired: text.includes("MedGemma Model Setup Required") || text.includes("MedGemma Service Notice"),
-        hasWeightsNotice: text.includes("google/medgemma-1.5-4b-it") || text.includes("model weights"),
-        hasHfToken: text.includes("HF_TOKEN"),
-        hasLocalWeights: text.includes("MEDGEMMA_WEIGHTS_PATH") || text.includes("models/medgemma"),
-        hasExternalEndpoint: text.includes("MEDGEMMA_API_URL"),
-        hasRetryBtn: text.includes("Retry Analysis"),
-        hasSimulateBtn: text.includes("Run Simulated Report")
-      };
-    });
-    console.log("Actionable Setup Card Verification:", setupCardState);
-
-    await page.screenshot({ path: path.join(assetsDir, "medgemma-setup-card.png") });
-    console.log("Saved screenshot: assets/medgemma-setup-card.png");
-
-    // 4. Click "Run Simulated Report"
-    console.log("4. Testing Developer Simulation Mode (allow_simulation=true)...");
-    const simClicked = await page.evaluate(() => {
-      const btns = Array.from(document.querySelectorAll('button'));
-      const simBtn = btns.find(b => b.textContent && b.textContent.includes('Run Simulated Report'));
-      if (simBtn) {
-        simBtn.click();
-        return true;
-      }
-      return false;
-    });
-    console.log("Clicked 'Run Simulated Report':", simClicked);
-
-    // Wait for simulation inference to return and render
-    await new Promise(r => setTimeout(r, 4500));
-
-    // Verify Simulated Report Content & Banner
-    const simulationResult = await page.evaluate(() => {
-      const text = document.body.innerText;
-      return {
-        hasSimulatedBanner: text.includes("Simulated Draft Report"),
-        hasDevModeLabel: text.includes("Developer Simulation Mode"),
-        hasRetryRealModel: text.includes("Retry Real Model"),
         hasOverallImpression: text.includes("Overall Impression"),
-        hasObservations: text.includes("Key Observations"),
+        hasKeyObservations: text.includes("Key Observations"),
         hasLimitations: text.includes("Limitations"),
-        hasSavePdfBtn: text.includes("Save as PDF & Finalize") || text.includes("Save as PDF"),
-        hasSaveWithoutPdf: text.includes("Save Without PDF")
+        hasSimulatedBanner: text.includes("Simulated Draft Report"),
+        hasModelSetupBtn: text.includes("Model Setup"),
+        hasSavePdfBtn: text.includes("Save as PDF"),
+        hasSaveWithoutPdfBtn: text.includes("Save Without PDF"),
+        hasBlockingSetupNotice: text.includes("MedGemma Model Setup Required")
       };
     });
-    console.log("Simulation Output Verification:", simulationResult);
+    console.log("Report State Verification:", reportState);
 
-    await page.screenshot({ path: path.join(assetsDir, "medgemma-simulated-report.png") });
-    console.log("Saved screenshot: assets/medgemma-simulated-report.png");
+    if (!reportState.hasOverallImpression) {
+      throw new Error("Report failed to generate properly: " + JSON.stringify(reportState));
+    }
+    if (reportState.hasBlockingSetupNotice) {
+      throw new Error("Blocking setup card is still visible! Must be non-blocking.");
+    }
 
-    // 5. Test "Retry Real Model" action from simulation banner
-    console.log("5. Testing Retry Real Model action...");
-    const retryBannerClicked = await page.evaluate(() => {
+    await page.screenshot({ path: path.join(assetsDir, "medgemma-report-success.png") });
+    console.log("Saved screenshot: assets/medgemma-report-success.png");
+
+    // 4. Test Model Setup Modal
+    console.log("4. Opening Model Setup modal...");
+    const modelSetupClicked = await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll('button'));
-      const retryBtn = btns.find(b => b.textContent && b.textContent.includes('Retry Real Model'));
-      if (retryBtn) {
-        retryBtn.click();
+      const setupBtn = btns.find(b => b.textContent && b.textContent.includes('Model Setup'));
+      if (setupBtn) {
+        setupBtn.click();
         return true;
       }
       return false;
     });
-    console.log("Clicked Retry Real Model:", retryBannerClicked);
-    await new Promise(r => setTimeout(r, 4000));
+    console.log("Clicked 'Model Setup' button:", modelSetupClicked);
+    await new Promise(r => setTimeout(r, 1500));
 
-    const finalCardState = await page.evaluate(() => {
+    const modalState = await page.evaluate(() => {
       const text = document.body.innerText;
       return {
-        hasSetupRequiredAgain: text.includes("MedGemma Model Setup Required"),
-        hasRetryBtn: text.includes("Retry Analysis"),
-        hasSimulateBtn: text.includes("Run Simulated Report")
+        hasModalTitle: text.includes("MedGemma Model Setup"),
+        hasHfTokenInput: text.includes("HF_TOKEN") || text.includes("Hugging Face Access Token"),
+        hasWeightsPathInput: text.includes("Custom Local Weights Path"),
+        hasApiUrlInput: text.includes("External Inference API URL"),
+        hasSaveApplyBtn: text.includes("Save & Apply")
       };
     });
-    console.log("Re-opened setup notice card after retry:", finalCardState);
+    console.log("Model Setup Modal Verification:", modalState);
 
-    console.log("=== ALL END-TO-END MEDGEMMA WORKFLOW TESTS PASSED! ===");
+    if (!modalState.hasModalTitle || !modalState.hasHfTokenInput) {
+      throw new Error("Model Setup Modal did not render correctly: " + JSON.stringify(modalState));
+    }
+
+    await page.screenshot({ path: path.join(assetsDir, "medgemma-model-setup-modal.png") });
+    console.log("Saved screenshot: assets/medgemma-model-setup-modal.png");
+
+    // Close the modal
+    await page.evaluate(() => {
+      const btns = Array.from(document.querySelectorAll('button'));
+      const closeBtn = btns.find(b => b.textContent && b.textContent.trim() === 'Close');
+      if (closeBtn) closeBtn.click();
+    });
+    await new Promise(r => setTimeout(r, 1000));
+
+    console.log("=== ALL END-TO-END MEDGEMMA WORKFLOW TESTS PASSED SUCCESSFULLY! ===");
   } catch (err) {
     console.error("Test execution failed:", err);
     process.exitCode = 1;
