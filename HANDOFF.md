@@ -1,39 +1,45 @@
 # HANDOFF.md
 
 ## What was accomplished
-- **AI Microservice & Multi-Model Platform Execution**:
-  - Initialized dedicated local virtual environment (`venv`) with `torch 2.14.0+cpu`, `torchvision 0.29.0+cpu`, `ultralytics 8.4.160`, `fastapi 0.141.1`, `uvicorn`, `pydicom 3.0.2`, `opencv-python-headless 5.0.0.93`, and dependencies via `uv`.
-  - Upgraded `medgemma_service.py` with automatic hardware-aware CPU/GPU device selection, avoiding hard crashes on non-CUDA environments and guaranteeing 100% adherence to `medgemma_response_rules.md` (3-part structured clinical report: Overall Impression, Key Observations, Limitations).
-  - Resolved model weight paths dynamically in `backend/pipeline.py` and `backend/server.py`, seamlessly loading the Ultralytics YOLO11n bone fracture detection model and the Knee OA joint detection pipeline.
-  - Successfully started all platform layers:
-    - **MedGemma AI Microservice**: Running on `http://127.0.0.1:8001` (`/health` responding in 429ms).
-    - **FastAPI Core Backend**: Running on `http://127.0.0.1:8000` (`/health` reporting `models_loaded: {bone_fracture_yolo11n: True, knee_oa_detector: True}`, `medgemma_service_ready: True`).
-    - **Vite Web Workstation**: Running on `http://127.0.0.1:5173` (HTTP 200 OK in 44ms).
-  - Authored and ran `test_platform_verification.py`, executing live inference tests against both models using real test radiograph image `C:\Users\HUAWEI\Downloads\image_1.jpg`.
-- **Full DICOM Viewer Workstation Verification**:
-  - Located the integrated BlueLight DICOM viewer repository under `blue/` and mounted it dynamically via `/static/blue` on the FastAPI backend.
-  - Indexed the 16 real clinical DICOM studies in `backend/dicom_folder/` into `cases_db` and activated `seed_worklist_from_dicom_folder()`.
-  - Upgraded `get_case_file()` in `backend/server.py` to stream binary DICOM studies with `Content-Type: application/dicom` and shape `(800, 800)`.
-  - Authored and executed `verify_dicom_viewer.js` with Puppeteer in Google Chrome:
-    - Successfully navigated to `http://127.0.0.1:8000/static/blue/bluelight/html/start.html?loadCaseId=Lung_Dx-A0093` (HTTP 200).
-    - Verified 65 rendering Canvas elements in the DOM with active WebGL/2D medical viewport and tools.
-    - Captured high-resolution verification screenshot to `assets/dicom-viewer-verification.png`.
+- **Purge of Dummy DICOM Files & Mock Data**:
+  - Deleted obsolete dummy file `backend/dicom_folder/dummy.dcm` (5 bytes placeholder).
+  - Sanitized `backend/db.json` by removing stale cases referencing non-existent files or foreign workstation paths (`C:\Users\PCD\...`).
+  - Synced database directly with valid local DICOM studies (`Lung_Dx-A0093`, `ID00422637202311677017371`, and `b9d20b75-edf`).
+  - Updated `seed_worklist_from_dicom_folder()` in `backend/server.py` to auto-persist newly detected DICOM files to `db.json` with strict deduplication by Patient ID and file basename.
+- **Automated Worklist Surfacing for Uploaded Files**:
+  - Added new REST endpoint `POST /api/cases/upload` in `backend/server.py` supporting both DICOM files (`.dcm`) and standard radiographs (PNG, JPEG, WebP).
+  - Parsed DICOM tags (`PatientID`, `PatientName`, `StudyDate`, `Modality`, `BodyPartExamined`, `PatientSex`) upon file intake and automatically saved files with sanitized unique identifiers.
+  - Registered all uploaded files directly into the PACS database with `status: 'Pending'` so they automatically appear at the very top of the default `'Fresh'` tab in the worklist table without requiring manual refresh.
+  - Implemented `uploadStudyFile` in `src/context/MedicalAppContext.tsx` and wired both drag-and-drop and file input handlers in `src/components/views/IntakeUploadModal.tsx`.
+  - Added auto-persistence of neural inference findings and confidence scores in `runInference` so active cases remain synced in the worklist.
+  - Updated `get_case_thumbnail` in `backend/server.py` to support standard image formats alongside DICOM binaries, preventing thumbnail loading errors.
+- **Fixed DICOM Viewer Icon in Final Approval Report View**:
+  - In `src/components/views/FinalReportView.tsx`, replaced the fragile hover-only overlay with an always-visible, prominent DICOM Viewer button in the bottom-left (`bottom-3 left-3`) of the Source Radiograph card.
+  - Added a persistent bottom-left docked workstation action bar (`fixed bottom-6 left-6 z-30`) to ensure accessibility across all screen sizes and responsive layouts.
+  - Attached direct launch bindings (`setActiveCaseId` and `setCurrentScreen('iframe-viewer')`) to instantly transition from final approval stage into the full-screen BlueLight DICOM workstation.
+  - Verified thumbnail fallback rendering with placeholder icons if image loading is delayed.
+- **Rigorous Verification & Testing**:
+  - Ran TypeScript verification (`tsc --noEmit`) with 0 errors.
+  - Built production bundle with Vite (`vite build`) successfully in 5.3s.
+  - Executed automated browser verification via Puppeteer in Google Chrome (`verify_workflow_and_dicom_icon.cjs`), validating worklist rendering, tab switching (`Fresh` -> `Approved`), presence of both bottom-left DICOM Viewer buttons, and live transition into BlueLight DICOM viewer.
+  - Verified REST endpoints `/api/cases`, `/api/cases/upload`, `/api/cases/{case_id}/thumbnail`, and MedGemma `/health` (all returning Status 200 OK).
+  - Pushed commit `f20016c` to `origin mohamadorfali2006/drum`.
 
 ## Key decisions
-- **Resilient Adaptive AI Architecture**: Implemented CPU-safe fallback in `medgemma_service.py` to ensure local medical LLM drafting remains fully functional with clinical attributions (`[PMC]`, `[DailyMed]`) without requiring proprietary CUDA drivers.
-- **Dynamic Path Resolution**: Eliminated hardcoded paths in `pipeline.py` and `server.py` in favor of workspace-relative paths, ensuring portability across development machines.
-- **Native Browser Engine Automation**: Used local Google Chrome via Puppeteer to test the live WebGL/Canvas rendering pipeline of the BlueLight DICOM viewer, verifying real-world clinical usability.
+- **Unified Upload Endpoint**: Implemented a single `POST /api/cases/upload` endpoint that inspects magic bytes and file extensions, enabling seamless drag-and-drop intake for both DICOM and non-DICOM digital radiographs.
+- **Immediate Worklist Enrollment**: Ensured that newly uploaded cases immediately acquire `status: 'Pending'`, ensuring deterministic surfacing in the default `'Fresh'` worklist view before and after neural model inference.
+- **Dual-Layer Bottom-Left DICOM Trigger**: Positioned a primary DICOM Viewer button inside the image container (`bottom-3 left-3`) and a secondary docked action bar at viewport `bottom-6 left-6`, guaranteeing the viewer icon never fails to appear during the final approval stage under any viewport or error state.
 
 ## Current state
 - Remote GitHub Repository: [https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer](https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer)
-- Local Git Status: Clean, branch `mohamadorfali2006/drum`, latest commit `47156c6`.
-- Active Platform Services:
-  - Backend: `http://127.0.0.1:8000` (docs at `http://127.0.0.1:8000/docs`)
-  - MedGemma AI Service: `http://127.0.0.1:8001` (health at `http://127.0.0.1:8001/health`)
-  - Frontend Application: `http://127.0.0.1:5173`
-  - DICOM Workstation: `http://127.0.0.1:8000/static/blue/bluelight/html/start.html`
+- Branch: `mohamadorfali2006/drum`
+- Latest Commit: `f20016c`
+- Active Services:
+  - Core FastAPI Backend: `http://127.0.0.1:8000` (PID 4144)
+  - MedGemma AI Microservice: `http://127.0.0.1:8001` (PID 36768)
+  - Vite Frontend Dev Server: `http://127.0.0.1:5173` (PID 32900)
 
 ## Concrete next steps
-- Configure a unified single-command runner script (`run_platform.ps1`) to spin up backend, MedGemma, and frontend in one click.
-- Wire local PACS DCM folder ingestion directly into the active UI worklist.
-- Expand automated cine-loop playback test for multi-frame cardiac/thoracic CT series.
+- Add PACS DICOM C-STORE / C-MOVE network server integration for direct ingestion from imaging modalities.
+- Integrate multi-series thumbnail selector for studies with multiple acquisition series.
+- Add batch export of approved reports with embedded high-resolution key DICOM frames.
