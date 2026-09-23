@@ -1,45 +1,55 @@
 # HANDOFF.md
 
 ## What was accomplished
-- **Purge of Dummy DICOM Files & Mock Data**:
-  - Deleted obsolete dummy file `backend/dicom_folder/dummy.dcm` (5 bytes placeholder).
-  - Sanitized `backend/db.json` by removing stale cases referencing non-existent files or foreign workstation paths (`C:\Users\PCD\...`).
-  - Synced database directly with valid local DICOM studies (`Lung_Dx-A0093`, `ID00422637202311677017371`, and `b9d20b75-edf`).
-  - Updated `seed_worklist_from_dicom_folder()` in `backend/server.py` to auto-persist newly detected DICOM files to `db.json` with strict deduplication by Patient ID and file basename.
-- **Automated Worklist Surfacing for Uploaded Files**:
-  - Added new REST endpoint `POST /api/cases/upload` in `backend/server.py` supporting both DICOM files (`.dcm`) and standard radiographs (PNG, JPEG, WebP).
-  - Parsed DICOM tags (`PatientID`, `PatientName`, `StudyDate`, `Modality`, `BodyPartExamined`, `PatientSex`) upon file intake and automatically saved files with sanitized unique identifiers.
-  - Registered all uploaded files directly into the PACS database with `status: 'Pending'` so they automatically appear at the very top of the default `'Fresh'` tab in the worklist table without requiring manual refresh.
-  - Implemented `uploadStudyFile` in `src/context/MedicalAppContext.tsx` and wired both drag-and-drop and file input handlers in `src/components/views/IntakeUploadModal.tsx`.
-  - Added auto-persistence of neural inference findings and confidence scores in `runInference` so active cases remain synced in the worklist.
-  - Updated `get_case_thumbnail` in `backend/server.py` to support standard image formats alongside DICOM binaries, preventing thumbnail loading errors.
-- **Fixed DICOM Viewer Icon in Final Approval Report View**:
-  - In `src/components/views/FinalReportView.tsx`, replaced the fragile hover-only overlay with an always-visible, prominent DICOM Viewer button in the bottom-left (`bottom-3 left-3`) of the Source Radiograph card.
-  - Added a persistent bottom-left docked workstation action bar (`fixed bottom-6 left-6 z-30`) to ensure accessibility across all screen sizes and responsive layouts.
-  - Attached direct launch bindings (`setActiveCaseId` and `setCurrentScreen('iframe-viewer')`) to instantly transition from final approval stage into the full-screen BlueLight DICOM workstation.
-  - Verified thumbnail fallback rendering with placeholder icons if image loading is delayed.
-- **Rigorous Verification & Testing**:
-  - Ran TypeScript verification (`tsc --noEmit`) with 0 errors.
-  - Built production bundle with Vite (`vite build`) successfully in 5.3s.
-  - Executed automated browser verification via Puppeteer in Google Chrome (`verify_workflow_and_dicom_icon.cjs`), validating worklist rendering, tab switching (`Fresh` -> `Approved`), presence of both bottom-left DICOM Viewer buttons, and live transition into BlueLight DICOM viewer.
-  - Verified REST endpoints `/api/cases`, `/api/cases/upload`, `/api/cases/{case_id}/thumbnail`, and MedGemma `/health` (all returning Status 200 OK).
-  - Pushed commit `f20016c` to `origin mohamadorfali2006/drum`.
+- **1. Model Weight Loading & Initialization**:
+  - Enhanced `medgemma_service.py` to support multi-tiered model weight loading:
+    - Authenticated downloading and caching from Hugging Face Hub using `HF_TOKEN` / `HUGGINGFACE_HUB_TOKEN`.
+    - Custom local weights directory loading via `MEDGEMMA_WEIGHTS_PATH` (defaults to `./models/medgemma`).
+    - Created `./models/medgemma/README.md` with complete documentation for offline weights placement, token setup, and endpoint configuration.
+    - Added comprehensive startup verification logging displaying compute device (CPU/CUDA), model ID, local weights directory existence, token configuration, external API endpoint, simulation mode status, and active model state.
+- **2. External Inference Routing & Simulation Fallback**:
+  - Added external inference endpoint support in `medgemma_service.py` via `MEDGEMMA_API_URL` / `HF_INFERENCE_ENDPOINT_URL`, allowing users without sufficient local GPU VRAM to route inference to a remote Hugging Face Inference Endpoint or dedicated server.
+  - Added developer simulation mode via request parameter `allow_simulation: bool = Form(False)` and environment variable `MEDGEMMA_SIMULATION_MODE`.
+  - When simulation is requested or enabled, generates structured diagnostic draft reports (Overall Impression, Key Observations, Limitations) grounded in clinical heuristics and DICOM metadata, returning `"simulated": true` and explicit physician review disclaimers.
+  - If weights are not loaded and simulation is not requested, returns an HTTP 503 response with structured JSON containing `error_code: "WEIGHTS_NOT_LOADED"`, actionable setup steps, and `simulation_available: true`.
+- **3. Backend Server Updates**:
+  - Updated `backend/server.py` `/cases/{case_id}/ai-report` to accept `allow_simulation: bool = Form(False)` and forward it to the MedGemma microservice on port 8001.
+  - Preserved structured error details and returned status, report text, simulation flag, and warning notes to the frontend.
+  - Added `GET /api/ai/medgemma-status` proxying `/status` from MedGemma to allow client applications to inspect model readiness and configuration.
+- **4. Clinical Workspace UI & Actionable Error Card**:
+  - Updated `src/components/views/IframeViewerView.tsx`:
+    - Replaced blocking raw error strings with an elegant **MedGemma Model Setup Required** amber card.
+    - Detailed actionable options in the card: Hugging Face Hub (`HF_TOKEN`), local weights folder (`./models/medgemma`), and external cloud endpoint (`MEDGEMMA_API_URL`).
+    - Added a prominent **"Retry Analysis"** button (`handleGenerateAI(false)`) allowing radiologists and developers to re-trigger inference without reloading the DICOM case or study.
+    - Added a **"Run Simulated Report"** button (`handleGenerateAI(true)`) to preview structured clinical reports in simulation mode.
+    - Added a persistent **Amber Warning Banner** above simulated reports (`Simulated Draft Report (Developer Simulation Mode)`) featuring a compact **"Retry Real Model"** button.
+    - Added a quick Re-run button alongside the Save options so users can re-trigger inference at any time.
+- **5. Comprehensive Automated Verification**:
+  - Verified backend endpoints with Python test script:
+    - `GET http://127.0.0.1:8001/status`: HTTP 200 with full hardware, device, and weight diagnostics.
+    - `GET http://127.0.0.1:8000/api/ai/medgemma-status`: HTTP 200 matching service diagnostics.
+    - `POST /cases/{id}/ai-report` (no simulation): HTTP 503 returning structured `WEIGHTS_NOT_LOADED` with actionable steps.
+    - `POST /cases/{id}/ai-report` (`allow_simulation=true`): HTTP 200 returning structured draft report with `simulated: true`.
+  - Executed end-to-end browser verification (`test_medgemma_e2e.cjs`) via Edge/Puppeteer:
+    - Verified opening a case in the Clinical Workspace.
+    - Verified rendering of the Actionable Setup Alert Card with setup instructions, Retry Analysis, and Run Simulated Report buttons (`assets/medgemma-setup-card.png`).
+    - Verified clicking "Run Simulated Report" renders structured 3-part report with the Amber Simulation Banner (`assets/medgemma-simulated-report.png`).
+    - Verified clicking "Retry Real Model" transitions smoothly back to the setup notice card when weights are uninitialized.
+  - Executed production Vite build (`node node_modules/vite/bin/vite.js build`): 0 errors, completed in 12.72s.
 
 ## Key decisions
-- **Unified Upload Endpoint**: Implemented a single `POST /api/cases/upload` endpoint that inspects magic bytes and file extensions, enabling seamless drag-and-drop intake for both DICOM and non-DICOM digital radiographs.
-- **Immediate Worklist Enrollment**: Ensured that newly uploaded cases immediately acquire `status: 'Pending'`, ensuring deterministic surfacing in the default `'Fresh'` worklist view before and after neural model inference.
-- **Dual-Layer Bottom-Left DICOM Trigger**: Positioned a primary DICOM Viewer button inside the image container (`bottom-3 left-3`) and a secondary docked action bar at viewport `bottom-6 left-6`, guaranteeing the viewer icon never fails to appear during the final approval stage under any viewport or error state.
+- **Structured Error Responses Over Plain Text**: Replaced raw string error propagation with structured JSON objects (`error_code`, `actionable_steps`, `simulation_available`), enabling the frontend to render rich, actionable configuration guidance rather than raw HTTP error traces.
+- **Explicit Simulation Warning**: Clearly demarcated simulated reports with an amber alert banner and metadata (`simulated: true`) to ensure clinical users are always aware when a report is running on heuristics versus true neural network weights.
+- **In-Place Retry Without Study Reload**: Integrated retry and re-run buttons directly inside the MedGemma reporter panel so users never lose their active viewer viewport or slice position when verifying service readiness.
 
 ## Current state
 - Remote GitHub Repository: [https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer](https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer)
 - Branch: `mohamadorfali2006/drum`
-- Latest Commit: `f20016c`
 - Active Services:
-  - Core FastAPI Backend: `http://127.0.0.1:8000` (PID 4144)
-  - MedGemma AI Microservice: `http://127.0.0.1:8001` (PID 36768)
-  - Vite Frontend Dev Server: `http://127.0.0.1:5173` (PID 32900)
+  - Core FastAPI Backend: `http://127.0.0.1:8000` (task-1435)
+  - MedGemma AI Microservice: `http://127.0.0.1:8001` (task-1311)
+  - Vite Frontend Dev Server: `http://127.0.0.1:5173` (task-338)
 
-## Concrete next steps
-- Add PACS DICOM C-STORE / C-MOVE network server integration for direct ingestion from imaging modalities.
-- Integrate multi-series thumbnail selector for studies with multiple acquisition series.
-- Add batch export of approved reports with embedded high-resolution key DICOM frames.
+## Next steps
+- Add local weight download script helper (e.g., `scripts/download_medgemma.py`) using `huggingface_hub.snapshot_download` for 1-click model setup.
+- Add real-time GPU/CPU VRAM memory meter to the Model Settings panel.

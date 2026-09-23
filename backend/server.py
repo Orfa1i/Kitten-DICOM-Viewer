@@ -694,7 +694,11 @@ def delete_case(case_id: str):
     return {"status": "success"}
 
 @cases_router.post("/cases/{case_id}/ai-report", summary="Generate AI Report for Case")
-async def generate_case_report(case_id: str, clinical_context: str = Form("")):
+async def generate_case_report(
+    case_id: str, 
+    clinical_context: str = Form(""),
+    allow_simulation: bool = Form(False)
+):
     global cases_db
     import pydicom
     import numpy as np
@@ -736,28 +740,72 @@ async def generate_case_report(case_id: str, clinical_context: str = Form("")):
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
             files = {'file': ('image.png', img_bytes, 'image/png')}
-            data = {'clinical_context': clinical_context}
+            data = {
+                'clinical_context': clinical_context,
+                'allow_simulation': 'true' if allow_simulation else 'false'
+            }
             resp = await client.post(f"{medgemma_url}/generate-draft-report", files=files, data=data)
             
             if resp.status_code == 200:
-                report = resp.json().get("draft_report", "")
+                res_data = resp.json()
+                report = res_data.get("draft_report", "")
                 case["findings"] = report
                 save_db()
-                return {"status": "success", "report": report}
+                return {
+                    "status": "success",
+                    "report": report,
+                    "simulated": res_data.get("simulated", False),
+                    "warning": res_data.get("warning", ""),
+                    "model": res_data.get("model", "MedGemma")
+                }
             else:
-                detail = "MedGemma Service Error"
                 try:
                     err_json = resp.json()
-                    detail = err_json.get("detail", detail)
+                    detail = err_json.get("detail", "MedGemma Service Error")
                 except Exception:
-                    pass
-                raise HTTPException(status_code=resp.status_code, detail=f"MedGemma Service: {detail}")
+                    detail = resp.text or "MedGemma Service Error"
+                return JSONResponse(status_code=resp.status_code, content={"status": "error", "detail": detail})
     except httpx.ConnectError:
-        raise HTTPException(status_code=503, detail="MedGemma AI Service is offline (http://127.0.0.1:8001 not reachable).")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "error",
+                "detail": {
+                    "error_code": "SERVICE_OFFLINE",
+                    "message": "MedGemma AI Service is offline (http://127.0.0.1:8001 not reachable).",
+                    "simulation_available": False,
+                    "actionable_steps": [
+                        "Start MedGemma service via: python -m uvicorn medgemma_service:app --port 8001"
+                    ]
+                }
+            }
+        )
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to communicate with AI Service: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "detail": f"Failed to communicate with AI Service: {str(e)}"
+            }
+        )
+
+
+@cases_router.get("/ai/medgemma-status", summary="Get MedGemma Service Status")
+async def get_medgemma_status():
+    import httpx
+    medgemma_url = os.environ.get("MEDGEMMA_SERVICE_URL", "http://127.0.0.1:8001")
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(f"{medgemma_url}/status")
+            return resp.json()
+    except Exception as e:
+        return {
+            "status": "offline",
+            "model_loaded": False,
+            "error": str(e)
+        }
 
 
 @cases_router.post("/cases/{case_id}/detect-fracture", summary="Detect Bone Fracture on Case")
