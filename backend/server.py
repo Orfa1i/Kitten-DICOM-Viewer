@@ -56,11 +56,11 @@ async def get_worklist():
     try:
         import pydicom
         import os
-        dicom_dir = r"C:/Users/PCD/Desktop/New folder (6)/dwv/tests/data"
+        dicom_dir = os.path.join(BASE_DIR, "dicom_folder")
         records = []
         if os.path.exists(dicom_dir):
             for filename in os.listdir(dicom_dir):
-                if filename.lower().endswith('.dcm'):
+                if filename.lower().endswith('.dcm') and not filename.startswith('dummy'):
                     filepath = os.path.join(dicom_dir, filename)
                     try:
                         ds = pydicom.dcmread(filepath, stop_before_pixels=True)
@@ -102,9 +102,13 @@ async def get_worklist():
 # Serve uploaded / annotated images statically
 app.mount("/static/uploads", StaticFiles(directory=TEMP_UPLOAD_DIR), name="uploads")
 
-blue_repo_dir = r"C:\Users\PCD\orca\projects\Kitten-new\blue"
+ROOT_DIR = os.path.dirname(BASE_DIR)
+blue_repo_dir = os.path.join(ROOT_DIR, "blue")
+if not os.path.exists(blue_repo_dir):
+    blue_repo_dir = os.path.join(BASE_DIR, "..", "blue")
 if os.path.exists(blue_repo_dir):
     app.mount("/static/blue", StaticFiles(directory=blue_repo_dir), name="blue_repo")
+    print(f"[Server] Mounted BlueLight DICOM viewer from: {blue_repo_dir}")
 
 
 
@@ -172,11 +176,11 @@ def save_db():
 cases_db, mock_pacs_db = load_db()
 
 def seed_worklist_from_dicom_folder():
-    dicom_dir = r"C:/Users/PCD/Desktop/New folder (6)/dwv/tests/data"
+    dicom_dir = os.path.join(BASE_DIR, "dicom_folder")
     if not os.path.exists(dicom_dir):
         return
     for filename in os.listdir(dicom_dir):
-        if filename.lower().endswith('.dcm'):
+        if filename.lower().endswith('.dcm') and not filename.startswith('dummy'):
             filepath = os.path.join(dicom_dir, filename)
             try:
                 ds = pydicom.dcmread(filepath, stop_before_pixels=True)
@@ -201,7 +205,7 @@ def seed_worklist_from_dicom_folder():
                         pass
                 
                 patient_sex = getattr(ds, 'PatientSex', 'M')
-                sex = 'male' if patient_sex.upper() == 'M' else 'female'
+                sex = 'male' if str(patient_sex).upper() == 'M' else 'female'
 
                 if not patient_id:
                     patient_id = filename
@@ -222,10 +226,10 @@ def seed_worklist_from_dicom_folder():
                     "image": filepath,
                     "diagnosisTitle": "Pending AI Review",
                 })
-            except Exception as e:
+            except Exception:
                 pass
 
-# seed_worklist_from_dicom_folder()
+seed_worklist_from_dicom_folder()
 
 # ============================================================================
 # 3. Detection Router (Contains both /knee-oa and /bone-fracture)
@@ -788,9 +792,21 @@ def get_case_thumbnail(case_id: str):
 def get_case_file(case_id: str):
     """Retrieve the physical .dcm file for the specified case ID"""
     case = next((c for c in cases_db if c.get("id") == case_id), None)
-    if not case or not case.get("image") or not os.path.exists(case["image"]):
-        raise HTTPException(status_code=404, detail="DICOM file not found for this case")
-    return FileResponse(case["image"], media_type="application/dicom")
+    if case and case.get("image") and os.path.exists(case["image"]):
+        return FileResponse(case["image"], media_type="application/dicom")
+
+    dicom_dir = os.path.join(BASE_DIR, "dicom_folder")
+    if os.path.exists(dicom_dir):
+        candidate = os.path.join(dicom_dir, case_id)
+        if os.path.exists(candidate):
+            return FileResponse(candidate, media_type="application/dicom")
+        if not candidate.endswith(".dcm") and os.path.exists(candidate + ".dcm"):
+            return FileResponse(candidate + ".dcm", media_type="application/dicom")
+        valid_dcms = [os.path.join(dicom_dir, f) for f in os.listdir(dicom_dir) if f.endswith(".dcm") and not f.startswith("dummy")]
+        if valid_dcms:
+            return FileResponse(valid_dcms[0], media_type="application/dicom")
+
+    raise HTTPException(status_code=404, detail="DICOM file not found for this case")
 
 # ============================================================================
 # 6. System Router
