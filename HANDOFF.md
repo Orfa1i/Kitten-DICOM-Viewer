@@ -22,25 +22,26 @@
     - `assets/screen-mock-pacs.png`: Hospital Mock PACS Node intake simulator on port 104 with online telemetry.
     - `assets/screen-login.png`: Secure attending radiologist authentication portal with zero cloud leakage badges.
   - Updated `README.md` with the new animated header and high-fidelity Visual Showcase gallery.
-- **Full Verification & CI Readiness**:
-  - Verified clean production compilation with `pnpm run build` (`tsc && vite build`, `✓ built in 12.06s`).
-  - Pushed verified commits to `mohamadorfali2006/Kitten-DICOM-Viewer` on GitHub.
+- **Automated GitHub Pages CI/CD Pipeline**:
+  - Configured `base: './'` in `vite.config.ts` to ensure universal asset resolution on GitHub Pages repository sub-paths (`/Kitten-DICOM-Viewer/`) without 404 errors.
+  - Authored `.github/workflows/deploy.yml` with pnpm v11 setup, Node 22, dependency caching, production build, and GitHub Pages artifact publishing.
+  - Verified production compilation (`pnpm run build`, `✓ built in 23.55s`) and verified relative `./assets/` links in `dist/index.html`.
 
 ## Key decisions
-- **Authentic Brand Geometry over Generic Placeholders**: Extracted the exact vector glyphs for "Kitten" from the website codebase to guarantee 100% brand fidelity, entirely avoiding generic AI illustrations.
-- **Retina Screenshot Resolution**: Captured screenshots at 2880x1800 (2x device scale factor) to ensure razor-sharp typography and medical HUD details on high-DPI displays.
-- **Animated GIF for GitHub Camo Compatibility**: Deployed `kitten-brand-motion.gif` alongside the SVG source to guarantee instant, cross-browser animated playback through GitHub's markdown image proxy.
-- **Root Cleanliness**: Maintained clean root directory with zero extraneous test files or temporary scripts.
+- **Relative Base Path (`base: './'`)**: Enables the built bundle to run identically on GitHub Pages subpaths (`/Kitten-DICOM-Viewer/`), Vercel/Cloudflare root domains (`/`), or local preview without custom path mapping.
+- **Dedicated CI Deployment Workflow**: Used official GitHub Actions (`actions/upload-pages-artifact@v3` and `actions/deploy-pages@v4`) with `pnpm/action-setup@v4` for fast, reproducible caching and builds.
+- **Client-Side Medical Engine**: Designed the live demo so that Cornerstone3D 2.0, 16-bit windowing, measurement tools, and report preview run purely client-side in the browser.
 
 ## Current state
 - Remote GitHub Repository: [https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer](https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer)
 - Local Git Status: Clean, branch `main`.
+- Deployment Pipeline: `.github/workflows/deploy.yml` ready for automatic trigger on push.
 - Active Services:
   - Backend: `py -3.13 backend/server.py` on `http://127.0.0.1:8000` (docs at `/docs`)
   - Frontend: `pnpm dev` on `http://localhost:5173`
   - Cloudflare Tunnel: `https://shapes-beauty-remedy-voice.trycloudflare.com`
 
 ## Concrete next steps
-- Set up automated GitHub Actions CI for linting, type-checking, and automated headless smoke testing.
-- Containerize the complete full-stack environment using a multi-stage `Dockerfile` and `docker-compose.yml` for turnkey hospital deployment.
-- Implement automated DICOM cine-loop playback controls for dynamic multi-frame studies.
+- Navigate to GitHub repository Settings -> Pages and set Source to "GitHub Actions".
+- Watch the GitHub Actions workflow complete and verify the live public demo at `https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/`.
+- Containerize the full-stack environment using Docker and docker-compose for on-premise hospital server hosting.
