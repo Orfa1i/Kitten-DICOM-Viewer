@@ -14,7 +14,8 @@ export const IntakeUploadModal: React.FC = () => {
     runInference, 
     isDetecting,
     detectionProgress,
-    setCurrentScreen 
+    setCurrentScreen,
+    uploadStudyFile
   } = useMedicalApp();
 
   const [isDragOver, setIsDragOver] = useState(false);
@@ -28,7 +29,7 @@ export const IntakeUploadModal: React.FC = () => {
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files?.[0];
@@ -37,16 +38,18 @@ export const IntakeUploadModal: React.FC = () => {
       setUploadedFile(url);
       setUploadedFileRaw(file);
       setUploadedFileName(file.name);
+      await uploadStudyFile(file);
     }
   };
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
       setUploadedFile(url);
       setUploadedFileRaw(file);
       setUploadedFileName(file.name);
+      await uploadStudyFile(file);
     }
   };
 

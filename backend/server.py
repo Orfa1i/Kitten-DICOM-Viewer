@@ -176,11 +176,13 @@ def save_db():
 cases_db, mock_pacs_db = load_db()
 
 def seed_worklist_from_dicom_folder():
+    global cases_db
     dicom_dir = os.path.join(BASE_DIR, "dicom_folder")
     if not os.path.exists(dicom_dir):
         return
+    added = False
     for filename in os.listdir(dicom_dir):
-        if filename.lower().endswith('.dcm') and not filename.startswith('dummy'):
+        if filename.lower().endswith('.dcm') and not filename.lower().startswith('dummy'):
             filepath = os.path.join(dicom_dir, filename)
             try:
                 ds = pydicom.dcmread(filepath, stop_before_pixels=True)
@@ -188,7 +190,7 @@ def seed_worklist_from_dicom_folder():
                 patient_name = str(getattr(ds, 'PatientName', 'Unknown Name')).replace('^', ' ')
                 
                 # Check duplicates in cases_db
-                if any(c.get('id') == patient_id and c.get('patientName') == patient_name for c in cases_db):
+                if any(c.get('id') == patient_id or (patient_id and c.get('id', '') == patient_id) or os.path.basename(c.get('image', '')) == filename for c in cases_db):
                     continue
 
                 modality = getattr(ds, 'Modality', 'DICOM')
@@ -226,8 +228,12 @@ def seed_worklist_from_dicom_folder():
                     "image": filepath,
                     "diagnosisTitle": "Pending AI Review",
                 })
+                added = True
             except Exception:
                 pass
+
+    if added:
+        save_db()
 
 seed_worklist_from_dicom_folder()
 
@@ -487,6 +493,120 @@ async def pacs_ingest(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@cases_router.post("/cases/upload", summary="Upload Case File (DICOM or Image)")
+async def upload_case_file(
+    file: UploadFile = File(...),
+    patient_id: Optional[str] = Form(None),
+    patient_name: Optional[str] = Form(None),
+    age: Optional[str] = Form(None),
+    sex: Optional[str] = Form(None),
+    modality: Optional[str] = Form(None),
+    type_sub: Optional[str] = Form(None)
+):
+    """Upload a DICOM or standard radiograph image (PNG/JPEG) and automatically register in PACS Worklist as Pending"""
+    global cases_db, mock_pacs_db
+    try:
+        file_bytes = await file.read()
+        filename_lower = file.filename.lower() if file.filename else "upload"
+        
+        is_dicom = filename_lower.endswith(('.dcm', '.dicom'))
+        if not is_dicom:
+            if len(file_bytes) > 132 and file_bytes[128:132] == b"DICM":
+                is_dicom = True
+
+        if is_dicom:
+            try:
+                ds = pydicom.dcmread(io.BytesIO(file_bytes), stop_before_pixels=True)
+                dcm_pid = getattr(ds, 'PatientID', '')
+                dcm_pname = str(getattr(ds, 'PatientName', '')).replace('^', ' ')
+                dcm_modality = getattr(ds, 'Modality', 'DX')
+                dcm_study_date = getattr(ds, 'StudyDate', '')
+                dcm_sex = getattr(ds, 'PatientSex', 'M')
+                dcm_body = getattr(ds, 'BodyPartExamined', 'DICOM Study')
+                
+                if dcm_study_date and len(dcm_study_date) == 8:
+                    dcm_study_date = f"{dcm_study_date[:4]}-{dcm_study_date[4:6]}-{dcm_study_date[6:]}"
+                else:
+                    dcm_study_date = datetime.now().strftime("%Y-%m-%d")
+
+                if not patient_id:
+                    patient_id = dcm_pid or f"kt-{uuid.uuid4().hex[:6]}"
+                if not patient_name:
+                    patient_name = dcm_pname if dcm_pname and dcm_pname != 'Unknown Name' else (file.filename or patient_id)
+                if not modality:
+                    modality = dcm_modality
+                if not sex:
+                    sex = 'female' if str(dcm_sex).upper() == 'F' else 'male'
+                if not type_sub:
+                    type_sub = dcm_body
+            except Exception:
+                pass
+
+            temp_dir = os.path.join(os.path.dirname(__file__), "dicom_folder")
+            os.makedirs(temp_dir, exist_ok=True)
+            clean_name = os.path.splitext(file.filename or "scan")[0]
+            clean_name = "".join(c for c in clean_name if c.isalnum() or c in ('-', '_')).rstrip()
+            out_filename = f"{clean_name}_{uuid.uuid4().hex[:4]}.dcm"
+            filepath = os.path.join(temp_dir, out_filename)
+            with open(filepath, "wb") as f_out:
+                f_out.write(file_bytes)
+        else:
+            temp_dir = TEMP_UPLOAD_DIR
+            os.makedirs(temp_dir, exist_ok=True)
+            ext = os.path.splitext(file.filename or ".png")[1]
+            if not ext:
+                ext = ".png"
+            clean_name = os.path.splitext(file.filename or "scan")[0]
+            clean_name = "".join(c for c in clean_name if c.isalnum() or c in ('-', '_')).rstrip()
+            out_filename = f"{clean_name}_{uuid.uuid4().hex[:4]}{ext}"
+            filepath = os.path.join(temp_dir, out_filename)
+            with open(filepath, "wb") as f_out:
+                f_out.write(file_bytes)
+
+        if not patient_id:
+            patient_id = f"kt-{uuid.uuid4().hex[:6]}"
+        if not patient_name:
+            patient_name = os.path.splitext(file.filename or "Scan")[0]
+        if not age:
+            age = "30"
+        if not sex:
+            sex = "male"
+        if not modality:
+            modality = "Digital Radiography"
+        if not type_sub:
+            type_sub = "Orthogonal Radiograph"
+
+        case_data = {
+            "id": patient_id,
+            "patientName": patient_name,
+            "age": age,
+            "sex": sex,
+            "type": modality,
+            "typeSub": type_sub,
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "status": "Pending",
+            "confidence": 0,
+            "image": filepath,
+            "diagnosisTitle": "Pending AI Review"
+        }
+
+        existing_idx = next((i for i, c in enumerate(cases_db) if c.get("id") == patient_id), -1)
+        if existing_idx >= 0:
+            cases_db[existing_idx] = case_data
+        else:
+            cases_db.insert(0, case_data)
+
+        pacs_idx = next((i for i, c in enumerate(mock_pacs_db) if c.get("id") == patient_id), -1)
+        if pacs_idx >= 0:
+            mock_pacs_db[pacs_idx] = case_data
+        else:
+            mock_pacs_db.insert(0, case_data)
+
+        save_db()
+        return {"status": "success", "case": case_data}
+    except Exception as e:
+        logger.error(f"Error uploading case file: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @cases_router.get("/pacs/files", summary="List Mock PACS Files")
@@ -527,6 +647,7 @@ def sync_pacs():
 @cases_router.get("/cases", summary="List PACS Diagnostic Cases")
 def get_all_cases():
     """Retrieve all diagnostic cases log"""
+    seed_worklist_from_dicom_folder()
     return cases_db
 
 @cases_router.post("/cases", summary="Save Diagnostic Case")
@@ -759,11 +880,31 @@ def get_case_thumbnail(case_id: str):
     
     global cases_db
     case = next((c for c in cases_db if c.get("id") == case_id), None)
-    if not case or not case.get("image") or not os.path.exists(case["image"]):
-        raise HTTPException(status_code=404, detail="DICOM file not found for this case")
+    img_path = None
+    if case and case.get("image") and os.path.exists(case["image"]):
+        img_path = case["image"]
+    else:
+        # Check dicom_folder by case_id prefix or full name
+        dicom_dir = os.path.join(BASE_DIR, "dicom_folder")
+        if os.path.exists(dicom_dir):
+            for f in os.listdir(dicom_dir):
+                if f.startswith(case_id) and f.endswith(".dcm"):
+                    img_path = os.path.join(dicom_dir, f)
+                    break
+
+    if not img_path or not os.path.exists(img_path):
+        raise HTTPException(status_code=404, detail="Image or DICOM file not found for this case")
     
     try:
-        ds = pydicom.dcmread(case["image"])
+        if img_path.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            img = Image.open(img_path)
+            img.thumbnail((512, 512))
+            buf = io.BytesIO()
+            img.convert("RGB").save(buf, format="JPEG")
+            buf.seek(0)
+            return StreamingResponse(buf, media_type="image/jpeg")
+
+        ds = pydicom.dcmread(img_path)
         img_array = ds.pixel_array
         
         # Photometric Interpretation check

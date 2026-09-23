@@ -106,6 +106,7 @@ interface MedicalAppContextType {
   deleteCase: (caseId: string) => Promise<void>;
   fetchCases: () => Promise<void>;
   updateCase: (caseId: string, updates: Partial<CaseRecord>) => Promise<void>;
+  uploadStudyFile: (file: File) => Promise<CaseRecord | null>;
 }
 
 const defaultCases: CaseRecord[] = [];
@@ -331,6 +332,48 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setCurrentScreen('model-select');
   };
 
+  const uploadStudyFile = async (file: File): Promise<CaseRecord | null> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (patientForm.id) formData.append('patient_id', patientForm.id);
+      if (patientForm.name) formData.append('patient_name', patientForm.name);
+      if (patientForm.age !== undefined && patientForm.age !== '') formData.append('age', String(patientForm.age));
+      if (patientForm.sex) formData.append('sex', patientForm.sex);
+      if (patientForm.modality) formData.append('modality', patientForm.modality);
+      if (patientForm.bodyPart) formData.append('type_sub', patientForm.bodyPart);
+
+      const res = await fetch('http://127.0.0.1:8000/api/cases/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.case) {
+          const newCase: CaseRecord = data.case;
+          setActiveCaseId(newCase.id);
+          setCases(prev => [newCase, ...prev.filter(c => c.id !== newCase.id)]);
+          setPatientForm(prev => ({
+            ...prev,
+            id: newCase.id,
+            name: newCase.patientName || prev.name,
+            age: newCase.age ? String(newCase.age) : prev.age,
+            sex: (newCase.sex === 'female' ? 'female' : 'male') as 'female' | 'male',
+            studyDate: newCase.date || prev.studyDate,
+            modality: newCase.type || prev.modality,
+            bodyPart: newCase.typeSub || prev.bodyPart,
+          }));
+          await fetchCases();
+          return newCase;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to auto-upload file to worklist:', err);
+    }
+    return null;
+  };
+
   const runInference = async () => {
     setIsDetecting(true);
     setDetectionProgress(10);
@@ -487,6 +530,34 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } finally {
       clearInterval(progressInterval);
       setIsDetecting(false);
+
+      const activeId = activeCaseId || patientForm.id;
+      if (activeId) {
+        try {
+          await fetch("http://127.0.0.1:8000/api/cases", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: activeId,
+              patientName: patientForm.name || activeId,
+              age: patientForm.age || 30,
+              sex: patientForm.sex || 'male',
+              type: selectedModel === 'fracture-detection' ? 'Fracture Detection' : 'Knee Osteoarthritis',
+              typeSub: patientForm.bodyPart || (selectedModel === 'knee-osteoarthritis' ? 'Bilateral Weight-Bearing AP' : 'Orthogonal Radiograph'),
+              date: patientForm.studyDate || new Date().toISOString().split('T')[0],
+              status: 'Pending',
+              confidence: accuracyScore,
+              diagnosisTitle: diagnosticReport.diagnosis,
+              findings: diagnosticReport.findings,
+              recommendation: diagnosticReport.recommendation
+            })
+          });
+          await fetchCases();
+        } catch (e) {
+          console.warn("Auto-sync case after inference error:", e);
+        }
+      }
+
       setCurrentScreen('iframe-viewer');
     }
   };
@@ -661,7 +732,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         deleteCase,
         fetchCases,
         updateCase,
-      
+        uploadStudyFile,
     }}
     >
       {children}

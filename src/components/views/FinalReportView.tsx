@@ -1,11 +1,11 @@
 import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
-import { ArrowLeft, Download, FileText, User, Activity, Bone } from 'lucide-react';
+import { ArrowLeft, Download, FileText, User, Activity, Bone, Layers, Eye, ExternalLink } from 'lucide-react';
 import { generateAndDownloadPdfReport } from '../../services/pdfReportGenerator';
 import { ClinicalFindingsReport } from '../clinical/ClinicalFindingsReport';
 
 export const FinalReportView: React.FC = () => {
-  const { cases, activeCaseId, setCurrentScreen } = useMedicalApp();
+  const { cases, activeCaseId, setActiveCaseId, setCurrentScreen } = useMedicalApp();
 
   const activeCase = cases.find(c => c.id === activeCaseId);
 
@@ -121,16 +121,74 @@ export const FinalReportView: React.FC = () => {
               </div>
             </div>
             
-            {/* Thumbnail */}
-            <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800/50 flex flex-col items-center justify-center relative">
-              <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-3 self-start">Source Image</h2>
-              <div className="w-full aspect-square md:aspect-auto md:flex-1 min-h-[300px] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex items-center justify-center relative group">
-                <img src={`http://127.0.0.1:8000/api/cases/${activeCase.id}/thumbnail`} alt="DICOM Thumbnail" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
-                <div className="hidden absolute inset-0 flex items-center justify-center">
-                  <Bone className="w-12 h-12 text-zinc-700" />
+            {/* Source Image Card with Guaranteed Bottom-Left DICOM Viewer Icon */}
+            <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800/50 flex flex-col relative">
+              <div className="flex items-center justify-between w-full mb-3">
+                <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-[#8D321F]" /> Source Radiograph
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveCaseId(activeCase.id);
+                    setCurrentScreen('iframe-viewer');
+                  }}
+                  className="flex items-center gap-1.5 text-xs text-[#C27364] hover:text-white transition-colors cursor-pointer font-medium"
+                  title="Launch interactive workstation"
+                >
+                  <span>Workstation</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div 
+                onClick={() => {
+                  setActiveCaseId(activeCase.id);
+                  setCurrentScreen('iframe-viewer');
+                }}
+                className="w-full aspect-square md:aspect-auto md:flex-1 min-h-[320px] bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 flex items-center justify-center relative group cursor-pointer"
+              >
+                <img 
+                  src={`http://127.0.0.1:8000/api/cases/${activeCase.id}/thumbnail`} 
+                  alt="DICOM Thumbnail" 
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                  onError={(e) => { 
+                    e.currentTarget.style.display = 'none'; 
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden'); 
+                  }} 
+                />
+                
+                {/* Fallback placeholder if image is delayed or fails */}
+                <div className="hidden absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 text-zinc-600 p-4">
+                  <Bone className="w-16 h-16 text-zinc-700 mb-2 animate-pulse" />
+                  <span className="text-xs font-mono text-zinc-500">Interactive DICOM Study</span>
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center text-white font-bold tracking-widest text-xs bg-black/0 group-hover:bg-black/50 transition-all cursor-pointer opacity-0 group-hover:opacity-100">
-                  DICOM
+
+                {/* Center Hover Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                  <div className="bg-[#8D321F]/90 text-white font-semibold text-xs px-3.5 py-2 rounded-full flex items-center gap-2 shadow-xl backdrop-blur-sm transform -translate-y-1 group-hover:translate-y-0 transition-transform">
+                    <Eye className="w-4 h-4" />
+                    <span>Open in BlueLight Workstation</span>
+                  </div>
+                </div>
+
+                {/* Dedicated ALWAYS-VISIBLE Bottom-Left DICOM Viewer Icon & Button Badge */}
+                <div className="absolute bottom-3 left-3 z-20">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveCaseId(activeCase.id);
+                      setCurrentScreen('iframe-viewer');
+                    }}
+                    className="flex items-center gap-2 bg-[#8D321F] hover:bg-[#a03823] active:scale-95 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl border border-white/20 backdrop-blur-md transition-all cursor-pointer group/btn"
+                    title="Launch BlueLight DICOM Viewer"
+                  >
+                    <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center">
+                      <Layers className="w-3.5 h-3.5 text-white group-hover/btn:rotate-12 transition-transform" />
+                    </div>
+                    <span>DICOM Viewer</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -145,6 +203,26 @@ export const FinalReportView: React.FC = () => {
             />
           </div>
         </div>
+      </div>
+
+      {/* Floating Bottom-Left Workstation Action Bar */}
+      <div className="fixed bottom-6 left-6 z-30 hidden sm:block">
+        <button
+          onClick={() => {
+            setActiveCaseId(activeCase.id);
+            setCurrentScreen('iframe-viewer');
+          }}
+          className="flex items-center gap-3 bg-zinc-900/95 hover:bg-[#8D321F] text-zinc-200 hover:text-white px-4 py-3 rounded-2xl border border-zinc-700/80 hover:border-[#8D321F] shadow-2xl backdrop-blur-md transition-all group active:scale-95 cursor-pointer"
+          title="Open Study in Interactive DICOM Workstation"
+        >
+          <div className="w-8 h-8 rounded-xl bg-[#8D321F] group-hover:bg-white/20 flex items-center justify-center transition-colors shadow-inner">
+            <Layers className="w-4 h-4 text-white" />
+          </div>
+          <div className="text-left pr-1">
+            <div className="text-xs font-bold uppercase tracking-wider text-white">DICOM Viewer</div>
+            <div className="text-[11px] text-zinc-400 group-hover:text-white/80 transition-colors">Study: {activeCase.id}</div>
+          </div>
+        </button>
       </div>
     </div>
   );
