@@ -2,6 +2,7 @@ import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { LottieIcon } from '../ui/LottieIcon';
 import { Search, Globe } from 'lucide-react';
+import { publicAsset } from '../../utils/assetUrl';
 
 export const TopNavbar: React.FC = () => {
   const { 
@@ -69,7 +70,7 @@ export const TopNavbar: React.FC = () => {
         >
           <div className="flex items-center gap-3">
             <img
-              src={userProfile?.avatar || "/assets/images/doctor_avatar.jpg"}
+              src={userProfile?.avatar || publicAsset('assets/images/doctor_avatar.jpg')}
               alt={userProfile?.name || "Dr.Mohammad"}
               className="w-10 h-10 rounded-full object-cover border border-zinc-200"
             />

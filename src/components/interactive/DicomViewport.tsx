@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { ZoomIn, ZoomOut, RotateCcw, Eye, EyeOff, Sun, Box, Flame } from 'lucide-react';
+import { publicAsset } from '../../utils/assetUrl';
 
 
 export const DicomViewport: React.FC = () => {
@@ -65,8 +66,8 @@ export const DicomViewport: React.FC = () => {
   const imageSrc = (() => {
     if (uploadedFile) return uploadedFile;
     if (annotatedImageUrl) return annotatedImageUrl;
-    if (selectedModel === 'fracture-detection') return '/assets/images/model_fracture.png';
-    return '/assets/images/model_knee_osteoarthritis.png';
+    if (selectedModel === 'fracture-detection') return publicAsset('assets/images/model_fracture.png');
+    return publicAsset('assets/images/model_knee_osteoarthritis.png');
   })();
 
   const hudStudyTitle = selectedModel === 'fracture-detection'

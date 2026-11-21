@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import DitherEffect2 from '../originkit/ui/dither-effect-2-custom-style344';
 import { SparkleIcon, LottieIcon } from '../ui/LottieIcon';
+import { publicAsset } from '../../utils/assetUrl';
 import { 
   ArrowRight, 
   Activity, 
@@ -167,7 +168,7 @@ export const LandingPageView: React.FC = () => {
             }}
           >
             <img 
-              src="/assets/images/3d_syringe.jpg" 
+              src={publicAsset('assets/images/3d_syringe.jpg')} 
               alt="" 
               className="w-full h-full object-contain filter saturate-[1.5] contrast-[1.5] brightness-[1.3]" 
             />
@@ -236,7 +237,7 @@ export const LandingPageView: React.FC = () => {
             <div className="space-y-4">
               <div className="h-52 bg-black rounded-2xl overflow-hidden flex items-center justify-center relative">
                 <img
-                  src="/assets/images/model_knee_osteoarthritis.png"
+                  src={publicAsset('assets/images/model_knee_osteoarthritis.png')}
                   alt="Knee Osteoarthritis Detection"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
@@ -279,7 +280,7 @@ export const LandingPageView: React.FC = () => {
             <div className="space-y-4">
               <div className="h-52 bg-black rounded-2xl overflow-hidden flex items-center justify-center relative">
                 <img
-                  src="/assets/images/model_fracture.png"
+                  src={publicAsset('assets/images/model_fracture.png')}
                   alt="Fracture Detection"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />

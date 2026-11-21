@@ -3,6 +3,7 @@ import { useMedicalApp } from '../../context/MedicalAppContext';
 import { ModelType } from '../../types';
 import { SparkleIcon } from '../ui/LottieIcon';
 import { X } from 'lucide-react';
+import { publicAsset } from '../../utils/assetUrl';
 
 export const ModelSelectionModal: React.FC = () => {
   const { setSelectedModel, setCurrentScreen } = useMedicalApp();
@@ -44,7 +45,7 @@ export const ModelSelectionModal: React.FC = () => {
           >
             <div className="h-52 bg-black flex items-center justify-center overflow-hidden">
               <img
-                src="/assets/images/model_knee_osteoarthritis.png"
+                src={publicAsset('assets/images/model_knee_osteoarthritis.png')}
                 alt="Knee Osteoarthritis Detection"
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />
@@ -64,7 +65,7 @@ export const ModelSelectionModal: React.FC = () => {
           >
             <div className="h-52 bg-black flex items-center justify-center overflow-hidden">
               <img
-                src="/assets/images/model_fracture.png"
+                src={publicAsset('assets/images/model_fracture.png')}
                 alt="Fracture Detection"
                 className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />

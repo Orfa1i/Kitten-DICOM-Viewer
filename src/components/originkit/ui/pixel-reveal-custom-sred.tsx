@@ -2,8 +2,9 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { publicAsset } from "../../../utils/assetUrl"
 
-const FALLBACK_IMG = "/assets/images/model_knee_osteoarthritis.png"
+const FALLBACK_IMG = publicAsset("assets/images/model_knee_osteoarthritis.png")
 
 // One place every control default lives, so the panel and defaultProps agree.
 const DEFAULTS = {
@@ -368,7 +369,7 @@ PixelReveal.defaultProps = { ...DEFAULTS }
 const __originkitPresetProps = {
   "image": {
     "alt": "Kitten Diagnostic Radiograph",
-    "src": "/assets/images/model_knee_osteoarthritis.png"
+    "src": publicAsset("assets/images/model_knee_osteoarthritis.png")
   },
   "yPosition": 50,
   "palette": [

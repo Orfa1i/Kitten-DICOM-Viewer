@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { X, User, Mail, Camera, Save } from 'lucide-react';
 import { SparkleIcon } from '../ui/LottieIcon';
+import { publicAsset } from '../../utils/assetUrl';
 
 export const ProfileManagementModal: React.FC = () => {
   const { isProfileModalOpen, setIsProfileModalOpen, userProfile, setUserProfile } = useMedicalApp();
@@ -9,7 +10,7 @@ export const ProfileManagementModal: React.FC = () => {
   const [formData, setFormData] = useState({
     name: userProfile?.name || 'Dr.Mohammad',
     email: userProfile?.email || 'Dr-Mohamad@kitten.medical',
-    avatar: userProfile?.avatar || '/assets/images/doctor_avatar.jpg'
+    avatar: userProfile?.avatar || publicAsset('assets/images/doctor_avatar.jpg')
   });
   
   const [saveSuccess, setSaveSuccess] = useState(false);

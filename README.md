@@ -13,8 +13,8 @@
 
   <!-- Badges -->
   <p align="center">
-    <a href="https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/"><img src="https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-8D321F?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Demo" /></a>
-    <a href="https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/mohamadorfali2006/Kitten-DICOM-Viewer/deploy.yml?branch=main&label=Deploy&style=for-the-badge&logo=githubactions&logoColor=white" alt="Deployment Status" /></a>
+    <a href="https://orfa1i.github.io/Kitten-DICOM-Viewer/"><img src="https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-8D321F?style=for-the-badge&logo=githubpages&logoColor=white" alt="Live Demo" /></a>
+    <a href="https://github.com/Orfa1i/Kitten-DICOM-Viewer/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/Orfa1i/Kitten-DICOM-Viewer/deploy.yml?branch=main&label=Deploy&style=for-the-badge&logo=githubactions&logoColor=white" alt="Deployment Status" /></a>
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-8D321F.svg?style=for-the-badge" alt="License: MIT" /></a>
     <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.13+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.13" /></a>
     <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19.0-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black" alt="React 19" /></a>
@@ -28,7 +28,7 @@
   </p>
 
   <p align="center">
-    <a href="https://mohamadorfali2006.github.io/Kitten-DICOM-Viewer/"><b>🌐 Launch Interactive Live Demo (GitHub Pages) ➔</b></a>
+    <a href="https://orfa1i.github.io/Kitten-DICOM-Viewer/"><b>🌐 Launch Interactive Live Demo (GitHub Pages) ➔</b></a>
   </p>
 
 </div>
@@ -233,7 +233,7 @@ Watch the high-velocity 18-second cinematic launch video demonstrating the sub-s
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer.git
+git clone https://github.com/Orfa1i/Kitten-DICOM-Viewer.git
 cd Kitten-DICOM-Viewer
 ```
 
@@ -326,7 +326,7 @@ Kitten is designed with a **privacy-first, local-execution architecture** specif
 ## 🤝 Contributing
 
 Contributions to Kitten are warmly welcomed! Please review our contribution workflow:
-1. **Fork the Project** (`https://github.com/mohamadorfali2006/Kitten-DICOM-Viewer/fork`)
+1. **Fork the Project** (`https://github.com/Orfa1i/Kitten-DICOM-Viewer/fork`)
 2. **Create your Feature Branch** (`git checkout -b feature/AdvancedCrosshairs`)
 3. **Commit your Changes** (`git commit -m "feat: implement synchronized crosshair tool"`)
 4. **Push to the Branch** (`git push origin feature/AdvancedCrosshairs`)
@@ -341,5 +341,5 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details
 ---
 
 <div align="center">
-  <sub>Developed with passion for modern clinical diagnostics by <b><a href="https://github.com/mohamadorfali2006">mohamadorfali2006</a></b>.</sub>
+  <sub>Developed with passion for modern clinical diagnostics by <b><a href="https://github.com/Orfa1i">Orfa1i</a></b>.</sub>
 </div>

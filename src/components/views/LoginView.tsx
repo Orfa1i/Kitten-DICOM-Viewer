@@ -3,6 +3,7 @@ import { useMedicalApp } from '../../context/MedicalAppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, Activity, ShieldCheck, Database, Building2 } from 'lucide-react';
 import DitherEffect2 from '../originkit/ui/dither-effect-2-custom-style344';
+import { publicAsset } from '../../utils/assetUrl';
 
 export const LoginView: React.FC = () => {
   const { setCurrentScreen, login } = useMedicalApp();
@@ -31,9 +32,15 @@ export const LoginView: React.FC = () => {
       
       {/* Top Left GitHub Logo in Black Square */}
         <div className="absolute top-8 left-10 z-50 flex items-center">
-          <a href="#" className="w-12 h-12 bg-black rounded-xl flex items-center justify-center shadow-lg hover:bg-zinc-800 transition-colors">
+          <a
+            href="https://github.com/Orfa1i/Kitten-DICOM-Viewer"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Kitten DICOM Viewer on GitHub"
+            className="w-12 h-12 bg-black rounded-xl flex items-center justify-center shadow-lg hover:bg-zinc-800 transition-colors"
+          >
             <img 
-              src="/assets/images/github.svg" 
+              src={publicAsset('assets/images/github.svg')} 
               alt="GitHub Logo" 
               className="w-7 h-7 filter brightness-0 invert" 
             />
@@ -102,7 +109,7 @@ export const LoginView: React.FC = () => {
           <div className="relative z-10 mt-auto flex flex-col items-center text-center">
               <div className="mb-6 w-full flex justify-center">
                 <img 
-                  src="/assets/images/doctor.gif" 
+                  src={publicAsset('assets/images/doctor.gif')} 
                   alt="Doctor AI Assistant" 
                   className="w-[300px] max-w-full h-auto object-contain" 
                 />
