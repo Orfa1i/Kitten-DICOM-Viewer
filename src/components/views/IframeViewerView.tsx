@@ -3,6 +3,8 @@ import { useMedicalApp } from '../../context/MedicalAppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Save, X, Edit3, Loader2, ChevronLeft, ChevronRight, FileText, Brain, User, Activity, Bone, FileDown } from 'lucide-react';
 import { generateAndDownloadPdfReport } from '../../services/pdfReportGenerator';
+import { apiUrl } from '../../utils/apiConfig';
+import { publicAsset } from '../../utils/assetUrl';
 
 type SidebarTab = 'reporter' | 'models' | 'patient';
 
@@ -60,7 +62,7 @@ export const IframeViewerView: React.FC = () => {
       const formData = new FormData();
       formData.append("clinical_context", `Patient Name: ${activeCase?.patientName || 'Unknown'}, Modality: ${activeCase?.type || 'Unknown'}`);
       
-      const res = await fetch(`http://127.0.0.1:8000/api/cases/${activeCaseId}/ai-report`, {
+      const res = await fetch(apiUrl(`/api/cases/${encodeURIComponent(activeCaseId)}/ai-report`), {
         method: "POST",
         body: formData
       });
@@ -88,8 +90,8 @@ export const IframeViewerView: React.FC = () => {
     
     try {
       let endpoint = "";
-      if (modelType === 'fracture') endpoint = `http://127.0.0.1:8000/api/cases/${activeCaseId}/detect-fracture`;
-      else if (modelType === 'knee') endpoint = `http://127.0.0.1:8000/api/cases/${activeCaseId}/detect-knee-oa`;
+      if (modelType === 'fracture') endpoint = apiUrl(`/api/cases/${encodeURIComponent(activeCaseId)}/detect-fracture`);
+      else if (modelType === 'knee') endpoint = apiUrl(`/api/cases/${encodeURIComponent(activeCaseId)}/detect-knee-oa`);
       
       const res = await fetch(endpoint, { method: "POST" });
       if (!res.ok) throw new Error("Failed to run specialized model");
@@ -119,7 +121,7 @@ export const IframeViewerView: React.FC = () => {
     
     try {
       // 1. Persist updated report and status in database
-      await fetch("http://127.0.0.1:8000/api/cases", {
+      await fetch(apiUrl("/api/cases"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedCase)
@@ -146,7 +148,7 @@ export const IframeViewerView: React.FC = () => {
         },
         modelType: activeCase?.type || 'DICOM Study',
         accuracyScore: activeCase?.confidence || 95,
-        uploadedImageUrl: `http://127.0.0.1:8000/api/cases/${activeCaseId}/thumbnail`
+        uploadedImageUrl: apiUrl(`/api/cases/${encodeURIComponent(activeCaseId)}/thumbnail`)
       });
 
       setIsSaving(false);
@@ -169,7 +171,7 @@ export const IframeViewerView: React.FC = () => {
     };
     
     try {
-      await fetch("http://127.0.0.1:8000/api/cases", {
+      await fetch(apiUrl("/api/cases"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedCase)
@@ -184,14 +186,15 @@ export const IframeViewerView: React.FC = () => {
     setCurrentScreen('dashboard');
   };
 
-  const baseSrc = "http://localhost:8000/static/blue/bluelight/html/start.html";
+  const baseSrc = publicAsset("static/blue/bluelight/html/start.html");
   const params = new URLSearchParams();
   if (activeCaseId) params.append("loadCaseId", activeCaseId);
   if (userProfile?.name) params.append("userName", userProfile.name);
-  if (userProfile?.avatar) {
-    const avatarUrl = new URL(userProfile.avatar, window.location.origin).href;
-    params.append("userAvatar", avatarUrl);
-  }
+  const resolvedAvatarPath = userProfile?.avatar || publicAsset("assets/images/doctor_avatar.jpg");
+  const avatarUrl = new URL(resolvedAvatarPath, window.location.href).href;
+  params.append("userAvatar", avatarUrl);
+  const sampleDicomUrl = new URL(publicAsset("assets/images/sample.dcm"), window.location.href).href;
+  params.append("fallbackDicomUrl", sampleDicomUrl);
 
   const iframeSrc = params.toString() ? baseSrc + '?' + params.toString() : baseSrc;
 

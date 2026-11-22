@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { Server, UploadCloud, Database, Activity, File, X, CheckCircle2, ChevronLeft, Trash2, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { apiUrl } from '../../utils/apiConfig';
 
 export const MockPacsView: React.FC = () => {
   const { setCurrentScreen, fetchCases } = useMedicalApp();
@@ -16,7 +17,7 @@ export const MockPacsView: React.FC = () => {
 
   const fetchPacsFiles = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/pacs/files");
+      const res = await fetch(apiUrl("/api/pacs/files"));
       if (res.ok) {
         const data = await res.json();
         setPacsFiles(data);
@@ -34,7 +35,7 @@ export const MockPacsView: React.FC = () => {
 
   const handleDeleteFile = async (caseId: string) => {
     try {
-      await fetch(`http://127.0.0.1:8000/api/pacs/files/${caseId}`, { method: "DELETE" });
+      await fetch(apiUrl(`/api/pacs/files/${encodeURIComponent(caseId)}`), { method: "DELETE" });
       setPacsFiles(prev => prev.filter(c => c.id !== caseId));
       fetchCases();
     } catch (err) {
@@ -88,7 +89,7 @@ export const MockPacsView: React.FC = () => {
       for (const file of filesToUpload) {
         const formData = new FormData();
         formData.append("file", file);
-        const res = await fetch("http://127.0.0.1:8000/api/pacs/upload", {
+        const res = await fetch(apiUrl("/api/pacs/upload"), {
           method: "POST",
           body: formData
         });

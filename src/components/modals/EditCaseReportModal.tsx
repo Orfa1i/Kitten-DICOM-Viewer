@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, FileDown, Save, Sparkles, Loader2, Check, ExternalLink, Activity, AlertCircle } from 'lucide-react';
 import type { CaseRecord } from '../../context/MedicalAppContext';
+import { apiUrl } from '../../utils/apiConfig';
 
 interface EditCaseReportModalProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ export const EditCaseReportModal: React.FC<EditCaseReportModalProps> = ({
         'clinical_context',
         `Evaluate ${caseRecord.type || 'radiograph'} study for patient ${caseRecord.patientName || caseRecord.id}.`
       );
-      const res = await fetch(`http://127.0.0.1:8000/api/cases/${caseRecord.id}/ai-report`, {
+      const res = await fetch(apiUrl(`/api/cases/${encodeURIComponent(caseRecord.id)}/ai-report`), {
         method: 'POST',
         body: formData,
       });

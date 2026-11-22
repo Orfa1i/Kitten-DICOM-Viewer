@@ -5,6 +5,7 @@ import { Plus, FileText, TrendingUp, TrendingDown, ChevronsUpDown, ChevronLeft, 
 import { LottieIcon } from '../ui/LottieIcon';
 import { EditCaseReportModal } from '../modals/EditCaseReportModal';
 import { generateAndDownloadPdfReport } from '../../services/pdfReportGenerator';
+import { apiUrl } from '../../utils/apiConfig';
 
 export const DashboardView: React.FC = () => {
   const { cases, loadCase, updateCase, deleteCase, openNewCaseModal, currentScreen, setCurrentScreen, searchQuery, setSearchQuery } = useMedicalApp();
@@ -86,7 +87,7 @@ export const DashboardView: React.FC = () => {
             'clinical_context',
             `Evaluate PACS intake radiograph for patient ${caseRecord.patientName || caseRecord.id}.`
           );
-          const res = await fetch(`http://127.0.0.1:8000/api/cases/${caseRecord.id}/ai-report`, {
+          const res = await fetch(apiUrl(`/api/cases/${encodeURIComponent(caseRecord.id)}/ai-report`), {
             method: 'POST',
             body: formData
           });
@@ -132,7 +133,7 @@ export const DashboardView: React.FC = () => {
         },
         modelType: caseRecord.type || 'DICOM Study',
         accuracyScore: caseRecord.confidence || 95,
-        uploadedImageUrl: `http://127.0.0.1:8000/api/cases/${caseRecord.id}/thumbnail`
+        uploadedImageUrl: apiUrl(`/api/cases/${encodeURIComponent(caseRecord.id)}/thumbnail`)
       });
 
       // Update case to Completed in DB & state

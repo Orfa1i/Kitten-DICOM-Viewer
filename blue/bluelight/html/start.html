@@ -670,56 +670,109 @@
   window.addEventListener('load', function() {
     const urlParams = new URLSearchParams(window.location.search);
     
-    // 1. Setup Profile
+    // 1. Setup Profile (safe DOM construction — no raw HTML interpolation)
     const userName = urlParams.get('userName') || "Dr.Mohammad";
-    const userAvatar = urlParams.get('userAvatar') || "http://localhost:5173/assets/images/doctor_avatar.jpg";
+    const defaultAvatar = "../../../../assets/images/doctor_avatar.jpg";
+    const rawAvatar = urlParams.get('userAvatar') || defaultAvatar;
+    const isSafeAvatar = /^(https?:\/\/|\/|\.{1,2}\/|data:image\/)/i.test(rawAvatar);
+    const userAvatar = isSafeAvatar ? rawAvatar : defaultAvatar;
     const profileContainer = document.getElementById('dicom-header-profile');
     if (profileContainer) {
-      profileContainer.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="display: flex; flex-direction: column; align-items: flex-end;">
-            <span style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: #a1a1aa;">Radiologist</span>
-            <span style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: #f4f4f5;">${userName}</span>
-          </div>
-          <img src="${userAvatar}" alt="${userName}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #52525b; background: #3f3f46;" />
-        </div>
-      `;
+      profileContainer.textContent = '';
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+
+      const textCol = document.createElement('div');
+      textCol.style.cssText = 'display: flex; flex-direction: column; align-items: flex-end;';
+
+      const roleSpan = document.createElement('span');
+      roleSpan.style.cssText = "font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500; color: #a1a1aa;";
+      roleSpan.textContent = 'Radiologist';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.style.cssText = "font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: #f4f4f5;";
+      nameSpan.textContent = userName;
+
+      const avatarImg = document.createElement('img');
+      avatarImg.src = userAvatar;
+      avatarImg.alt = userName;
+      avatarImg.style.cssText = 'width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #52525b; background: #3f3f46;';
+      avatarImg.onerror = function() {
+        if (avatarImg.src !== defaultAvatar) avatarImg.src = defaultAvatar;
+      };
+
+      textCol.appendChild(roleSpan);
+      textCol.appendChild(nameSpan);
+      wrapper.appendChild(textCol);
+      wrapper.appendChild(avatarImg);
+      profileContainer.appendChild(wrapper);
     }
 
-    // 2. Load DICOM Case
+    // 2. Load DICOM Case (same-origin API first, graceful fallback to bundled sample DICOM)
     const caseId = urlParams.get('loadCaseId');
-    if (caseId) {
-      console.log("Loading DICOM file from API for case: ", caseId);
-      ImageManager.NumOfPreLoadSops += 1;
-      fetch(`http://127.0.0.1:8000/api/cases/${caseId}/file`)
-        .then(response => {
-          if (!response.ok) throw new Error("DICOM file not found");
-          return response.arrayBuffer();
-        })
-        .then(arrayBuffer => {
-          var url = `case_${caseId}.dcm`;
-          var Sop = loadDicomDataSet(arrayBuffer, false, url, true);
-          if (Sop) {
-            Sop.Image.url = url;
-            setAllSeriesCount();
-            ImageManager.preLoadSops.push({
-              dataSet: Sop.dataSet, 
-              image: Sop.Image, 
-              Sop: Sop, 
-              SeriesInstanceUID: Sop.Image.SeriesInstanceUID,
-              Index: Sop.Image.NumberOfFrames | Sop.Image.InstanceNumber
-            });
-          }
-          ImageManager.NumOfPreLoadSops -= 1;
-          if (ImageManager.NumOfPreLoadSops == 0) {
-            ImageManager.loadPreLoadSops();
-            setTimeout(loadRestImageData, 1000);
-          }
-        })
-        .catch(err => {
-          console.error("Error loading case DICOM:", err);
-          if (ImageManager.NumOfPreLoadSops >= 1) ImageManager.NumOfPreLoadSops -= 1;
+    const fallbackDicomUrl = urlParams.get('fallbackDicomUrl') || "../../../../assets/images/sample.dcm";
+    const isSafeFallback = /^(https?:\/\/|\/|\.{1,2}\/)/i.test(fallbackDicomUrl);
+
+    function fetchDicomArrayBuffer(targetUrl) {
+      return fetch(targetUrl).then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status} fetching ${targetUrl}`);
+        const ct = (response.headers.get('content-type') || '').toLowerCase();
+        if (ct.includes('text/html')) throw new Error(`Unexpected HTML response for ${targetUrl}`);
+        return response.arrayBuffer();
+      });
+    }
+
+    function renderDicomBuffer(arrayBuffer, fileName) {
+      var Sop = loadDicomDataSet(arrayBuffer, false, fileName, true);
+      if (Sop) {
+        Sop.Image.url = fileName;
+        setAllSeriesCount();
+        ImageManager.preLoadSops.push({
+          dataSet: Sop.dataSet,
+          image: Sop.Image,
+          Sop: Sop,
+          SeriesInstanceUID: Sop.Image.SeriesInstanceUID,
+          Index: Sop.Image.NumberOfFrames | Sop.Image.InstanceNumber
         });
+      }
+      ImageManager.NumOfPreLoadSops -= 1;
+      if (ImageManager.NumOfPreLoadSops == 0) {
+        ImageManager.loadPreLoadSops();
+        setTimeout(loadRestImageData, 1000);
+      }
+    }
+
+    const loadQueue = [];
+    if (caseId) {
+      loadQueue.push({
+        url: `/api/cases/${encodeURIComponent(caseId)}/file`,
+        fileName: `case_${caseId}.dcm`
+      });
+    }
+    if (isSafeFallback) {
+      loadQueue.push({
+        url: fallbackDicomUrl,
+        fileName: 'sample.dcm'
+      });
+    }
+
+    if (loadQueue.length > 0) {
+      ImageManager.NumOfPreLoadSops += 1;
+      (async function tryLoadNext() {
+        for (const candidate of loadQueue) {
+          try {
+            console.log("Loading DICOM from:", candidate.url);
+            const buf = await fetchDicomArrayBuffer(candidate.url);
+            if (buf && buf.byteLength > 128) {
+              renderDicomBuffer(buf, candidate.fileName);
+              return;
+            }
+          } catch (err) {
+            console.warn("DICOM candidate failed, trying fallback:", candidate.url, err);
+          }
+        }
+        if (ImageManager.NumOfPreLoadSops >= 1) ImageManager.NumOfPreLoadSops -= 1;
+      })();
     }
   });
 </script>

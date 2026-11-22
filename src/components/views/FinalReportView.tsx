@@ -3,6 +3,7 @@ import { useMedicalApp } from '../../context/MedicalAppContext';
 import { ArrowLeft, Download, FileText, User, Activity, Bone } from 'lucide-react';
 import { generateAndDownloadPdfReport } from '../../services/pdfReportGenerator';
 import { ClinicalFindingsReport } from '../clinical/ClinicalFindingsReport';
+import { apiUrl } from '../../utils/apiConfig';
 
 export const FinalReportView: React.FC = () => {
   const { cases, activeCaseId, setCurrentScreen } = useMedicalApp();
@@ -38,7 +39,7 @@ export const FinalReportView: React.FC = () => {
       },
       modelType: activeCase.type,
       accuracyScore: activeCase.confidence,
-      uploadedImageUrl: `http://127.0.0.1:8000/api/cases/${activeCase.id}/thumbnail`
+      uploadedImageUrl: apiUrl(`/api/cases/${encodeURIComponent(activeCase.id)}/thumbnail`)
     });
   };
 
@@ -125,7 +126,7 @@ export const FinalReportView: React.FC = () => {
             <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800/50 flex flex-col items-center justify-center relative">
               <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-3 self-start">Source Image</h2>
               <div className="w-full aspect-square md:aspect-auto md:flex-1 min-h-[300px] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex items-center justify-center relative group">
-                <img src={`http://127.0.0.1:8000/api/cases/${activeCase.id}/thumbnail`} alt="DICOM Thumbnail" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+                <img src={apiUrl(`/api/cases/${encodeURIComponent(activeCase.id)}/thumbnail`)} alt="DICOM Thumbnail" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
                 <div className="hidden absolute inset-0 flex items-center justify-center">
                   <Bone className="w-12 h-12 text-zinc-700" />
                 </div>

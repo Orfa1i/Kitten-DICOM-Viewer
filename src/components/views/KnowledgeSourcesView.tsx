@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { SettingPanel } from '../interactive/SettingPanel';
 import { BookOpen, Plus, Trash2, Save, Play, CheckCircle2, AlertCircle } from 'lucide-react';
+import { apiUrl } from '../../utils/apiConfig';
 
 interface KnowledgeSource {
   id: string;
@@ -99,7 +100,7 @@ export const KnowledgeSourcesView: React.FC = () => {
     
     updateSource(id, 'testStatus', 'testing');
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/test-source?url=${encodeURIComponent(source.sourceUrl)}`);
+      const response = await fetch(apiUrl(`/api/test-source?url=${encodeURIComponent(source.sourceUrl)}`));
       const data = await response.json();
       
       if (data.status === 'success' && data.status_code < 400) {

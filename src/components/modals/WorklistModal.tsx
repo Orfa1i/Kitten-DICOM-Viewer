@@ -1,6 +1,7 @@
 import React from 'react';
 import { useMedicalApp } from '../../context/MedicalAppContext';
 import { X, Search, FileText, RefreshCw } from 'lucide-react';
+import { apiUrl } from '../../utils/apiConfig';
 
 export const WorklistModal: React.FC = () => {
   const { isWorklistOpen, setIsWorklistOpen, cases, loadCase, setCurrentScreen, fetchCases } = useMedicalApp();
@@ -10,7 +11,7 @@ export const WorklistModal: React.FC = () => {
     const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await fetch("http://127.0.0.1:8000/api/pacs/sync", { method: "POST" });
+      await fetch(apiUrl("/api/pacs/sync"), { method: "POST" });
       await fetchCases();
     } catch (e) {
       console.error(e);

@@ -3,6 +3,7 @@ import { ScreenState, ModelType, CaseRecord, PatientData, AiChatMessage, LlmConf
 export type { CaseRecord };
 import { apiService, KneeOAApiResponse } from '../services/api';
 import { generateAndDownloadPdfReport } from '../services/pdfReportGenerator';
+import { apiUrl } from '../utils/apiConfig';
 
 export interface DiagnosticReportData {
   diagnosis: string;
@@ -228,7 +229,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   
   const fetchCases = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/cases');
+      const res = await fetch(apiUrl('/api/cases'));
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) setCases(data);
@@ -528,7 +529,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const updatedCase = { ...c, status: 'Review' as const };
         setCases(prev => prev.map(item => item.id === caseId ? updatedCase : item));
         try {
-          await fetch("http://127.0.0.1:8000/api/cases", {
+          await fetch(apiUrl("/api/cases"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updatedCase)
@@ -573,7 +574,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const existing = cases.find(c => c.id === caseId);
       if (existing) {
         const updated = { ...existing, ...updates };
-        await fetch("http://127.0.0.1:8000/api/cases", {
+        await fetch(apiUrl("/api/cases"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updated)
@@ -588,7 +589,7 @@ export const MedicalAppProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const deleteCase = async (caseId: string) => {
     setCases(prev => prev.filter(c => c.id !== caseId));
     try {
-      await fetch(`http://127.0.0.1:8000/api/cases/${caseId}`, { method: "DELETE" });
+      await fetch(apiUrl(`/api/cases/${encodeURIComponent(caseId)}`), { method: "DELETE" });
     } catch (err) {
       console.error("Failed to delete case:", err);
     }
