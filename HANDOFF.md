@@ -1,33 +1,40 @@
 # HANDOFF.md
 
 ## What was accomplished
-- **Live GitHub Pages URL & Deployment Fix (`https://orfa1i.github.io/Kitten-DICOM-Viewer/`)**:
-  - Identified that the GitHub account username had been renamed from `mohamadorfali2006` to `Orfa1i`, making the real GitHub Pages URL `https://orfa1i.github.io/Kitten-DICOM-Viewer/` (GitHub Pages does not redirect old `*.github.io` subdomains).
-  - Enabled GitHub Pages (`build_type: "workflow"`, HTTPS enforced) on `Orfa1i/Kitten-DICOM-Viewer` via GitHub API and set the repository About `homepage` URL to `https://orfa1i.github.io/Kitten-DICOM-Viewer/`.
-  - Updated local git `origin` remote to `https://github.com/Orfa1i/Kitten-DICOM-Viewer.git`.
-  - Fixed failing GitHub Actions CI run (`ERR_PNPM_IGNORED_BUILDS` on `core-js-pure@3.50.0` and `puppeteer@25.9.0`) by declaring `core-js-pure: false` and `puppeteer: false` under `allowBuilds` in `pnpm-workspace.yaml`.
-  - Hardened `.github/workflows/deploy.yml` with `enablement: true` on `actions/configure-pages@v5` and added `public/.nojekyll`.
-  - Added `src/vite-env.d.ts` and `src/utils/assetUrl.ts` (`publicAsset()`) and updated all 12 hardcoded root-relative `/assets/images/...` paths across 7 React components (`LoginView.tsx`, `LandingPageView.tsx`, `ModelSelectionModal.tsx`, `DicomViewport.tsx`, `TopNavbar.tsx`, `ProfileManagementModal.tsx`, `pixel-reveal-custom-sred.tsx`) so images resolve cleanly under `/Kitten-DICOM-Viewer/`.
-  - Updated all `README.md` live demo badges, Actions workflow badge, clone/fork links, and author credit to `Orfa1i`, and pointed the `LoginView.tsx` GitHub icon button (`href="#"`) to `https://github.com/Orfa1i/Kitten-DICOM-Viewer`.
-  - Verified green GitHub Actions run (`44932669412`, 36s) and ran headless Playwright end-to-end verification against `https://orfa1i.github.io/Kitten-DICOM-Viewer/` and `?view=landing` (HTTP 200, 0 broken images across login/landing/dashboard, 0 static 404s, 0 uncaught page errors).
+- **DICOM Image Viewer Fix (Cloudflare Quick Tunnel, Localhost, and GitHub Pages)**:
+  - Diagnosed why the BlueLight DICOM viewer failed to load: FastAPI (`port 8000`) was stopped, 9 React files + `blue/bluelight/html/start.html` hardcoded `http://localhost:8000` / `http://127.0.0.1:8000` / `http://localhost:5173` (causing Mixed Content blocking inside `https://*.trycloudflare.com` and failing on remote devices), and `blue/bluelight` was missing from production `dist/`.
+  - Added `src/utils/apiConfig.ts` (`apiUrl()`) defaulting to same-origin paths (`''`, overridable via `VITE_API_BASE_URL`) and updated all 9 frontend files (`IframeViewerView.tsx`, `MedicalAppContext.tsx`, `api.ts`, `DashboardView.tsx`, `FinalReportView.tsx`, `MockPacsView.tsx`, `KnowledgeSourcesView.tsx`, `EditCaseReportModal.tsx`, `WorklistModal.tsx`).
+  - Updated `blue/bluelight/html/start.html` to fetch `/api/cases/${encodeURIComponent(caseId)}/file` over same-origin, fall back gracefully to `fallbackDicomUrl` (`sample.dcm`) when opened without a backend, replace `http://localhost:5173` avatar URL with relative fallback, and construct the radiologist header profile via safe DOM APIs instead of raw `innerHTML`.
+  - Updated `vite.config.ts` with same-origin dev proxies (`/api`, `/static/uploads`, `/health` → `http://127.0.0.1:8000`), a secure dev middleware serving `/static/blue` directly from `blue/`, and a `closeBundle` hook copying `blue/bluelight` into `dist/static/blue/bluelight` for GitHub Pages.
+  - Split `.github/workflows/deploy.yml` into `build` and `deploy` (`needs: build`) jobs to prevent GitHub Actions artifact eventual-consistency race errors.
+  - Started FastAPI backend (`venv\Scripts\python.exe -m uvicorn server:app --host 127.0.0.1 --port 8000`), Vite dev server (`port 3000`), and Cloudflare Quick Tunnel (`https://reef-worldwide-elementary-think.trycloudflare.com`) as background daemons.
+  - Verified end to end with headless Playwright + visual screenshot inspection across:
+    1. **Cloudflare Quick Tunnel (`https://reef-worldwide-elementary-think.trycloudflare.com`)** — live PACS case `Lung_Dx-A0082` (`528,646` bytes, 512×512 CT canvas rendered, 0 failed requests, 0 localhost requests, 0 page errors) and direct `DICOM Viewer` (`sample.dcm` 512×512 CT rendered, 0 errors).
+    2. **GitHub Pages (`https://orfa1i.github.io/Kitten-DICOM-Viewer/`)** — CI run `45010661542` green (`build` 33s + `deploy` 11s), BlueLight viewer + `sample.dcm` 512×512 CT rendered cleanly client-side with 0 page errors.
+- **Prior session — GitHub Pages Live URL Fix (`Orfa1i`)**:
+  - Updated all links/badges/remote from `mohamadorfali2006` to `Orfa1i`, enabled GitHub Pages (`build_type: workflow`), fixed pnpm v11 `allowBuilds`, and switched 12 hardcoded `/assets/images/...` paths to `publicAsset()`.
 
 ## Key decisions
-- **Explicit `allowBuilds` exclusions over `--ignore-scripts`**: Setting `core-js-pure: false` and `puppeteer: false` in `pnpm-workspace.yaml` satisfies pnpm v11's strict supply-chain policy while keeping `esbuild` and `core-js` enabled and preventing CI from downloading Puppeteer's Chromium binary.
-- **`import.meta.env.BASE_URL` helper (`publicAsset`)**: Resolves `public/` assets uniformly across local dev (`/`), relative builds (`./`), and GitHub Pages subpaths (`/Kitten-DICOM-Viewer/`).
-- **Scoped git commits**: Preserved pre-existing local working-tree modifications (`vite.config.ts`, `backend/db.json`, untracked `scripts/`/`platform_shots/`, and locally deleted screenshot/PDF files) untouched.
+- **Same-origin API & Viewer architecture**: Eliminates Mixed Content on HTTPS tunnels and allows a single Cloudflare Quick Tunnel on port `3000` to serve the React UI, FastAPI PACS/AI endpoints, and BlueLight DICOM viewer to any device.
+- **Build-time `blue/bluelight` bundling**: Copying `blue/bluelight` in `vite.config.ts` `closeBundle()` enables full client-side DICOM viewing on GitHub Pages without duplicating 13.5 MB of files in git.
+- **Split CI jobs (`build` + `deploy`)**: Prevents `deploy-pages@v4` from querying artifact metadata before `upload-pages-artifact@v3` finishes indexing.
+- **Scoped commits**: Preserved pre-existing unrelated unstaged working-tree edits (`backend/db.json`, deleted local audit PNGs/PDFs, untracked `scripts/`/`platform_shots/`).
 
 ## Current state
-- Remote GitHub Repository: [https://github.com/Orfa1i/Kitten-DICOM-Viewer](https://github.com/Orfa1i/Kitten-DICOM-Viewer)
-- Live Demo URL (verified HTTP 200): [https://orfa1i.github.io/Kitten-DICOM-Viewer/](https://orfa1i.github.io/Kitten-DICOM-Viewer/)
-- Landing Page Direct URL: [https://orfa1i.github.io/Kitten-DICOM-Viewer/?view=landing](https://orfa1i.github.io/Kitten-DICOM-Viewer/?view=landing)
-- Latest verified deployment commit: `92aaf7f` (CI run `44932669412` — `success`).
-- Local working tree still holds unrelated pre-existing unstaged changes (deleted audit PNGs/PDFs, modified `vite.config.ts` and `backend/db.json`, untracked `scripts/`, `platform_shots/`, and 3 `.dcm` files in `backend/dicom_folder/`).
+- **Live Cloudflare Quick Tunnel (full stack — frontend + FastAPI + BlueLight):** https://reef-worldwide-elementary-think.trycloudflare.com
+- **Live GitHub Pages (static frontend + client-side BlueLight DICOM Viewer):** https://orfa1i.github.io/Kitten-DICOM-Viewer/
+- **GitHub Repository:** https://github.com/Orfa1i/Kitten-DICOM-Viewer
+- **Running Local Daemons:**
+  - Frontend Vite dev server: `http://127.0.0.1:3000` (with `/api` & `/static/uploads` proxy to `8000` and `/static/blue` static mount)
+  - FastAPI backend: `http://127.0.0.1:8000` (`venv\Scripts\python.exe -m uvicorn server:app`)
+  - Cloudflare Quick Tunnel: `https://reef-worldwide-elementary-think.trycloudflare.com` → `http://127.0.0.1:3000`
+- **Latest pushed commits:** `e74b42b` (DICOM viewer + same-origin proxy + Pages bundle), `ec38c54` (split Pages CI build/deploy jobs).
 
 ## Unresolved notes
-- On static GitHub Pages without a local FastAPI backend on `127.0.0.1:8000`, `fetch('http://127.0.0.1:8000/api/cases')` logs a console network error because the backend is offline; adding an offline demo-mode fallback or sample worklist would polish the static demo experience.
-- GitHub Actions logs two non-blocking warnings: Node 20 action runtime deprecation (`checkout@v4`, `setup-node@v4`, etc.) and git submodule cleanup (`gitlinks` without `.gitmodules` for `Fracture-Detection-Model/YOLO11n-Bone-Fracture-Detection-Model`).
+- On static GitHub Pages (`orfa1i.github.io`), `fetch('/api/cases')` returns 404 because there is no FastAPI backend hosted there (handled safely; viewer auto-loads `sample.dcm` and supports local `.dcm` drag-and-drop).
+- Local MedGemma service (`port 8001`) is not running; `MedGemmaTestModal` / `MedGemmaChatbotView` still target `127.0.0.1:8001` if invoked.
 
 ## Concrete next steps
-1. Add graceful offline demo-mode sample cases on GitHub Pages when the local FastAPI backend (`127.0.0.1:8000`) is unreachable.
-2. Optionally set the default screen on GitHub Pages to `LandingPageView` (instead of `LoginView`) for public portfolio visitors.
-3. Clean up or commit the pre-existing local working-tree changes (`vite.config.ts`, deleted audit screenshots/PDFs) and resolve the `.gitmodules` warning in CI.
+1. Add offline sample worklist cases on GitHub Pages so the Dashboard table populates cleanly without a backend.
+2. Add a Vite proxy route for MedGemma (`port 8001`) if you want remote MedGemma chat/test over the Cloudflare tunnel.
+3. Clean up or commit the pre-existing unstaged local files (`backend/db.json`, deleted audit PNGs/PDFs, untracked `scripts/`).
